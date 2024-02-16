@@ -1,4 +1,0 @@
-Django
-User authentication
-three dashnoard for admin owner user
-
