@@ -1,1 +1,6 @@
+*.log
+*.pot
+*.pyc
+./backend/backend/__pycache__
+./backend/user_auth/__pycache__
 /envs
