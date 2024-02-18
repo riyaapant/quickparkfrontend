@@ -1,9 +1,26 @@
+import {
+  createBrowserRouter,
+  RouterProvider
+} from 'react-router-dom';
+import Login from './routes/login';
+import Register from './routes/register';
+
+
+const router = createBrowserRouter([
+  {
+    path: "/login",
+    element: <Login />
+  },
+  {
+    path: "/register",
+    element: <Register />
+  }
+])
+
 function App() {
 
   return (
-    <>
-      <h1 className="text-3xl text-center">FrontEnd for QuickPark</h1>
-    </>
+        <RouterProvider router={router} />
   )
 }
 
