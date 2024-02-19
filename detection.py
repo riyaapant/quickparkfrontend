@@ -1,19 +1,6 @@
-#load modules
+#from ultralytics import YOLO
+#from ultralytics.models.yolo.detect.predict import DetectionPredictor
+#import cv2
 
-#load video
-
-#read frame
-
-#detect car
-
-#track car
-
-#detect lisence plate to car
-
-#crop lisence plate
-
-#process lisence plate
-
-#read lisence plate number
-
-#write results
+#model=YOLO("E:/Hello/dataset/best.pt")
+#model.predict(source="0", show=True, conf=0.5)
