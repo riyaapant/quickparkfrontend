@@ -4,6 +4,7 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework import status
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from .serializers import UserSerializer,LoginSerializer
+from .sendemail import send_email
     
 UserModel = get_user_model()
 
@@ -83,7 +84,34 @@ class VerifyOtp(APIView):
 
 class ForgetPassword(APIView):
     def post(self,request):
-        return 0
+        email = request.data['email'].strip()
+        if email and UserModel.objects.filter(email=email).exists():
+            user_obj = UserModel.objects.get(email=email)
+            subject = "Password Recovery"
+            recipients = email
+            otp = 0
+            message = "Please enter this otp:"+ str(otp) + " to reset your account."
+            result = send_email(subject,message,recipients)
+            if result == 1:
+                return Response('Password reset instruction sent successfully',status=status.HTTP_200_OK)
+            else:
+                return Response('Password recovery failed',status = status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response('Invalid email or user does not exists with this email', status = status.HTTP_404_NOT_FOUND)
+
+class ChangePassword(APIView):
+    def post(self,request):
+        user = request.user
+        if request.data['old_password'] and request.data['new_password']:
+            if user.check_password(request.data['old_password']):
+                user.set_password(request.data['new_password'])
+                user.save()
+                return Response('Password changed Successfully', status = status.HTTP_200_OK)
+            else:
+                return Response('Please enter valid old password', status = status.HTTP_406_NOT_ACCEPTABLE)
+        return Response('Invalid REquest', status = status.HTTP_400_BAD_REQUEST)
+            
+
+
 
 class Logout(APIView):
     def get(self,request):
