@@ -31,6 +31,26 @@ class UserLogin(APIView):
                 return Response('User Login Failed', status = status.HTTP_404_NOT_FOUND)
         return Response('Unacceptable Request',status = status.HTTP_406_NOT_ACCEPTABLE)
 
+class Login(APIView):
+    def post(self,request):
+        serializer = LoginSerializer(data = request.data)
+        if serializer.is_valid():
+            user = authenticate(username = request.data['email'], password = request.data['password'])
+            if user:
+                login(request,user)
+                if user.is_owner==False and user.is_superuser==True:
+                    return Response("admin", status = status.HTTP_200_OK)
+                elif user.is_owner==True and user.is_superuser==False:
+                    return Response("owner", status = status.HTTP_200_OK)
+                else:
+                    return Response("user", status = status.HTTP_200_OK)
+            else:
+                return Respone("Invalid login credentials", status = status.HTTP_404_NOT_FOUND)
+        else:
+            return Respone("Unacceptable Request", status = status.HTTP_406_NOT_ACCEPTABLE)
+                
+
+
 class OwnerRegister(APIView):
     def post(self,request):
         serializer = UserSerializer(data=request.data)
