@@ -10,6 +10,9 @@ UserModel = get_user_model()
 
 class UserRegister(APIView):
     def post(self,request):
+        if request.data['firstName']:
+            request.data['first_name'] = request.data['firstName']
+            request.data['last_name']  = request.data['lastName']
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.create_u(request.data)
