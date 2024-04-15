@@ -1,5 +1,5 @@
 // import { ParkingCircle } from "lucide-react";
-import React, { ChangeEvent, FormEvent, useState } from 'react';
+import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import axios from 'axios';
 
 import {
@@ -92,6 +92,10 @@ export default function Register() {
         }));
     };
 
+    useEffect(() => {
+        setErrorMessage('');
+    }, [formData])
+
     const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
@@ -115,10 +119,10 @@ export default function Register() {
             setErrorMessage('');
             try {
                 // console.log(formData.selectedRole)
-                const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/signup/`, formData)
+                const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/signup`, formData)
                 console.log("reponse: ", response.data)
-            } catch {
-                console.log("Could not fetch api")
+            } catch(e) {
+                console.log(e)
             }
         }
     };
