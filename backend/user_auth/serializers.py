@@ -11,11 +11,11 @@ class UserSerializer(serializers.ModelSerializer):
         model = UserModel
         fields = '__all__'
     def create_u(self,data):
-        user_obj = UserModel.objects.create_user(email = data['email'], password = data['password'],first_name = data['first_name'],last_name = data['last_name'],vehicle_id=data['vehicleNumber'],contact=data['contactNumber'],address=data['address'])
+        user_obj = UserModel.objects.create_user(email = data['email'], password = data['password'],first_name = data['first_name'],last_name = data['last_name'],vehicle_id=data['vehicle_number'],contact=data['contact_number'],address=data['address'],is_active=False)
         return user_obj
     
     def create_o(self,data):
-        owner_obj = UserModel.objects.create_owner(email = data['email'], password = data['password'],first_name = data['first_name'],last_name = data['last_name'],contact=data['contactNumber'],address=data['address'])
+        owner_obj = UserModel.objects.create_owner(email = data['email'], password = data['password'],first_name = data['first_name'],last_name = data['last_name'],contact=data['contact_number'],address=data['address'])
         return owner_obj
 
     def create_a(self,data):
