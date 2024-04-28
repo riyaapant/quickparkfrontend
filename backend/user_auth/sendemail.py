@@ -30,7 +30,7 @@ def reset_password(user):
         subject = subject,
         message = message,
         from_email = settings.EMAIL_HOST_USER,
-        recipient = [recipient],
+        recipient_list = [recipient],
         fail_silently = False
     )
     return result

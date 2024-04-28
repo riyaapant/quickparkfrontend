@@ -89,7 +89,7 @@ DATABASES = {
         'NAME': 'quickpark',
         'USER': 'parker',
         'PASSWORD': 'parker',
-        'HOST': 'localhost',
+        'HOST': 'db',
         'PORT': '5432',
     }
 }
@@ -98,8 +98,8 @@ DATABASES = {
 # Mail server settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = "sagarsapkota456@gmail.com"
-EMAIL_HOST_PASSWORD = "gfqm lqhw sugu tbjb"
+EMAIL_HOST_USER = "parkquick01@gmail.com"
+EMAIL_HOST_PASSWORD = "crfdkkopxctepkch"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
