@@ -1,10 +1,16 @@
 // import { ParkingCircle } from "lucide-react"; // Remove this import if unused
-import { useState, useEffect, ChangeEvent, FormEvent, useContext } from "react";
+import { useState, useEffect, useContext } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthProvider";
 import './form.css'
+
+// interface LoginFormData {
+//     selectedRole: string,
+//     email: string,
+//     password: string
+// }
 
 export default function Login() {
 
@@ -14,48 +20,45 @@ export default function Login() {
     const navigate = useNavigate()
 
     const [formData, setFormData] = useState({
-        selectedRole: 'user',
+        selectedRole: '',
         email: '',
         password: ''
     })
 
     const [errorMessage, setErrorMessage] = useState('')
 
-    const handleRoleClick = (role: string) => {
+    const handleRoleClick = (role) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             selectedRole: role,
         }));
     }
-    function handleEmailChange(e: ChangeEvent<HTMLInputElement>) {
+    function handleEmailChange(e) {
         setFormData((prevFormData) => ({
             ...prevFormData,
             email: e.target.value,
         }))
     }
 
-    function handlePasswordChange(e: ChangeEvent<HTMLInputElement>) {
+    function handlePasswordChange(e) {
         setFormData((prevFormData) => ({
             ...prevFormData,
             password: e.target.value,
         }))
     }
 
-    const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
+    const handleFormSubmission = async (e) => {
         e.preventDefault();
         try {
             const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/login`, formData)
             if (response.status == 202) {
-                const auth = await axios.post(`http://localhost:8000/api/token/`, formData)
-                // console.log(auth)
-                // const loginData = { role: formData.selectedRole, token: auth.data.access, refreshToken: auth.data.refresh };
+                const auth = await axios.post(`http://localhost:8000/api/token`, formData)
                 const role = formData.selectedRole;
                 const token = auth.data.access;
                 const refreshToken = auth.data.refresh;
                 const isLoggedIn = true
                 setAuth({ role, token, refreshToken, isLoggedIn });
-                // console.log(loginData)
-                navigate(`/profile`) 
+                    navigate(`/profile`) 
             }
         } catch (e) {
             setErrorMessage(e.response.data)
@@ -111,7 +114,8 @@ export default function Login() {
                             <div className="flex items-center justify-between">
                                 <label htmlFor="password" className="text-gray-900 block">Password</label>
                                 <div className="text-sm">
-                                    <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-400">Forgot password?</a>
+                                    <Link to="/forgotpassword" className="font-semibold text-indigo-600 hover:text-indigo-400">Forgot Password?</Link>
+                                    {/* <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-400">Forgot password?</a> */}
                                 </div>
                             </div>
                             <input id="password" name="password" type="password" required value={formData.password}

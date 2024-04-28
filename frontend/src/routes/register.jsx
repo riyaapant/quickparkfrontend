@@ -1,15 +1,6 @@
 // import { ParkingCircle } from "lucide-react";
-import { ChangeEvent, FormEvent, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
-
-import {
-    validateRole,
-    validateName,
-    validateAddress,
-    validatePasswordMatch,
-    FormValidationResult,
-    validateVehicleNumber,
-} from './formValidation';
 import { Link } from "react-router-dom";
 import './form.css'
 
@@ -26,66 +17,78 @@ export default function Register() {
         password: '',
         confirmPassword: '',
     })
+    // const [formData, setFormData] = useState({
+    //     selectedRole: '',
+    //     first_name: '',
+    //     last_name: '',
+    //     address: '',
+    //     vehicle_number: '',
+    //     contact_number: '',
+    //     email: '',
+    //     password: '',
+    //     confirmPassword: '',
+    // })
 
     const [errorMessage, setErrorMessage] = useState('')
+    const [response, setResponse] = useState('')
 
-    const handleRoleClick = (role: string) => {
+    const handleRoleClick = (role) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             selectedRole: role,
         }));
     }
 
-    const handleFirstNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleFirstNameChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             firstName: e.target.value,
         }));
     };
 
-    const handleLastNameChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleLastNameChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             lastName: e.target.value,
         }));
     };
 
-    const handleAddressChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleAddressChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             address: e.target.value,
         }));
     }
 
-    const handleVehicleNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleVehicleNumberChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             vehicleNumber: e.target.value,
         }));
     }
 
-    const handleContactNumberChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleContactNumberChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             contactNumber: e.target.value,
         }));
     }
 
-    const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleEmailChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             email: e.target.value,
         }));
     };
 
-    const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handlePasswordChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             password: e.target.value,
         }));
     };
 
-    const handleConfirmPasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const handleConfirmPasswordChange = (e) => {
         setFormData((prevFormData) => ({
             ...prevFormData,
             confirmPassword: e.target.value,
@@ -96,32 +99,70 @@ export default function Register() {
         setErrorMessage('');
     }, [formData])
 
-    const handleFormSubmission = async (e: FormEvent<HTMLFormElement>) => {
+    const validateForm = (formData)=> {
+        if (formData.selectedRole === '') {
+            return {
+                isValid: false,
+                errorMessage: 'Select a role to register',
+            };
+        }
+    
+        if (!formData.firstName.trim() || !formData.lastName.trim()) {
+            return {
+                isValid: false,
+                errorMessage: 'Enter valid name',
+            };
+        }
+    
+        if (!formData.address.trim()) {
+            return {
+                isValid: false,
+                errorMessage: 'Enter valid address',
+            };
+        }
+    
+        if (formData.password !== formData.confirmPassword) {
+            return {
+                isValid: false,
+                errorMessage: 'Passwords do not match!',
+            };
+        }
+    
+        if (!formData.vehicleNumber.trim()) {
+            return {
+                isValid: false,
+                errorMessage: 'Enter valid vehicle number'
+            }
+        }
+    
+        return {
+            isValid: true,
+            errorMessage: ''
+        }
+    }
+
+    const handleFormSubmission = async (e) => {
         e.preventDefault();
 
-        const roleValidation: FormValidationResult = validateRole(formData.selectedRole);
-        const nameValidation: FormValidationResult = validateName(formData.firstName, formData.lastName);
-        const addressValidation: FormValidationResult = validateAddress(formData.address);
-        const passwordMatchValidation: FormValidationResult = validatePasswordMatch(formData.password, formData.confirmPassword);
-        const vehicleNumberValidation: FormValidationResult = validateVehicleNumber(formData.vehicleNumber);
-
-        if (!roleValidation.isValid) {
-            setErrorMessage(roleValidation.errorMessage);
-        } else if (!nameValidation.isValid) {
-            setErrorMessage(nameValidation.errorMessage);
-        } else if (!addressValidation.isValid) {
-            setErrorMessage(addressValidation.errorMessage);
-        } else if (!passwordMatchValidation.isValid) {
-            setErrorMessage(passwordMatchValidation.errorMessage);
-        } else if (!vehicleNumberValidation.isValid) {
-            setErrorMessage(vehicleNumberValidation.errorMessage)
-        } else {
+        const formValidation = validateForm(formData)
+        
+        if(!formValidation.isValid){
+            setErrorMessage(formValidation.errorMessage)
+        }else {
             setErrorMessage('');
             try {
-                // console.log(formData.selectedRole)
-                const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/signup`, formData)
-                console.log("reponse: ", response.data)
-            } catch(e) {
+                const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/signup`, {
+                    first_name: formData.firstName,
+                    last_name: formData.lastName,
+                    email: formData.email,
+                    password: formData.password,
+                    contact_number: formData.contactNumber,
+                    address: formData.address,
+                    vehicle_number: formData.vehicleNumber
+                })
+                setResponse(response.data)
+                // console.log("reponse: ", response.data)
+            } catch (e) {
                 console.log(e)
             }
         }
@@ -189,26 +230,26 @@ export default function Register() {
                             </div>
 
                             <div>
-                                <label htmlFor="contactNumber" className="text-gray-900 block">Contact Number</label>
+                                <label htmlFor="contact_number" className="text-gray-900 block">Contact Number</label>
                                 <input
-                                    id="contactNumber"
-                                    name="contactNumber"
+                                    id="contact_number"
+                                    name="contact_number"
                                     type="tel" maxLength={10} minLength={10}
                                     required
-                                    value={formData.contactNumber}
+                                    value={formData.contact_number}
                                     className="border-2 rounded-md p-1 block w-full"
                                     onChange={handleContactNumberChange}
                                 />
                             </div>
                             {formData.selectedRole === 'user' && (
                                 <div>
-                                    <label htmlFor="vehicleNumber" className="text-gray-900 block">Vehicle-Number</label>
+                                    <label htmlFor="vehicle_number" className="text-gray-900 block">Vehicle-Number</label>
                                     <input
-                                        id="vehicleNumber"
-                                        name="vehicleNumber"
+                                        id="vehicle_number"
+                                        name="vehicle_number"
                                         type="text"
                                         required
-                                        value={formData.vehicleNumber}
+                                        value={formData.vehicle_number}
                                         className="border-2 rounded-md p-1 block w-full"
                                         onChange={handleVehicleNumberChange}
                                     />
@@ -263,6 +304,9 @@ export default function Register() {
                     </div>
                     {errorMessage &&
                         <p className="text-sm font-semibold text-red-600 w-full text-center">{errorMessage}</p>
+                    }
+                    {response &&
+                        <p className="text-sm font-semibold text-indigo-600 w-full text-center">{response}</p>
                     }
                     <div>
                         <button type="submit" className=" w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign up</button>
