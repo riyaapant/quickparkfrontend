@@ -156,9 +156,9 @@ export default function Register() {
                     last_name: formData.lastName,
                     email: formData.email,
                     password: formData.password,
-                    contact_number: formData.contactNumber,
+                    contact: formData.contactNumber,
                     address: formData.address,
-                    vehicle_number: formData.vehicleNumber
+                    vehicle_id: formData.vehicleNumber
                 })
                 setResponse(response.data)
                 // console.log("reponse: ", response.data)

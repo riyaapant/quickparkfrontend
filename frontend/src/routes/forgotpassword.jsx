@@ -3,9 +3,10 @@ import axios from "axios";
 import './form.css'
 export default function ForgotPassword() {
 
-   const [email, setEmail] = useState('')
+    const [email, setEmail] = useState('')
 
     const [errorMessage, setErrorMessage] = useState('')
+    const [response, setResponse] = useState('')
 
     function handleEmailChange(e) {
         setEmail(e.target.value)
@@ -15,7 +16,8 @@ export default function ForgotPassword() {
         e.preventDefault();
         console.log(email)
         try {
-            const response = await axios.post(`http://localhost:8000/forgetpassword`, email)
+            const response = await axios.post('http://localhost:8000/forgetpassword', { email });
+            setResponse(response.data)
             console.log(response)
         } catch (e) {
             setErrorMessage(e.response.data)
@@ -29,7 +31,7 @@ export default function ForgotPassword() {
     return (
         <main className="h-screen bg-gradient-to-r from-cyan-200 to-indigo-300 main">
             <div className="flex max-h-full flex-col justify-center bg-white w-96 md:max-w-50 m-auto rounded-lg form py-5">
-            <div className="w-full mb-3">
+                <div className="w-full mb-3">
                     <h2 className="text-center text-2xl font-bold text-indigo-600">Forgot your password?</h2>
                 </div>
                 <div className="w-full mb-3">
@@ -47,6 +49,9 @@ export default function ForgotPassword() {
 
                         {errorMessage &&
                             <p className="text-sm font-semibold text-red-600 w-full text-center">{errorMessage}</p>
+                        }
+                        {response &&
+                            <p className="text-sm font-semibold text-indigo-600 w-full text-center">{response}</p>
                         }
 
                         <div>
