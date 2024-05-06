@@ -4,7 +4,7 @@ from django.conf import settings
 
 def send_verification(user):
     token = default_token_generator.make_token(user)
-    verification_url = f'http://localhost:8000/verify/{user.id}/{token}'
+    verification_url = f'http://localhost:5173/verify/{user.id}/{token}'
     subject = 'Verify Your Email'
     message = f'Click on the following link verify your email : {verification_url}'
     recipient = user.email
@@ -22,7 +22,7 @@ def send_verification(user):
 
 def reset_password(user):
     token = default_token_generator.make_token(user)
-    verification_url = f'http://localhost:8000/reset/{user.id}/{token}'
+    verification_url = f'http://localhost:5173/reset/{user.id}/{token}'
     subject = 'Password Recovery'
     message = f'Click on the following link to reset your password: {verification_url}'
     recipient = user.email

@@ -4,8 +4,6 @@ from rest_framework.authentication import SessionAuthentication
 from rest_framework import status
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode
 from .serializers import UserSerializer,LoginSerializer
 from .sendemail import send_verification,reset_password
     
@@ -13,9 +11,6 @@ UserModel = get_user_model()
 
 class UserRegister(APIView):
     def post(self,request):
-        # if request.data['firstName']:
-        #     request.data['first_name'] = request.data['firstName']
-        #     request.data['last_name']  = request.data['lastName']
         serializer = UserSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             user = serializer.create_u(request.data)
@@ -144,7 +139,7 @@ class EmailVerification(APIView):
             return Response("Invalid Token", status = status.HTTP_406_NOT_ACCEPTABLE)
 
 class ResetPassword(APIView):
-    def post(self,request,id,token):
+    def put(self,request,id,token):
         user = UserModel.objects.get(pk=id)
         password = request.data['password']
         if default_token_generator.check_token(user,token):
@@ -155,7 +150,7 @@ class ResetPassword(APIView):
             return Response('Invalid token', status = status.HTTP_406_NOT_ACCEPTABLE)
 
 class ChangePassword(APIView):
-    def post(self,request):
+    def put(self,request):
         user = request.user
         if request.data['old_password'] and request.data['new_password']:
             if user.check_password(request.data['old_password']):
@@ -165,7 +160,7 @@ class ChangePassword(APIView):
             else:
                 return Response('Please enter valid old password', status = status.HTTP_406_NOT_ACCEPTABLE)
         return Response('Invalid REquest', status = status.HTTP_400_BAD_REQUEST)
-            
+
 
 
 
