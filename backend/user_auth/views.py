@@ -17,7 +17,7 @@ class UserRegister(APIView):
             if user:
                 result = send_verification(user)
                 if result ==1:
-                    return Response('Verification Link is sent to your email address',status= status.HTTP_200_OK)
+                    return Response('Verification Link is sent to your email address',status= status.HTTP_201_OK)
                 else:
                     return Response('Email Not found', status= status.HTTP_404_NOT_FOUND)
             else:
@@ -110,11 +110,7 @@ class ForgetPassword(APIView):
         if email and UserModel.objects.filter(email=email).exists():
             user_obj = UserModel.objects.get(email=email)
             result = reset_password(user_obj)
-            # subject = "Password Recovery"
-            # recipients = email
-            # otp = 0
-            # message = "Please enter this otp:"+ str(otp) + " to reset your account."
-            # result = send_email(subject,message,recipients)
+
             if result == 1:
                 return Response('Password reset instruction sent successfully',status=status.HTTP_200_OK)
             else:
