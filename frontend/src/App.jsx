@@ -7,7 +7,8 @@ import Register from './routes/register';
 import UserProfile from './routes/UserProfile';
 import ForgotPassword from './routes/forgotpassword';
 import ResetPassword from './routes/resetpassword'
-
+import Message from './routes/emailverification'
+import Layout from './components/logoheader';
 
 const router = createBrowserRouter([
   {
@@ -29,6 +30,14 @@ const router = createBrowserRouter([
   {
     path: "/reset/:uid/:token",
     element: <ResetPassword />
+  },
+  {
+    path: "/verify/:uid/:token",
+    element: <Message />
+  },
+  {
+    path: "/logo",
+    element: <Layout />
   }
 ])
 

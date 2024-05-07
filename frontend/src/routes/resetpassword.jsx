@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import axios from "axios";
 import './form.css'
 
@@ -12,7 +12,7 @@ export default function ResetPassword() {
     const [errorMessage, setErrorMessage] = useState('')
     const [response, setResponse] = useState('')
 
-    const navigate = useNavigate()
+    // const navigate = useNavigate()
 
     const { uid, token } = useParams();
 
