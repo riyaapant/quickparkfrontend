@@ -117,10 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                   // Check the response status
                   if (response.statusCode == 202) {
                     // Login successful
-                    // You can perform any necessary actions here, such as storing authentication tokens
-                    // or navigating to the dashboard page
-
-                    // Example: Navigate to the DashboardPage
+                    // storing authentication tokens
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => DashboardPage()),
