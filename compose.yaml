@@ -1,0 +1,37 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: qp_db
+    environment:
+      - POSTGRES_DB=quickpark
+      - POSTGRES_USER=parker
+      - POSTGRES_PASSWORD=parker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - qp_net
+    healthcheck:
+      test: ["CMD", "pg_isready", "-p", "5432", "-d", "quickpark", "-U", "parker"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+
+  backend:
+    build: ./backend
+    container_name: qp_server
+    command: bash -c "cd backend/ && python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/code/
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - qp_net
+
+volumes:
+  postgres_data:
+
+networks:
+  qp_net:

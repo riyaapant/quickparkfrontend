@@ -17,7 +17,7 @@ class UserRegister(APIView):
             if user:
                 result = send_verification(user)
                 if result ==1:
-                    return Response('Verification Link is sent to your email address',status= status.HTTP_201_OK)
+                    return Response('Verification Link is sent to your email address',status= status.HTTP_201_CREATED)
                 else:
                     return Response('Email Not found', status= status.HTTP_404_NOT_FOUND)
             else:

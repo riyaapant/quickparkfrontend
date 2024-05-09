@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     #Apps
     'user_auth.apps.UserAuthConfig',
+    'parking.apps.ParkingConfig',
 ]
 
 MIDDLEWARE = [
