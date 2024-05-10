@@ -1,4 +1,4 @@
-import { createStore} from 'redux'
+import { configureStore } from '@reduxjs/toolkit'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
 import credReducer from './features/credSlice'
@@ -11,7 +11,9 @@ const persistConfig = {
 
 const persistedReducer = persistReducer(persistConfig, credReducer)
 
-let store = createStore(persistedReducer)
-  let mypersistor = persistStore(store)
+let store = configureStore({
+    reducer: persistedReducer,
+})
+let mypersistor = persistStore(store)
 
-  export {store, mypersistor}
+export { store, mypersistor }

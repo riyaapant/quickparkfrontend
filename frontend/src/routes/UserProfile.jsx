@@ -1,29 +1,31 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from "react";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+
+import { setCred } from "../features/credSlice";
 
 const UserProfile = () => {
 
+    const dispatch = useDispatch()
+
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
-    const role = useSelector((state) => state.role);
-    const token = useSelector((state) => state.token)
-    const refreshToken = useSelector((state) => state.refreshToken)
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log(isLoggedIn);
-        console.log(role);
-        console.log(token);
-        console.log(refreshToken);
-    }, [isLoggedIn, role, token, refreshToken]);
+        if (!isLoggedIn) {
+            navigate('/login')
+        }
+    }, [isLoggedIn]);
 
-    if (!isLoggedIn) {
-        navigate('/login')
-    }
 
     function handleLogout() {
-        console.log("Hey")
+        dispatch(setCred({
+                    isLoggedIn: false,
+                    token: '',
+                    refreshToken: '',
+                    role:null
+                }))
     }
 
     return (

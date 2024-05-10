@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setCred } from "../features/credSlice";
 import './form.css'
 
@@ -11,6 +11,14 @@ export default function Login() {
     const dispatch = useDispatch()
     
     const navigate = useNavigate()
+
+    const isLoggedIn = useSelector((state) => state.isLoggedIn);
+
+    useEffect(() => {
+        if (isLoggedIn) {
+            navigate('/profile')
+        }
+    },[isLoggedIn])
 
     const [formData, setFormData] = useState({
         selectedRole: '',
