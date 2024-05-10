@@ -1,24 +1,30 @@
-// import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useContext, useEffect } from "react";
-import AuthContext from "../context/AuthProvider";
+import { useEffect } from "react";
+import { useSelector } from 'react-redux';
 
 const UserProfile = () => {
 
-    const navigate = useNavigate();
-    const { auth, setAuth} = useContext(AuthContext);
+    const isLoggedIn = useSelector((state) => state.isLoggedIn);
+    const role = useSelector((state) => state.role);
+    const token = useSelector((state) => state.token)
+    const refreshToken = useSelector((state) => state.refreshToken)
 
-    if(!auth.isLoggedIn){
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log(isLoggedIn);
+        console.log(role);
+        console.log(token);
+        console.log(refreshToken);
+    }, [isLoggedIn, role, token, refreshToken]);
+
+    if (!isLoggedIn) {
         navigate('/login')
     }
 
-    function handleLogout(){
-        setAuth({});
+    function handleLogout() {
+        console.log("Hey")
     }
-
-    useEffect(() => {
-        console.log(auth)
-    }, [auth]); 
 
     return (
         <>

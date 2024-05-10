@@ -1,21 +1,14 @@
-// import { ParkingCircle } from "lucide-react"; // Remove this import if unused
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import AuthContext from "../context/AuthProvider";
+import { useDispatch } from "react-redux";
+import { setCred } from "../features/credSlice";
 import './form.css'
-
-// interface LoginFormData {
-//     selectedRole: string,
-//     email: string,
-//     password: string
-// }
 
 export default function Login() {
 
-    
-    const { auth, setAuth } = useContext(AuthContext);
+    const dispatch = useDispatch()
     
     const navigate = useNavigate()
 
@@ -49,25 +42,26 @@ export default function Login() {
 
     const handleFormSubmission = async (e) => {
         e.preventDefault();
+        if (formData.selectedRole === '') {
+            setErrorMessage("Select a role to continue login")
+            return;
+        }
         try {
             const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/login`, formData)
             if (response.status == 202) {
                 const auth = await axios.post(`http://localhost:8000/api/token`, formData)
-                const role = formData.selectedRole;
-                const token = auth.data.access;
-                const refreshToken = auth.data.refresh;
-                const isLoggedIn = true
-                setAuth({ role, token, refreshToken, isLoggedIn });
+                dispatch(setCred({
+                    isLoggedIn: true,
+                    token: auth.data.access,
+                    refreshToken: auth.data.refresh,
+                    role: formData.selectedRole
+                }))
                     navigate(`/profile`) 
             }
         } catch (e) {
             setErrorMessage(e.response.data)
         }
     }
-
-    useEffect(() => {
-        console.log(auth)
-        },[auth])
 
     useEffect(() => {
         setErrorMessage('');

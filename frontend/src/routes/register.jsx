@@ -1,4 +1,3 @@
-// import { ParkingCircle } from "lucide-react";
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
@@ -17,17 +16,6 @@ export default function Register() {
         password: '',
         confirmPassword: '',
     })
-    // const [formData, setFormData] = useState({
-    //     selectedRole: '',
-    //     first_name: '',
-    //     last_name: '',
-    //     address: '',
-    //     vehicle_number: '',
-    //     contact_number: '',
-    //     email: '',
-    //     password: '',
-    //     confirmPassword: '',
-    // })
 
     const [errorMessage, setErrorMessage] = useState('')
     const [response, setResponse] = useState('')

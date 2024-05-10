@@ -8,7 +8,7 @@ import UserProfile from './routes/UserProfile';
 import ForgotPassword from './routes/forgotpassword';
 import ResetPassword from './routes/resetpassword'
 import Message from './routes/emailverification'
-import Layout from './components/logoheader';
+import Maps from './maps/staticmap';
 
 const router = createBrowserRouter([
   {
@@ -36,8 +36,8 @@ const router = createBrowserRouter([
     element: <Message />
   },
   {
-    path: "/logo",
-    element: <Layout />
+    path: "/",
+    element: <Maps />
   }
 ])
 
