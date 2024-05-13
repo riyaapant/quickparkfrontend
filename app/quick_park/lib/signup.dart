@@ -262,7 +262,6 @@ class _SignupPageState extends State<SignupPage> {
                         // Check the response status
                         if (response.statusCode == 200) {
                           // Signup successful
-                          // You can perform any necessary actions here, such as displaying a success message
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {
@@ -285,7 +284,6 @@ class _SignupPageState extends State<SignupPage> {
                           );
                         } else {
                           // Signup failed
-                          // You can handle the failure scenario according to your requirements
                           showDialog(
                             context: context,
                             builder: (BuildContext context) {

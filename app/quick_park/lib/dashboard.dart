@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 
 import 'login.dart';
+import 'profile.dart';
+
+import 'location_search.dart';
 
 class DashboardPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Dashboard'),
+        title: const Text('Dashboard'),
       ),
       drawer: Drawer(
         child: ListView(
@@ -17,21 +20,29 @@ class DashboardPage extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.blue,
               ),
-              child: Text(
-                'Menu',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Text(
+                  'Menu',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                  ),
                 ),
               ),
             ),
             ListTile(
+              leading: const Icon(Icons.person),
               title: const Text('Profile'),
               onTap: () {
-                // Handle drawer item 1 tap
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => ProfilePage()),
+                );
               },
             ),
             ListTile(
+              leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
                 // Handle drawer item 2 tap
@@ -39,6 +50,7 @@ class DashboardPage extends StatelessWidget {
             ),
             const Divider(),
             ListTile(
+              leading: const Icon(Icons.logout),
               title: const Text('Logout'),
               onTap: () {
                 // Perform logout actions here
@@ -55,8 +67,12 @@ class DashboardPage extends StatelessWidget {
           ],
         ),
       ),
-      body: const Center(
-        child: Text('Welcome to the Dashboard!'),
+      body: Column(
+        children: [
+          Expanded(
+            child: SlideUpPanel(),
+          ),
+        ],
       ),
     );
   }
