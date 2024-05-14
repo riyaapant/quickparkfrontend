@@ -9,14 +9,21 @@ const UserProfile = () => {
     const dispatch = useDispatch()
 
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
+    const role = useSelector((state) => state.role)
+    const refreshToken = useSelector((state) => state.refreshToken)
+    const accessToken = useSelector((state) => state.token)
 
     const navigate = useNavigate();
 
     useEffect(() => {
+        console.log("isLoggedIn: ",isLoggedIn)
+        console.log("Role: ",role)
+        console.log("Refresh Token: ",refreshToken)
+        console.log("Access Token: ",accessToken)
         if (!isLoggedIn) {
             navigate('/login')
         }
-    }, [isLoggedIn]);
+    }, [accessToken, refreshToken, isLoggedIn]);
 
 
     function handleLogout() {

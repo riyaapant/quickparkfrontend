@@ -14,7 +14,7 @@ export default function Message() {
     useEffect(() => {
         const verifyEmail = async () => {
             try {
-                const response = await axios.get(`http://localhost:8000/verify/${uid}/${token}`);
+                const response = await axios.get(`http://110.44.121.73:2564/verify/${uid}/${token}`);
                 setMessage(response.data);
                 setSuccess(true);
             } catch (error) {
@@ -30,9 +30,9 @@ export default function Message() {
 
     return (
         <div className="flex flex-col h-screen">
-            <header className="flex items-center justify-start">
-                <img src={logoBlue} alt="Logo" className="size-24 w-max" />
-            </header>
+            <div className='h-auto'>
+                <img src={logoBlue} alt="img" className='h-20 w-auto mx-10' />
+            </div>
             <main className="h-screen flex flex-col justify-center items-center">
                 {loading ? (
                     <div role="status">
@@ -61,7 +61,7 @@ export default function Message() {
                                 </svg>
                                 <span className="text-lg">{message}</span>
                                 <Link to="/login">
-                                    <button className="m-3 w-max justify-center rounded-md bg-indigo-950 p-3 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Back to Login</button>
+                                    <button className="m-3 w-max justify-center rounded-md bg-265073 p-3 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Back to Login</button>
                                 </Link>
                             </>
                         )}

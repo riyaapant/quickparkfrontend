@@ -3,12 +3,12 @@ import {
   RouterProvider
 } from 'react-router-dom';
 import Login from './routes/login';
-import Register from './routes/register';
 import UserProfile from './routes/UserProfile';
 import ForgotPassword from './routes/forgotpassword';
 import ResetPassword from './routes/resetpassword'
 import Message from './routes/emailverification'
-import Maps from './maps/staticmap';
+import Register from './routes/register';
+// import Maps from './maps/staticmap';
 
 const router = createBrowserRouter([
   {
@@ -35,10 +35,10 @@ const router = createBrowserRouter([
     path: "/verify/:uid/:token",
     element: <Message />
   },
-  {
-    path: "/",
-    element: <Maps />
-  }
+  // {
+  //   path: "/",
+  //   element: <Maps />
+  // }
 ])
 
 function App() {

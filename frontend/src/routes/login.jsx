@@ -5,11 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCred } from "../features/credSlice";
 import './form.css'
+import logowhite from '../media/logowhite.png'
+import mapsimage from '../media/mapsimage.png'
+
 
 export default function Login() {
 
     const dispatch = useDispatch()
-    
+
     const navigate = useNavigate()
 
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
@@ -18,7 +21,7 @@ export default function Login() {
         if (isLoggedIn) {
             navigate('/profile')
         }
-    },[isLoggedIn])
+    }, [isLoggedIn])
 
     const [formData, setFormData] = useState({
         selectedRole: '',
@@ -55,16 +58,17 @@ export default function Login() {
             return;
         }
         try {
-            const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/login`, formData)
+            const response = await axios.post(`http://110.44.121.73:2564/${formData.selectedRole}/login`, formData)
+            // const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/login`, formData)
             if (response.status == 202) {
-                const auth = await axios.post(`http://localhost:8000/api/token`, formData)
+                const auth = await axios.post(`http://110.44.121.73:2564/api/token`, formData)
                 dispatch(setCred({
                     isLoggedIn: true,
                     token: auth.data.access,
                     refreshToken: auth.data.refresh,
                     role: formData.selectedRole
                 }))
-                    navigate(`/profile`) 
+                navigate(`/profile`)
             }
         } catch (e) {
             setErrorMessage(e.response.data)
@@ -76,13 +80,19 @@ export default function Login() {
     }, [formData])
 
     return (
-        <main className="h-screen bg-gradient-to-r from-cyan-200 to-indigo-300 main">
-            <div className="flex max-h-full flex-col justify-center bg-white w-96 md:max-w-50 m-auto rounded-lg form py-5">
-                <div className="w-full mb-3">
-                    <h2 className="text-center text-2xl font-bold text-gray-900">Login</h2>
+        <main className="h-screen flex flex-row main max-w-full">
+            <div className='h-full bg-265073 flex-1 flex flex-col'>
+                <div className='h-auto'>
+                    <img src={logowhite} alt="img" className='h-20 w-auto mx-10' />
                 </div>
-                <div className="w-full">
-                    <form className="px-10" onSubmit={handleFormSubmission}>
+                <div className='flex-grow relative object-center'>
+                    <img src={mapsimage} alt="maps" className='h-4/5 w-auto absolute bottom-0 left-1/4' />
+                </div>
+            </div>
+            <div className='h-full flex justify-center items-center bg-white w-2/5'>
+                <div className=" w-full max-w-md"> {/* Adjusted max-w-md */}
+                    <h2 className="text-center text-2xl font-bold text-gray-900 mb-10">Login to your account</h2>
+                    <form className="flex flex-col gap-y-5 w-full" onSubmit={handleFormSubmission}>
                         <div className="flex justify-between gap-2 mb-3">
                             <button
                                 className={`w-full text-lg rounded-md p-2 focus:outline-none ${formData.selectedRole === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-900'}`}
@@ -134,11 +144,12 @@ export default function Login() {
                     </form>
                     <p className="text-center text-sm text-gray-500 mt-3">
                         Don't have an account?
-                        <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-400">Sign Up</Link>
+                        <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-400"> Sign Up</Link>
                     </p>
                 </div>
             </div>
-        </main >
+        </main>
+
     )
 
 }
