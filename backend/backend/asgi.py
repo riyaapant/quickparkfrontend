@@ -8,6 +8,8 @@ https://docs.djangoproject.com/en/5.0/howto/deployment/asgi/
 """
 
 from channels.routing import ProtocolTypeRouter, URLRouter
+from channels.security.websocket import AllowedHostsOriginValidator
+from channels.auth import AuthMiddlewareStack
 
 import os
 
@@ -18,6 +20,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 application = get_asgi_application()
 
 application = ProtocolTypeRouter({
-    "http":asgi_application,
-    "websocket":URLRouter(parking.routing.ws_urlspatterns)
+    'http':asgi_application,
+    'websocket': AllowedHostsOriginValidator(
+        AuthMiddlewareStack(
+            URLRouter(parking.routing.ws_urlspatterns)
+        )
+    )
 })

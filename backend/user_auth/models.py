@@ -27,8 +27,8 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=20)
     contact = models.CharField(max_length=10,null=True)
     address = models.CharField(max_length=100,null=True)
-    vehicle_id = models.CharField(max_length=8,null=True)
-    is_active = models.BooleanField(default=True)
+    # vehicle_id = models.CharField(max_length=8,null=True)
+    is_active = models.BooleanField(default=False)
     is_owner = models.BooleanField(default=False)
 
     objects = UserModelManager()
@@ -39,6 +39,9 @@ class UserModel(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
-# class User(models.Model):
-#     user_id  = models.OneToOneField(UserModel, on_delete=models.CASCADE, related_name = "User")
+class User(models.Model):
+    user_id  = models.OneToOneField(UserModel, on_delete=models.CASCADE, related_name = "User")
+    is_emailverified = models.BooleanField(default=False)
+    is_paperverified = models.BooleanField(default=False)
+
 
