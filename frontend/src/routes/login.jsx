@@ -19,7 +19,7 @@ export default function Login() {
 
     useEffect(() => {
         if (isLoggedIn) {
-            navigate('/profile')
+            navigate('/dashboard')
         }
     }, [isLoggedIn])
 
@@ -68,7 +68,7 @@ export default function Login() {
                     refreshToken: auth.data.refresh,
                     role: formData.selectedRole
                 }))
-                navigate(`/profile`)
+                navigate(`/dashboard`)
             }
         } catch (e) {
             setErrorMessage(e.response.data)
@@ -81,7 +81,7 @@ export default function Login() {
 
     return (
         <main className="h-screen flex flex-row main max-w-full">
-            <div className='h-full bg-265073 flex-1 flex flex-col'>
+            <div className='h-full bg-qp flex-1 flex flex-col'>
                 <div className='h-auto'>
                     <img src={logowhite} alt="img" className='h-20 w-auto mx-10' />
                 </div>

@@ -7,7 +7,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        '265073': '#265073',
+        'qp': '#265073',
       },
     },
   },

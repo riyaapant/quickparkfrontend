@@ -180,7 +180,7 @@ export default function Register() {
             )}
 
 
-            <div className='h-full bg-265073 flex-1 flex flex-col'>
+            <div className='h-full bg-qp flex-1 flex flex-col'>
                 <div className='h-auto'>
                     <img src={logowhite} alt="img" className='h-20 w-auto mx-10' />
                 </div>

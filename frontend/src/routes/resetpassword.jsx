@@ -70,7 +70,7 @@ export default function ResetPassword() {
     }
 
     return (
-        <main className="h-screen bg-265073 main">
+        <main className="h-screen bg-qp main">
             {loading && (
                 <div className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
                     <svg aria-hidden="true" className="w-16 h-16 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
