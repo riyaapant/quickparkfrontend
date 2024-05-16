@@ -60,8 +60,8 @@ class Login(APIView):
             user = authenticate(username = request.data['email'], password = request.data['password'])
             if user and user.is_superuser==False:
                 login(request,user)
-
-                return Response('Login Succesful', status=status.HTTP_202_ACCEPTED_)
+                refresh = RefreshToken.for_user(user)
+                return Response('refresh': str(refresh),'access': str(refresh.access_token),, status=status.HTTP_202_ACCEPTED_)
             else:
                 return Response("Invalid login credentials \n Have you verified your account?", status = status.HTTP_404_NOT_FOUND)
         else:
