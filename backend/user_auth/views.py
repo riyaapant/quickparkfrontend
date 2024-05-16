@@ -2,9 +2,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import status
+from reset_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from .serializers import UserSerializer,LoginSerializer
+from .serializers import UserSerializer,LoginSerializer, CustomerImageSerializer, OwnerImageSerializer
 from .sendemail import send_verification,reset_password
     
 UserModel = get_user_model()
@@ -36,48 +38,68 @@ class UserLogin(APIView):
                 return Response('User Login Failed', status = status.HTTP_404_NOT_FOUND)
         return Response('Unacceptable Request',status = status.HTTP_406_NOT_ACCEPTABLE)
 
+class Register(APIView):
+    def post(self,request):
+        serializer = UserSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            user = serializer.create_u(request.data)
+            if user:
+                result = send_verification(user)
+                if result ==1:
+                    return Response(f'Verification Link is sent to your email address at {user.email}',status= status.HTTP_201_CREATED)
+                else:
+                    return Response('Email Not found', status= status.HTTP_404_NOT_FOUND)
+            else:
+                return Response('User Registration Failed', status = status.HTTP_400_BAD_REQUEST)
+        return Response('Unacceptable Request', status = status.HTTP_406_NOT_ACCEPTABLE)
+
 class Login(APIView):
     def post(self,request):
         serializer = LoginSerializer(data = request.data)
         if serializer.is_valid():
             user = authenticate(username = request.data['email'], password = request.data['password'])
-            if user:
+            if user and user.is_superuser==False:
                 login(request,user)
-                if user.is_owner==False and user.is_superuser==True:
-                    return Response("admin", status = status.HTTP_200_OK)
-                elif user.is_owner==True and user.is_superuser==False:
-                    return Response("owner", status = status.HTTP_200_OK)
-                else:
-                    return Response("usertest", status = status.HTTP_200_OK)
+
+                return Response('Login Succesful', status=status.HTTP_202_ACCEPTED_)
             else:
                 return Response("Invalid login credentials \n Have you verified your account?", status = status.HTTP_404_NOT_FOUND)
         else:
             return Response("Unacceptable Request", status = status.HTTP_406_NOT_ACCEPTABLE)
                 
-
-
-class OwnerRegister(APIView):
-    def post(self,request):
-        serializer = UserSerializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            user = serializer.create_o(request.data)
-            if user:
-                return Response('Owner Registered Successfully', status= status.HTTP_201_CREATED)
-            else:
-                return Response('Owner Registration Failed', status = status.HTTP_400_BAD_REQUEST)
-        return Response('Unacceptable Request', status = status.HTTP_406_NOT_ACCEPTABLE)
-
-class OwnerLogin(APIView):
-    def post(self,request):
-        serializer = LoginSerializer(data = request.data)
+class ImageUpload(APIView):
+    def post(self,request,usr):
+        if usr=='customer':
+            customer_obj = Customer.objects.get(user=request.user)
+            serialzer = CustomerImageSerializer(instance=customer_obj, data=request.data.image)
+        else:
+            owner_obj = Owner.objects.get(user=request.user)
+            serializer = OwnerImageSerializer(instance=owner_obj, data=request.data.image)
         if serializer.is_valid():
-            user = authenticate(username = request.data['email'],password = request.data['password'])
-            if user and user.is_owner==True and user.is_superuser==False:
-                login(request,user)
-                return Response('Owner Loggedin successfully',status = status.HTTP_202_ACCEPTED)
-            else:
-                return Response('Owner Login Failed', status = status.HTTP_404_NOT_FOUND)
-        return Response('Unacceptable Request',status = status.HTTP_406_NOT_ACCEPTABLE)
+            serializer.save()
+
+# class OwnerRegister(APIView):
+#     def post(self,request):
+#         serializer = UserSerializer(data=request.data)
+#         if serializer.is_valid(raise_exception=True):
+#             user = serializer.create_o(request.data)
+#             if user:
+#                 return Response('Owner Registered Successfully', status= status.HTTP_201_CREATED)
+#             else:
+#                 return Response('Owner Registration Failed', status = status.HTTP_400_BAD_REQUEST)
+#         return Response('Unacceptable Request', status = status.HTTP_406_NOT_ACCEPTABLE)
+
+# class OwnerLogin(APIView):
+#     def post(self,request):
+#         serializer = LoginSerializer(data = request.data)
+#         if serializer.is_valid():
+#             user = authenticate(username = request.data['email'],password = request.data['password'])
+#             if user and user.is_owner==True and user.is_superuser==False:
+#                 login(request,user)
+#                 return Response('Owner Loggedin successfully',status = status.HTTP_202_ACCEPTED)
+#             else:
+#                 return Response('Owner Login Failed', status = status.HTTP_404_NOT_FOUND)
+#         return Response('Unacceptable Request',status = status.HTTP_406_NOT_ACCEPTABLE)
 
 
 class AdminRegister(APIView):
