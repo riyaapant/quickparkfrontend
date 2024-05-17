@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setCred } from "../features/credSlice";
 import './form.css'
-import logowhite from '../media/logowhite.png'
+import LogoWhite from "../components/LogoWhite.jsx";
+// import logowhite from '../media/logowhite.png'
 import mapsimage from '../media/mapsimage.png'
 
 
@@ -82,9 +83,7 @@ export default function Login() {
     return (
         <main className="h-screen flex flex-row main max-w-full">
             <div className='h-full bg-qp flex-1 flex flex-col'>
-                <div className='h-auto'>
-                    <img src={logowhite} alt="img" className='h-20 w-auto mx-10' />
-                </div>
+                <LogoWhite />
                 <div className='flex-grow relative object-center'>
                     <img src={mapsimage} alt="maps" className='h-4/5 w-auto absolute bottom-0 left-1/4' />
                 </div>

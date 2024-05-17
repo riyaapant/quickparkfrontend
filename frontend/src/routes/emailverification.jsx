@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from 'react-router-dom';
 import axios from "axios";
 
-import logoBlue from '../media/logoblue.png'
+import LogoBlue from "../components/LogoBlue";
 import './form.css'
 
 export default function Message() {
@@ -30,9 +30,7 @@ export default function Message() {
 
     return (
         <div className="flex flex-col h-screen">
-            <div className='h-auto'>
-                <img src={logoBlue} alt="img" className='h-20 w-auto mx-10' />
-            </div>
+            <LogoBlue />
             <main className="h-screen flex flex-col justify-center items-center">
                 {loading ? (
                     <div role="status">

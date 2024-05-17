@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import './form.css'
-import logowhite from '../media/logowhite.png'
 
+import LogoWhite from "../components/LogoWhite";
 
 export default function ForgotPassword() {
 
@@ -45,9 +45,7 @@ export default function ForgotPassword() {
                     </svg>
                 </div>
             )}
-            <div className='h-auto'>
-                <img src={logowhite} alt="img" className='h-20 w-auto mx-10' />
-            </div>
+            <LogoWhite />
             <div className="flex max-h-full flex-col justify-center bg-white w-96 md:max-w-50 m-auto rounded-lg form py-5">
                 <div className="w-full mb-3">
                     <h2 className="text-center text-2xl font-bold text-gray-900">Forgot your password?</h2>
