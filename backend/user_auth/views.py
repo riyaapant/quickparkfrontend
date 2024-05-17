@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import status
-from reset_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
@@ -59,9 +59,9 @@ class Login(APIView):
         if serializer.is_valid():
             user = authenticate(username = request.data['email'], password = request.data['password'])
             if user and user.is_superuser==False:
-                login(request,user)
+                # login(request,user)
                 refresh = RefreshToken.for_user(user)
-                return Response('refresh': str(refresh),'access': str(refresh.access_token),, status=status.HTTP_202_ACCEPTED_)
+                return Response({'refresh': str(refresh),'access': str(refresh.access_token)}, status=status.HTTP_202_ACCEPTED_)
             else:
                 return Response("Invalid login credentials \n Have you verified your account?", status = status.HTTP_404_NOT_FOUND)
         else:
@@ -71,10 +71,10 @@ class ImageUpload(APIView):
     def post(self,request,usr):
         if usr=='customer':
             customer_obj = Customer.objects.get(user=request.user)
-            serialzer = CustomerImageSerializer(instance=customer_obj, data=request.data.image)
+            serialzer = CustomerImageSerializer(instance=customer_obj, data=request.data)
         else:
             owner_obj = Owner.objects.get(user=request.user)
-            serializer = OwnerImageSerializer(instance=owner_obj, data=request.data.image)
+            serializer = OwnerImageSerializer(instance=owner_obj, data=request.data)
         if serializer.is_valid():
             serializer.save()
 
@@ -182,8 +182,8 @@ class ChangePassword(APIView):
 
 
 
-class Logout(APIView):
-    def get(self,request):
-        logout(request)
-        return Response("User logged out successfully", status = status.HTTP_200_OK)
+# class Logout(APIView):
+#     def get(self,request):
+#         logout(request)
+#         return Response("User logged out successfully", status = status.HTTP_200_OK)
 
