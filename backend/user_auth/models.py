@@ -45,12 +45,12 @@ class Customer(models.Model):
     vehicle_id = models.CharField(max_length=7,null=True)
     license_paper = models.BinaryField(null=True)
     reservation_id = models.IntegerField(null=True)
-    is_emailverified = models.BooleanField(default=False)
+    # is_emailverified = models.BooleanField(default=False)
     is_paperverified = models.BooleanField(default=False)
 
 class Owner(models.Model):
     user =models.OneToOneField(UserModel, on_delete=models.CASCADE)
     home_paper = models.BinaryField(null=True)
-    is_emailverified = models.BooleanField(default=False)
+    # is_emailverified = models.BooleanField(default=False)
     is_paperverified = models.BooleanField(default=False)
 

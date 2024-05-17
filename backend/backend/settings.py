@@ -92,8 +92,8 @@ DATABASES = {
         'NAME': 'quickpark',
         'USER': 'parker',
         'PASSWORD': 'parker',
-        'HOST': 'localhost',
-        'PORT': '5444',
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
 
