@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import Register,Login,ImageUpload,AdminRegister,AdminLogin,ForgetPassword,EmailVerification,ResetPassword,ChangePassword
+from .views import Register,Login,ImageUpload,Profile,UploadFileCustomer,UploadFileOwner,UploadProfile,AdminRegister,AdminLogin,ForgetPassword,EmailVerification,ResetPassword,ChangePassword
 
 urlpatterns = [
     # path('user/signup',UserRegister.as_view(), name='user_signup'),
@@ -8,6 +8,10 @@ urlpatterns = [
     # path('owner/login',OwnerLogin.as_view(), name='owner_login'),
     path('register',Register.as_view(), name='register'),
     path('login',Login.as_view(), name='login'),
+    path('profile/<id>',Profile.as_view(), name='profile'),
+    path('upload/image',UploadProfile.as_view(), name='profile_image'),
+    path('upload/customer/file',UploadFileCustomer.as_view(), name='file'),
+    path('upload/owner/file',UploadFileOwner.as_view(), name='file'),
     path('<usr>/upload',ImageUpload.as_view(), name='upload'),
     path('admin/signup',AdminRegister.as_view(), name='admin_signup'),
     path('admin/login',AdminLogin.as_view(), name='admin_login'),

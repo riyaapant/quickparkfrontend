@@ -1,6 +1,8 @@
 # from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
 from django.db import models
+from cloudinary.models import CloudinaryField
+# from cloudinary_storage.models import CloudinaryField
 
 class UserModelManager(BaseUserManager):
     def create_user(self, email, password=None, **extra_fields):
@@ -22,15 +24,18 @@ class UserModelManager(BaseUserManager):
 
 class UserModel(AbstractBaseUser):
     email = models.EmailField(unique=True)
-    username = models.CharField(max_length=10)
+    # username = models.CharField(max_length=10)
     password = models.CharField(max_length=254)
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     contact = models.CharField(max_length=10,null=True)
     address = models.CharField(max_length=100,null=True)
     balance = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
-    is_active = models.BooleanField(default=False)
-    # is_owner = models.BooleanField(default=False)
+    profile_image = CloudinaryField('profile_image', blank=True, null=True)
+    is_active = models.BooleanField(default=True)
+    is_owner = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_emailverified = models.BooleanField(default=False)
 
     objects = UserModelManager()
 
@@ -43,14 +48,12 @@ class UserModel(AbstractBaseUser):
 class Customer(models.Model):
     user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
     vehicle_id = models.CharField(max_length=7,null=True)
-    license_paper = models.BinaryField(null=True)
+    license_paper = CloudinaryField('identity', blank=True, null=True)
     reservation_id = models.IntegerField(null=True)
-    # is_emailverified = models.BooleanField(default=False)
     is_paperverified = models.BooleanField(default=False)
 
 class Owner(models.Model):
     user =models.OneToOneField(UserModel, on_delete=models.CASCADE)
-    home_paper = models.BinaryField(null=True)
-    # is_emailverified = models.BooleanField(default=False)
+    home_paper = CloudinaryField('documents', blank=True, null=True)
     is_paperverified = models.BooleanField(default=False)
 

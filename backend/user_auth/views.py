@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from .serializers import UserSerializer,LoginSerializer, CustomerImageSerializer, OwnerImageSerializer
+from .serializers import UserSerializer,LoginSerializer
 from .sendemail import send_verification,reset_password
     
 UserModel = get_user_model()
@@ -58,15 +58,57 @@ class Login(APIView):
         serializer = LoginSerializer(data = request.data)
         if serializer.is_valid():
             user = authenticate(username = request.data['email'], password = request.data['password'])
-            if user and user.is_superuser==False:
-                # login(request,user)
+            # if user and user.is_superuser==False:
+            if user:
+                login(request,user)
                 refresh = RefreshToken.for_user(user)
-                return Response({'refresh': str(refresh),'access': str(refresh.access_token)}, status=status.HTTP_202_ACCEPTED_)
+                return Response({'refresh': str(refresh),'access': str(refresh.access_token)}, status=status.HTTP_202_ACCEPTED)
             else:
                 return Response("Invalid login credentials \n Have you verified your account?", status = status.HTTP_404_NOT_FOUND)
         else:
             return Response("Unacceptable Request", status = status.HTTP_406_NOT_ACCEPTABLE)
-                
+
+
+class UploadProfile(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self,request,id):
+        # try:
+        profile = request.data['profile']
+        # user = request.user
+        user = UserModel.objects.get(pk=id)
+        user.profile = profile
+        user.save()
+        return Response("Profile Updated", status = status.HTTP_200_OK)
+        # except:
+        #     return Response("Profile update failed", status=status.HTTP_400_BAD_REQUEST)
+
+class UploadFileCustomer(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self,request):
+        document = request.data['file']
+        user = request.user
+        # user = UserModel.objects.get(pk=id)
+        customer = user.customer
+        customer.license_paper = document
+        customer.save()
+        return Response("File Uploaded", status = status.HTTP_200_OK)
+        # except:
+        #     return Response("Profile update failed", status=status.HTTP_400_BAD_REQUEST)
+
+
+class UploadFileOwner(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self,request):
+        document = request.data['file']
+        user = request.user
+        # user = UserModel.objects.get(pk=id)
+        owner = user.owner
+        owner.home_paper = document
+        owner.save()
+        return Response("File Uploaded", status = status.HTTP_200_OK)
+        # except:
+        #     return Response("Profile update failed", status=status.HTTP_400_BAD_REQUEST)
+
 class ImageUpload(APIView):
     def post(self,request,usr):
         if usr=='customer':

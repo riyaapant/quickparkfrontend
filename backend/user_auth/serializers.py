@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from django.core.exceptions import ValidationError
+# from rest_framework_cloudinary.fields import CloudinaryField
+# from cloudinary_storage.models import CloudinaryField
 from django.contrib.auth import get_user_model
 from .models import Customer, Owner
 
@@ -7,6 +9,7 @@ from .models import Customer, Owner
 UserModel=get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
+    # profile = CloudinaryField('profile')
     class Meta:
         model = UserModel
         fields = '__all__'
@@ -27,12 +30,12 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
-class CustomerImageSerializer(serializers.Serializer):
-    class Meta:
-        model = Customer
-        field = '__all__'
 
-class OwnerImageSerializer(serializers.Serializer):
-    class Meta:
-        model = Owner
-        field = '__all__'
+# class ProfileSerializer(serializers.Serializer):
+#     profile = serializers.CloudinaryField('profile')
+
+# class LicenseSerializer(serializers.Serializer):
+#     license_paper = serializers.CloudinaryField('identity')
+
+# class DocumentsSerializer(serializers.Serializer):
+#     home_paper = serializers.CloudinaryField('documents')

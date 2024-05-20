@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 from datetime import timedelta
+import cloudinary
+import os
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -30,6 +33,25 @@ ALLOWED_HOSTS = ['*']
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_CREDENTIALS = True
 
+#Cloudinary_credetials
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': 'dauh89j2i',
+#     'API_KEY': '219235342832332',
+#     'API_SECRET': 'rj7aXFjzHjjLmkgokvtpexmpW90',
+# }
+
+cloudinary.config( 
+    cloud_name = "dauh89j2i", 
+    api_key = "219235342832332", 
+    api_secret = "rj7aXFjzHjjLmkgokvtpexmpW90",
+    secure=True
+)
+
+# CLOUDINARY_URL=cloudinary://219235342832332:rj7aXFjzHjjLmkgokvtpexmpW90@dauh89j2i
+
+#Default filestore
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 ASGI_APPLICATION = 'backend.asgi.application'
 
 # Application definition
@@ -46,6 +68,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'rest_framework_simplejwt',
+    'cloudinary',
+    'cloudinary_storage',
     #Apps
     'user_auth.apps.UserAuthConfig',
     'parking.apps.ParkingConfig',
@@ -92,8 +116,8 @@ DATABASES = {
         'NAME': 'quickpark',
         'USER': 'parker',
         'PASSWORD': 'parker',
-        'HOST': 'db',
-        'PORT': '5432',
+        'HOST': 'localhost',
+        'PORT': '5444',
     }
 }
 
