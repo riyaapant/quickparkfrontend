@@ -15,7 +15,10 @@ class UserSerializer(serializers.ModelSerializer):
         fields = '__all__'
     def create_u(self,data):
         user_obj = UserModel.objects.create_user(email = data['email'], password = data['password'],first_name = data['first_name'],last_name = data['last_name'],contact=data['contact'],address=data['address'])
-        # customer_obj = Customer.objects.create(user=user_obj,)
+        customer_obj = Customer.objects.create(user=user_obj)
+        customer_obj.save()
+        owner_obj = Owner.objects.create(user=user_obj)
+        owner_obj.save()
         return user_obj
 
     # def create_o(self,data):

@@ -16,14 +16,35 @@ class Profile(APIView):
     def get(self, request):
         user = request.user
         # user = UserModel.objects.get(pk=id)
-        return Response({
-            'firstName' : user.first_name,
-            'lastName'  : user.last_name,
-            'email'     : user.email,
-            'profile'   : user.profile.url if user.profile else None,
-            'contact'   : user.contact,
-            'address'   : user.address
-        }, status= status.HTTP_200_OK)
+        if user.is_owner==True:
+            return Response({
+                'firstName' : user.first_name,
+                'lastName'  : user.last_name,
+                'email'     : user.email,
+                'profile'   : user.profile.url if user.profile else None,
+                'contact'   : user.contact,
+                'address'   : user.address,
+                'document'  : user.owner.home_paper
+                # 'is_owner'  : user.is_owner
+            }, status= status.HTTP_200_OK)
+        else if user.is_owner==False:
+            return Response({
+                'firstName' : user.first_name,
+                'lastName'  : user.last_name,
+                'email'     : user.email,
+                'profile'   : user.profile.url if user.profile else None,
+                'contact'   : user.contact,
+                'address'   : user.address,
+                'document'  : user.customer.license_paper,
+                'vehicleId' : user.customer.vehicle_id
+                # 'is_owner'  : user.is_owner
+            }, status= status.HTTP_200_OK)
+
+class UpdateUser(APIView):
+    def get(self,request):
+        user = request.user
+        user.is_owner = False if user.is_owner else True
+        return Response("Updated Successfully", status=status.HTTP_200_OK)
 
 
 class UserRegister(APIView):

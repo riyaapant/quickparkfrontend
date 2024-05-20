@@ -1,18 +1,30 @@
 from django.urls import path
-from .views import Register,Login,ImageUpload,Profile,UploadFileCustomer,UploadFileOwner,UploadProfile,AdminRegister,AdminLogin,ForgetPassword,EmailVerification,ResetPassword,ChangePassword
-
+# from .views import Register,Login,ImageUpload,Profile,UploadFileCustomer,UploadFileOwner,UploadProfile,AdminRegister,AdminLogin,ForgetPassword,EmailVerification,ResetPassword,ChangePassword
+from .views import (
+    Register,
+    Login,
+    Profile,
+    UploadProfile,
+    UploadFileCustomer,
+    UploadFileOwner,
+    UpdateUser,
+    AdminRegister,
+    AdminLogin,
+    ForgetPassword,
+    EmailVerification,
+    ResetPassword,
+    ChangePassword,
+)
 urlpatterns = [
-    # path('user/signup',UserRegister.as_view(), name='user_signup'),
-    # path('user/login',UserLogin.as_view(), name='user_login'),
-    # path('owner/signup',OwnerRegister.as_view(), name='owner_signup'),
-    # path('owner/login',OwnerLogin.as_view(), name='owner_login'),
     path('register',Register.as_view(), name='register'),
     path('login',Login.as_view(), name='login'),
     path('profile/<id>',Profile.as_view(), name='profile'),
     path('upload/image',UploadProfile.as_view(), name='profile_image'),
     path('upload/customer/file',UploadFileCustomer.as_view(), name='file'),
     path('upload/owner/file',UploadFileOwner.as_view(), name='file'),
-    path('<usr>/upload',ImageUpload.as_view(), name='upload'),
+    path('update', UpdateUser.as_view(), name = 'update_user'),
+    # path('owner',Owner.as_view(), name = 'owner'),
+    # path('<usr>/upload',ImageUpload.as_view(), name='upload'),
     path('admin/signup',AdminRegister.as_view(), name='admin_signup'),
     path('admin/login',AdminLogin.as_view(), name='admin_login'),
     path('forgetpassword', ForgetPassword.as_view(), name='forget_password'),
