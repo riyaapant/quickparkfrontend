@@ -11,6 +11,21 @@ from .sendemail import send_verification,reset_password
     
 UserModel = get_user_model()
 
+class Profile(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+        user = request.user
+        # user = UserModel.objects.get(pk=id)
+        return Response({
+            'firstName' : user.first_name,
+            'lastName'  : user.last_name,
+            'email'     : user.email,
+            'profile'   : user.profile.url if user.profile else None,
+            'contact'   : user.contact,
+            'address'   : user.address
+        }, status= status.HTTP_200_OK)
+
+
 class UserRegister(APIView):
     def post(self,request):
         serializer = UserSerializer(data=request.data)
