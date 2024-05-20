@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 from pathlib import Path
 from datetime import timedelta
 import cloudinary
+import cloudinary.api
 import os
 
 
@@ -46,6 +47,8 @@ cloudinary.config(
     api_secret = "rj7aXFjzHjjLmkgokvtpexmpW90",
     secure=True
 )
+
+cloudinary.api.create_folder("Quickpark")
 
 # CLOUDINARY_URL=cloudinary://219235342832332:rj7aXFjzHjjLmkgokvtpexmpW90@dauh89j2i
 
@@ -157,7 +160,7 @@ AUTH_PASSWORD_VALIDATORS = [
 #RESTFRAMEWORK Authentication
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
+        # 'rest_framework.authentication.BasicAuthentication',
         # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
     ]

@@ -33,7 +33,7 @@ class UserModel(AbstractBaseUser):
     balance = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
     profile_image = CloudinaryField('profile_image', blank=True, null=True)
     is_active = models.BooleanField(default=True)
-    is_owner = models.BooleanField(default=False)
+    is_owner = models.BooleanField(default=None)
     is_superuser = models.BooleanField(default=False)
     is_emailverified = models.BooleanField(default=False)
 

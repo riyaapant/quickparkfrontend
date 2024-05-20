@@ -33,6 +33,10 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
+class UpdateProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = 'UserModel'
+        field = '__all__'
 
 # class ProfileSerializer(serializers.Serializer):
 #     profile = serializers.CloudinaryField('profile')
