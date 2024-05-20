@@ -18,7 +18,7 @@ from .views import (
 urlpatterns = [
     path('register',Register.as_view(), name='register'),
     path('login',Login.as_view(), name='login'),
-    path('profile/<id>',Profile.as_view(), name='profile'),
+    path('profile',Profile.as_view(), name='profile'),
     path('upload/image',UploadProfile.as_view(), name='profile_image'),
     path('upload/customer/file',UploadFileCustomer.as_view(), name='file'),
     path('upload/owner/file',UploadFileOwner.as_view(), name='file'),

@@ -25,9 +25,9 @@ class Profile(APIView):
                 'contact'   : user.contact,
                 'address'   : user.address,
                 'document'  : user.owner.home_paper
-                # 'is_owner'  : user.is_owner
+                'is_owner'  : user.is_owner
             }, status= status.HTTP_200_OK)
-        else if user.is_owner==False:
+        elif user.is_owner==False:
             return Response({
                 'firstName' : user.first_name,
                 'lastName'  : user.last_name,
@@ -37,7 +37,7 @@ class Profile(APIView):
                 'address'   : user.address,
                 'document'  : user.customer.license_paper,
                 'vehicleId' : user.customer.vehicle_id
-                # 'is_owner'  : user.is_owner
+                'is_owner'  : user.is_owner
             }, status= status.HTTP_200_OK)
 
 class UpdateUser(APIView):
@@ -106,13 +106,13 @@ class Login(APIView):
 
 
 class UploadProfile(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     def put(self,request,id):
         # try:
         profile = request.data['profile']
         # user = request.user
         user = UserModel.objects.get(pk=id)
-        user.profile = profile
+        user.profile_image = profile
         user.save()
         return Response("Profile Updated", status = status.HTTP_200_OK)
         # except:
