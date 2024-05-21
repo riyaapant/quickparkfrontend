@@ -18,4 +18,3 @@ class Reservation(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
     total_amount = models.DecimalField(max_digits=8,decimal_places=2,null=True)
-
