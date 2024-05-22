@@ -16,8 +16,7 @@ services:
       timeout: 5s
       retries: 3
 
-
-  backend:
+  server:
     build: ./backend
     container_name: qp_server
     command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
@@ -28,8 +27,24 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - qp_net
+  
+  redis:
+    image: redis:latest
+    container_name: qp_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - qp_net
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
 
 volumes:
   postgres_data:

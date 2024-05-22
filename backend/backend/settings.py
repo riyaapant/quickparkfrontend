@@ -55,7 +55,20 @@ cloudinary.api.create_folder("Quickpark")
 #Default filestore
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
+
+#ASGI Server setup
 ASGI_APPLICATION = 'backend.asgi.application'
+
+#Redis for channels configuration
+CHANNELS_Layers = {
+    'default': {
+        'Backend': 'channel_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis',6379)],
+        },
+    },
+}
+
 
 # Application definition
 
