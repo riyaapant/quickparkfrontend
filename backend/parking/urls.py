@@ -1,7 +1,14 @@
 from django.urls import path
-from .views import AddParking
+from .views import (
+    AddParking,
+    ViewParkingLocations,
+    ViewParking,
+    ViewReservation
+)
 
 urlpatterns = [
     path('addparking',AddParking.as_view(), name='add_parking'),
-    # path('viewparking',Vie)
+    path('viewparkinglocations',ViewParkingLocations.as_view(), name='view_parking_locations'),
+    path('viewparking', ViewParking.as_view(), name='View_parking'),
+    path('viewreservation', ViewReservation.as_view(), name='view_reservations'),
 ]

@@ -17,7 +17,7 @@ class AddParking(APIView):
             return Response('Parkign added Successfully', status=status.HTTP_200_OK)
         return Response('Parking data serialization failed', status = status.HTTP_400_BAD_REQUEST)
 
-class ViewParkingLocation(APIView):
+class ViewParkingLocations(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):
         parking_locations = ParkingLocation.objects.all()

@@ -1,4 +1,4 @@
-from channels.generic import websocket
+from channels.generic.websocket import AsyncWebsocketConsumer
 
-class ViewParking(websocket.WebsocketConsumers):
+class ViewParking(AsyncWebsocketConsumer):
     pass

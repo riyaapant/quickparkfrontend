@@ -19,5 +19,5 @@ class Reservation(models.Model):
     end_time = models.DateTimeField(null=True)
     total_amount = models.DecimalField(max_digits=8,decimal_places=2,null=True)
 
-class Payment(models.Model):
-    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+# class Payment(models.Model):
+#     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)

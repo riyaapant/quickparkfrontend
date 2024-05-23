@@ -86,6 +86,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'cloudinary',
     'cloudinary_storage',
+    'channels',
     #Apps
     'user_auth.apps.UserAuthConfig',
     'parking.apps.ParkingConfig',
