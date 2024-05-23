@@ -17,8 +17,10 @@ export default function Login() {
     const navigate = useNavigate()
 
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
+    const location = useSelector((state) => state.userLocation)
 
     useEffect(() => {
+        console.log(location)
         if (isLoggedIn) {
             navigate('/dashboard')
         }

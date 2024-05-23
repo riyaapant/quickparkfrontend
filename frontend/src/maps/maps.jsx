@@ -1,10 +1,16 @@
-import { APIProvider, Map, Marker } from '@vis.gl/react-google-maps';
-import { useState } from 'react';
+import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+// import { useDispatch } from 'react-redux';
+import { setCred } from "../features/credSlice";
 
-const Maps2 = () => {
+const Maps = () => {
+
+  // const dispatch = useDispatch()
 
   const apikey = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY
+
+  const map = useMap('fetchUserLocation')
 
   const [locationFetched, setLocationFetched] = useState(false)
   const [errorMessage, setErrorMessage] = useState('');
@@ -22,15 +28,21 @@ const Maps2 = () => {
         setLocationFetched(true)
         setMessage(true)
         setErrorMessage('')
-        console.log(userLocation)
-        // console.log("User location fetched")
+        // dispatch(setCred({
+        //   userLocation:{
+        //     lat: userLocation.lat,
+        //     lng: userLocation.lng
+        //   }
+        // }))
       },
       (error) => {
-        // console.error("Error getting location", error);
         setErrorMessage("Error getting location. Please try again.")
       }
     );
   };
+
+  useEffect(()=>
+  console.log(userLocation),[])
 
   const onMapClick = (e) => {
     setUserLocation({
@@ -48,6 +60,7 @@ const Maps2 = () => {
     setUserLocation(newLocation);
     console.log(userLocation)
   }
+
 
   return (
     <main className='flex flex-col justify-center items-center h-screen'>
@@ -75,7 +88,7 @@ const Maps2 = () => {
               apiKey={apikey}>
 
               <Map
-                id='get-user-location'
+                id='fetchUserLocation'
                 center={userLocation}
                 defaultZoom={15}
                 onClick={onMapClick}
@@ -89,8 +102,8 @@ const Maps2 = () => {
             </APIProvider >
             {message &&
               <>
-                <p className='text-lg'>Click on the map or drag the marker to change your location. Click  
-                 <Link to="/dashboard/home" className='text-qp underline'>confirm</Link> once you're done.</p>
+                <p className='text-lg'>Click on the map or drag the marker to change your location. Click
+                  <Link to="/dashboard/home" className='text-qp underline'>confirm</Link> once you're done.</p>
               </>
             }
           </>
@@ -102,4 +115,4 @@ const Maps2 = () => {
   )
 }
 
-export default Maps2
+export default Maps
