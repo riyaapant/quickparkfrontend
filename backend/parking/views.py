@@ -13,13 +13,13 @@ class AddParking(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         user = UserModel.objects.get(id=request.user.id)
-        usr = UserSerializer(data=user)
-        serializer = ParkingSerializer(data=request.data)
+        serializer = ParkingSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=user)
-            return Response('Parking added successfully', status=status.HTTP_200_OK)
+            return Response("parking added successfully", status=status.HTTP_200_OK)
         return Response('Parking data serialization failed', status = status.HTTP_400_BAD_REQUEST)
         # park_obj = ParkingLocation.objects.create(user=user,address=request.data['address'],total_spot=request.data['total_spot'],lat=request.data['lat'],lon=request.data['lon'])
+        # park_obj.save()
         # return Response(park_obj.id, status=status.HTTP_200_OK)
 
 class ViewParkingLocations(APIView):
