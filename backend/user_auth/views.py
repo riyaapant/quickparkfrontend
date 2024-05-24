@@ -2,20 +2,20 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authentication import SessionAuthentication
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
-    
+
 UserModel = get_user_model()
 
 class Profile(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
         user = request.user
-        # user = UserModel.objects.get(pk=id)
+        user = UserModel.objects.get(id=user.id)
         if user.is_owner==True:
             return Response({
                 'firstName' : user.first_name,
@@ -32,13 +32,14 @@ class Profile(APIView):
                 'firstName' : user.first_name,
                 'lastName'  : user.last_name,
                 'email'     : user.email,
-                'profile'   : user.profile.url if user.profile else None,
+                'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
                 'address'   : user.address,
                 'document'  : user.customer.license_paper,
                 'vehicleId' : user.customer.vehicle_id,
-                'is_owner'  : user.is_owner
+                'is_owner'  : user.is_owner,
             }, status= status.HTTP_200_OK)
+        return Response("is_owner is not defined in user", status=status.HTTP_404_NOT_FOUND)
 
 class UpdateUser(APIView):
     def get(self,request):
@@ -49,6 +50,8 @@ class UpdateUser(APIView):
 class UpdateProfile(APIView):
     def put(self,request):
         user = request.user
+        if user.is_authenticated:
+            return Response("Fuck off", status=status.HTTP_200_OK)
         serializer = UpdateProfileSerializer(user, data=request.data,partial=True)
         if serializer.is_valid():
             serializer.save()
@@ -268,8 +271,8 @@ class ChangePassword(APIView):
 
 
 
-# class Logout(APIView):
-#     def get(self,request):
-#         logout(request)
-#         return Response("User logged out successfully", status = status.HTTP_200_OK)
+class Logout(APIView):
+    def get(self,request):
+        logout(request)
+        return Response("User logged out successfully", status = status.HTTP_200_OK)
 

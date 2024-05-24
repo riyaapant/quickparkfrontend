@@ -14,6 +14,7 @@ from .views import (
     EmailVerification,
     ResetPassword,
     ChangePassword,
+    Logout,
 )
 urlpatterns = [
     path('register',Register.as_view(), name='register'),
@@ -31,5 +32,5 @@ urlpatterns = [
     path('verify/<id>/<token>', EmailVerification.as_view(), name='verify_email'),
     path('reset/<id>/<token>', ResetPassword.as_view(), name='reset_password'),
     path('changepassword', ChangePassword.as_view(), name = 'change_password'),
-    # path('logout',Logout.as_view(), name='logout'),
+    path('logout',Logout.as_view(), name='logout'),
 ]

@@ -5,17 +5,22 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import get_user_model
 from .serializers import ParkingSerializer
 from .models import ParkingLocation,Reservation
+from user_auth.serializers import UserSerializer
 
 UserModel = get_user_model()
 
 class AddParking(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
+        user = UserModel.objects.get(id=request.user.id)
+        usr = UserSerializer(data=user)
         serializer = ParkingSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
-            return Response('Parkign added Successfully', status=status.HTTP_200_OK)
+            serializer.save(user=user)
+            return Response('Parking added successfully', status=status.HTTP_200_OK)
         return Response('Parking data serialization failed', status = status.HTTP_400_BAD_REQUEST)
+        # park_obj = ParkingLocation.objects.create(user=user,address=request.data['address'],total_spot=request.data['total_spot'],lat=request.data['lat'],lon=request.data['lon'])
+        # return Response(park_obj.id, status=status.HTTP_200_OK)
 
 class ViewParkingLocations(APIView):
     permission_classes = [IsAuthenticated]
