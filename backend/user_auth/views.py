@@ -109,7 +109,19 @@ class Login(APIView):
             if user:
                 login(request,user)
                 refresh = RefreshToken.for_user(user)
-                return Response({'refresh': str(refresh),'access': str(refresh.access_token)}, status=status.HTTP_202_ACCEPTED)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token),
+                    'firstName' : user.first_name,
+                    'lastName'  : user.last_name,
+                    'email'     : user.email,
+                    'profile'   : user.profile_image.url if user.profile_image else None,
+                    'contact'   : user.contact,
+                    'address'   : user.address,
+                    'document'  : user.customer.license_paper,
+                    'vehicleId' : user.customer.vehicle_id,
+                    'is_owner'  : user.is_owner,
+                }, status=status.HTTP_202_ACCEPTED)
             else:
                 return Response("Invalid login credentials \n Have you verified your account?", status = status.HTTP_404_NOT_FOUND)
         else:
@@ -257,8 +269,9 @@ class ResetPassword(APIView):
             return Response('Invalid token', status = status.HTTP_406_NOT_ACCEPTABLE)
 
 class ChangePassword(APIView):
+    permission_classes = [IsAuthenticated]
     def put(self,request):
-        user = request.user
+        user = UserModel.objects.get(id=request.user.id)
         if request.data['old_password'] and request.data['new_password']:
             if user.check_password(request.data['old_password']):
                 user.set_password(request.data['new_password'])
