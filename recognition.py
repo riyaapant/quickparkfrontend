@@ -1,81 +1,111 @@
-from ultralytics import YOLO
-from ultralytics.models.yolo.detect.predict import DetectionPredictor
-
-
-import easyocr
 import cv2
+import pandas as pd
+from ultralytics import YOLO
+import numpy as np
+import pytesseract
+from datetime import datetime
 
-from ultralytics.engine.predictor import BasePredictor
-from ultralytics.engine.results import Results
-from ultralytics.utils import ops
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 
-reader=easyocr.Reader(['en'],gpu=True)
+model = YOLO('C:/Users/user/Boeing_I3C/quickpark/cars.pt')
 
-def perform_ocr(img,coordinates):
-    x,y,w,h=map(int, coordinates)
-    cropped_img=img[y:h,x:w]
+def RGB(event, x, y, flags, param):
+    if event == cv2.EVENT_MOUSEMOVE:
+        point = [x, y]
+        print(point)
 
-    gray_img=cv2.cvtColor(cropped_img,cv2.COLOR_BGR2GRAY)
-    res=reader.readtext(gray_img)
+cv2.namedWindow('RGB')
+cv2.setMouseCallback('RGB', RGB)
 
-    text=""
-    for result in res:
-        if len(res)==1 or (len(result[1])<6 and len(result[2])>0.2):
-            text=result[1]
+cap = cv2.VideoCapture(0)
 
-    return str(text)        
+my_file = open("coco1.txt", "r")
+data = my_file.read()
+class_list = data.split("\n") 
 
+area = [(27, 417), (16, 503), (1015, 503), (992, 417)]
 
+count = 0
+list1 = []
+processed_numbers = set()
 
+# Open file for writing car plate data
+with open("license.txt", "a") as file:
+    file.write("NumberPlate        Date      Time\n") 
 
+def preprocess_image(image):
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.bilateralFilter(gray, 11, 17, 17)
+    edged = cv2.Canny(gray, 170, 200)
+    cv2.imshow("Canny Edges", edged)
+    return gray
 
-class DetectionPredictor(BasePredictor):
-    """
-    A class extending the BasePredictor class for prediction based on a detection model.
+def post_process_text(text):
+    text = text.replace('G', '0')  # Replace 'O' with '0'
+    text = text.replace('I', '1')  # Replace 'I' with '1'
+    text = text.replace('S', '5')  # Replace 'S' with '5'
+    text = ''.join([c for c in text if c.isalnum()])  # Remove non-alphanumeric characters
+    return text
 
-    Example:
-        ```python
-        from ultralytics.utils import ASSETS
-        from ultralytics.models.yolo.detect import DetectionPredictor
+def display_feedback(frame, message):
+    cv2.putText(frame, message, (30, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2, cv2.LINE_AA)
 
-        args = dict(model='yolov8n.pt', source=ASSETS)
-        predictor = DetectionPredictor(overrides=args)
-        predictor.predict_cli()
-        ```
-    """
+def is_valid_license_plate(text):
+    # Assuming license plate format is three letters followed by four digits (e.g., BAA1234)
+    return len(text) == 7 and text[:3].isalpha() and text[3:].isdigit()
 
-    def postprocess(self, preds, img, orig_imgs):
-        """Post-processes predictions and returns a list of Results objects."""
-        preds = ops.non_max_suppression(
-            preds,
-            self.args.conf,
-            self.args.iou,
-            agnostic=self.args.agnostic_nms,
-            max_det=self.args.max_det,
-            classes=self.args.classes,
-        )
+while True:    
+    ret, frame = cap.read()
+    count += 1
+    if count % 3 != 0:
+        continue
+    if not ret:
+       break
+   
+    frame = cv2.resize(frame, (1020, 500))
+    results = model.predict(frame)
+    a = results[0].boxes.data
+    px = pd.DataFrame(a).astype("float")
+   
+    for index, row in px.iterrows():
+        x1 = int(row[0])
+        y1 = int(row[1])
+        x2 = int(row[2])
+        y2 = int(row[3])
+        
+        d = int(row[5])
+        c = class_list[d]
+        cx = int(x1 + x2) // 2
+        cy = int(y1 + y2) // 2
+        result = cv2.pointPolygonTest(np.array(area, np.int32), ((cx, cy)), False)
+        if result >= 0:
+           crop = frame[y1:y2, x1:x2]
+           gray = preprocess_image(crop)
+          
+           text = pytesseract.image_to_string(gray).strip()
+           processed_text = post_process_text(text)
+           cv2.putText(frame, processed_text, (x1, y1), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0, 0, 255), 1)
+            
+           # Feedback mechanism
+           if not is_valid_license_plate(processed_text):  
+               display_feedback(frame, "Zoom in or reposition license plate")
+           else:
+               display_feedback(frame, "License plate recognized")
+                
+               if processed_text not in processed_numbers:
+                   processed_numbers.add(processed_text) 
+                   list1.append(processed_text)
+                   current_datetime = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                   with open("license.txt", "a") as file:
+                       file.write(f"{processed_text}\t{current_datetime}\n")
+                       cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 1)
+                       cv2.imshow('crop', crop)
 
-        if not isinstance(orig_imgs, list):  # input images are a torch.Tensor, not a list
-            orig_imgs = ops.convert_torch2numpy_batch(orig_imgs)
+    cv2.polylines(frame, [np.array(area, np.int32)], True, (0, 255, 0), 2)
+    cv2.imshow("RGB", frame)
+    if cv2.waitKey(1) & 0xFF == 27:
+        break
 
-        results = []
-        for i, pred in enumerate(preds):
-            orig_img = orig_imgs[i]
-            pred[:, :4] = ops.scale_boxes(img.shape[2:], pred[:, :4], orig_img.shape)
-            img_path = self.batch[0][i]
+cap.release()    
+cv2.destroyAllWindows()
 
-
-             # Perform OCR for each bounding box
-            ocr_results = []
-            for bbox in pred:
-                x1, y1, x2, y2, conf, class_id = bbox
-                # Assuming class_id corresponds to the license plate class
-                if int(class_id) == YOUR_LICENSE_PLATE_CLASS_ID:
-                    # Extract the bounding box coordinates
-                    bbox_coordinates = [x1, y1, x2, y2]
-                    # Call perform_ocr function
-                    ocr_text = perform_ocr(orig_img, bbox_coordinates)
-                    ocr_results.append((bbox_coordinates, ocr_text))
-
-            results.append(Results(orig_img, path=img_path, names=self.model.names, boxes=pred))
-        return results
