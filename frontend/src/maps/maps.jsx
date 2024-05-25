@@ -1,12 +1,9 @@
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-// import { useDispatch } from 'react-redux';
-import { setCred } from "../features/credSlice";
 
 const Maps = () => {
 
-  // const dispatch = useDispatch()
 
   const apikey = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY
 
@@ -28,12 +25,6 @@ const Maps = () => {
         setLocationFetched(true)
         setMessage(true)
         setErrorMessage('')
-        // dispatch(setCred({
-        //   userLocation:{
-        //     lat: userLocation.lat,
-        //     lng: userLocation.lng
-        //   }
-        // }))
       },
       (error) => {
         setErrorMessage("Error getting location. Please try again.")
@@ -42,7 +33,7 @@ const Maps = () => {
   };
 
   useEffect(()=>
-  console.log(userLocation),[])
+  console.log(userLocation))
 
   const onMapClick = (e) => {
     setUserLocation({

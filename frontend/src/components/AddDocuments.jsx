@@ -1,18 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import config from '../features/config';
 
 const AddDocument = () => {
     const [isSubmitted, setIsSubmitted] = useState(false);
+    const [profilePic, setProfilePic] = useState(null);
+    // const [vehicleId, setVehicleId] = useState('');
+    // const [document, setDocument] = useState(null);
+    const profilePicInputRef = useRef(null);
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Simulate form submission and verification
-        setIsSubmitted(true);
+    const token = useSelector((state) => state.token)
+
+    // const api = axios.create({
+    //     baseURL: config.BASE_URL,
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': 'Bearer ' + `${token}`
+    //     },
+    // });
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        const formData = new FormData();
+        formData.append('file', profilePic);
+        try {
+            await axios.put(`${config.BASE_URL}/upload/image`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': 'Bearer ' + `${token}`
+                }
+            });
+            console.log('File uploaded successfully');
+        } catch (error) {
+            console.error('Error uploading file: ', error);
+        }
+    };
+
+    const handleProfilePicChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setProfilePic(file);
+        }
+    };
+
+    // const handleVehicleIdChange = (e) => {
+    //     setVehicleId(e.target.value);
+    // };
+
+    // const handleDocumentChange = (e) => {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         setDocument(file);
+    //     }
+    // };
+
+    const handleProfilePicClick = () => {
+        profilePicInputRef.current.click();
     };
 
     return (
         <div>
             {!isSubmitted ? (
-                <div className="h-screen p-20 flex flex-col w-2/3">
+                <div className="h-screen p-10 flex flex-col w-2/3">
                     <section className='h-auto'>
                         <p className='text-2xl font-bold'>Let's get you verified</p>
                         <p className='text-lg'>We will manually verify these documents to list you as a parking land owner</p>
@@ -20,24 +70,50 @@ const AddDocument = () => {
 
                     <section className='flex-grow justify-center pt-10'>
                         <form className='flex flex-col gap-y-8' onSubmit={handleSubmit}>
-                            <div>
-                                <label htmlFor="land-registration-document">Upload your land registration papers</label>
+                            <div className='flex flex-row justify-between'>
+                                <label htmlFor="profile-picture" className='block mb-2'>Upload your profile picture</label>
                                 <input
                                     type='file'
-                                    id="land-registration-document"
-                                    name="landRegistration"
-                                    className="w-full"
+                                    id="profile-picture"
+                                    name="profilePicture"
+                                    className="w-full hidden"
+                                    ref={profilePicInputRef}
+                                    onChange={handleProfilePicChange}
+                                />
+                                <div className='cursor-pointer' onClick={handleProfilePicClick}>
+                                    {profilePic ? (
+                                        <img src={profilePic} alt="Profile Preview" className="mt-2 w-40 h-40 object-cover rounded-md border" />
+                                    ) : (
+                                        <div className="mt-2 w-40 h-40 flex items-center justify-center border rounded-md">
+                                            <span className="text-gray-500">Choose Picture</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            {/* <div>
+                                <label htmlFor="vehicle-id" className='block mb-2'>Enter your vehicle ID</label>
+                                <input
+                                    type='text'
+                                    id="vehicle-id"
+                                    name="vehicleId"
+                                    className="w-full px-3 py-2 border rounded-md"
+                                    value={vehicleId}
+                                    onChange={handleVehicleIdChange}
+                                    required
                                 />
                             </div>
                             <div>
-                                <label htmlFor="tax-document">Upload your land tax papers</label>
+                                <label htmlFor="document" className='block mb-2'>Upload your document</label>
                                 <input
                                     type='file'
-                                    id="tax-document"
-                                    name="taxDocument"
+                                    id="document"
+                                    name="document"
                                     className="w-full"
+                                    onChange={handleDocumentChange}
+                                    required
                                 />
-                            </div>
+                                {document && <p className="mt-2">{document.name}</p>}
+                            </div> */}
                             <div className='h-auto'>
                                 <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                     Next
@@ -60,3 +136,4 @@ const AddDocument = () => {
 };
 
 export default AddDocument;
+

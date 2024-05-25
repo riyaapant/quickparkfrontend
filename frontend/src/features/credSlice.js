@@ -4,7 +4,7 @@
         name: 'cred',
         initialState: {
             isLoggedIn: false,
-            role: null,
+            role: 'user',
             token: '',
             refreshToken: '',
             // userLocation: {}

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import '../form.css'
 
+import config from "../../features/config.js";
+
 import LogoWhite from '../../components/shared/LogoWhite.jsx'
 
 export default function ForgotPassword() {
@@ -12,6 +14,13 @@ export default function ForgotPassword() {
     const [response, setResponse] = useState('')
     const [loading, setLoading] = useState(false)
 
+    const api = axios.create({
+        baseURL: config.BASE_URL,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
     function handleEmailChange(e) {
         setEmail(e.target.value)
     }
@@ -21,7 +30,7 @@ export default function ForgotPassword() {
         setLoading(true)
         console.log(email)
         try {
-            const response = await axios.post('http://110.44.121.73:2564/forgetpassword', { email });
+            const response = await api.post(`${config.BASE_URL}/forgetpassword`, { email });
             setResponse(response.data)
             console.log(response)
             setLoading(false)

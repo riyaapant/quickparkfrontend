@@ -3,11 +3,14 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+
 import { setCred } from "../../features/credSlice.js";
+import config from "../../features/config.js";
+
 import '../form.css'
 import LogoWhite from '../../components/shared/LogoWhite.jsx'
-// import logowhite from '../media/logowhite.png'
 import mapsimage from '../../media/mapsimage.png'
+
 
 
 export default function Login() {
@@ -18,6 +21,13 @@ export default function Login() {
 
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
     const location = useSelector((state) => state.userLocation)
+    
+    const api = axios.create({
+        baseURL: config.BASE_URL,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
 
     useEffect(() => {
         console.log(location)
@@ -27,19 +37,12 @@ export default function Login() {
     }, [isLoggedIn])
 
     const [formData, setFormData] = useState({
-        selectedRole: '',
         email: '',
         password: ''
     })
 
     const [errorMessage, setErrorMessage] = useState('')
 
-    const handleRoleClick = (role) => {
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            selectedRole: role,
-        }));
-    }
     function handleEmailChange(e) {
         setFormData((prevFormData) => ({
             ...prevFormData,
@@ -56,20 +59,13 @@ export default function Login() {
 
     const handleFormSubmission = async (e) => {
         e.preventDefault();
-        if (formData.selectedRole === '') {
-            setErrorMessage("Select a role to continue login")
-            return;
-        }
         try {
-            const response = await axios.post(`http://110.44.121.73:2564/${formData.selectedRole}/login`, formData)
-            // const response = await axios.post(`http://localhost:8000/${formData.selectedRole}/login`, formData)
+            const response = await api.post(`${config.BASE_URL}/login`, formData)
             if (response.status == 202) {
-                const auth = await axios.post(`http://110.44.121.73:2564/api/token`, formData)
                 dispatch(setCred({
                     isLoggedIn: true,
-                    token: auth.data.access,
-                    refreshToken: auth.data.refresh,
-                    role: formData.selectedRole
+                    token: response.data.access,
+                    refreshToken: response.data.refresh
                 }))
                 navigate(`/dashboard`)
             }
@@ -94,26 +90,6 @@ export default function Login() {
                 <div className=" w-full max-w-md"> {/* Adjusted max-w-md */}
                     <h2 className="text-center text-2xl font-bold text-gray-900 mb-10">Login to your account</h2>
                     <form className="flex flex-col gap-y-5 w-full" onSubmit={handleFormSubmission}>
-                        <div className="flex justify-between gap-2 mb-3">
-                            <button
-                                className={`w-full text-lg rounded-md p-2 focus:outline-none ${formData.selectedRole === 'user' ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-900'}`}
-                                onClick={() => handleRoleClick('user')}
-                            >
-                                User
-                            </button>
-                            <button
-                                className={`w-full text-lg rounded-md p-2 focus:outline-none ${formData.selectedRole === 'owner' ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-900'}`}
-                                onClick={() => handleRoleClick('owner')}
-                            >
-                                Owner
-                            </button>
-                            <button
-                                className={`w-full text-lg rounded-md p-2 focus:outline-none ${formData.selectedRole === 'admin' ? 'bg-indigo-500 text-white' : 'bg-gray-100 text-gray-900'}`}
-                                onClick={() => handleRoleClick('admin')}
-                            >
-                                Admin
-                            </button>
-                        </div>
 
                         <div>
                             <label htmlFor="email" className="text-gray-900 block">Email Address</label>
@@ -128,7 +104,6 @@ export default function Login() {
                                 <label htmlFor="password" className="text-gray-900 block">Password</label>
                                 <div className="text-sm">
                                     <Link to="/forgotpassword" className="font-semibold text-indigo-600 hover:text-indigo-400">Forgot Password?</Link>
-                                    {/* <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-400">Forgot password?</a> */}
                                 </div>
                             </div>
                             <input id="password" name="password" type="password" required value={formData.password}
@@ -147,6 +122,9 @@ export default function Login() {
                         Don't have an account?
                         <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-400"> Sign Up</Link>
                     </p>
+                    <p className="text-center text-sm text-gray-500 mt-5">
+                    <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-400"> Login as Admin</Link>
+                </p>
                 </div>
             </div>
         </main>

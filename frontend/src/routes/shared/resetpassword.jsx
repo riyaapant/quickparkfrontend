@@ -4,6 +4,8 @@ import axios from "axios";
 import '../form.css'
 import LogoWhite from '../../components/shared/LogoWhite.jsx'
 
+import config from "../../features/config.js";
+
 
 export default function ResetPassword() {
 
@@ -14,6 +16,14 @@ export default function ResetPassword() {
     const [errorMessage, setErrorMessage] = useState('')
     const [response, setResponse] = useState('')
     const [loading, setLoading] = useState(false)
+
+    const api = axios.create({
+        baseURL: config.BASE_URL,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
 
     // const navigate = useNavigate()
 
@@ -60,7 +70,7 @@ export default function ResetPassword() {
             setErrorMessage('')
             const password = formData.password
             try {
-                const response = await axios.put(`http://110.44.121.73:2564/reset/${uid}/${token}`, { password })
+                const response = await api.put(`${config.BASE_URL}/reset/${uid}/${token}`, { password })
                 setResponse(response.data)
             } catch (e) {
                 setErrorMessage(e.response.data)
@@ -113,7 +123,7 @@ export default function ResetPassword() {
                         }
 
                         <div>
-                            <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Send Email</button>
+                            <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Reset Password</button>
                         </div>
                     </form>
                 </div>

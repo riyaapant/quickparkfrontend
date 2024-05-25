@@ -5,16 +5,25 @@ import axios from "axios";
 import LogoBlue from "../../components/shared/LogoBlue";
 import '../form.css'
 
+import config from "../../features/config";
+
 export default function Message() {
     const { uid, token } = useParams()
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
     const [success, setSuccess] = useState(false);
 
+    const api = axios.create({
+        baseURL: config.BASE_URL,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+      });
+
     useEffect(() => {
         const verifyEmail = async () => {
             try {
-                const response = await axios.get(`http://110.44.121.73:2564/verify/${uid}/${token}`);
+                const response = await api.get(`${config.BASE_URL}/verify/${uid}/${token}`);
                 setMessage(response.data);
                 setSuccess(true);
             } catch (error) {

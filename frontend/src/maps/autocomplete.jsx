@@ -1,15 +1,8 @@
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
-// import { Cigarette } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-// import { useDispatch, useSelector } from "react-redux";
+import { useState } from 'react';
 
 
 const AutoComplete = () => {
-
-    // const dispatch = useDispatch()
-
-    // const userLocation = useSelector((state) => state.user);
 
     const apikey = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY
     const map = useMap('autocomplete')

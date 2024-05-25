@@ -2,24 +2,25 @@ import {
   createBrowserRouter,
   RouterProvider
 } from 'react-router-dom';
-import Login from './routes/login';
-import ForgotPassword from './routes/forgotpassword';
-import ResetPassword from './routes/resetpassword'
-import Message from './routes/emailverification'
-import Register from './routes/register';
-import SideBar from './components/Sidebar';
-import Dashboard from './routes/dashboard';
+import Login from './routes/shared/login';
+import ForgotPassword from './routes/shared/forgotpassword';
+import ResetPassword from './routes/shared/resetpassword'
+import Message from './routes/shared/emailverification'
+import Register from './routes/shared/register';
+import SideBar from './components/shared/Sidebar';
+import Dashboard from './routes/shared/dashboard';
 import AddDocument from './components/AddDocuments';
-import Profile from './components/Profile';
+import Profile from './components/shared/Profile';
 import Maps from './maps/maps';
 import AutoComplete from './maps/autocomplete';
-import MapSearch from './experiment/MapSearch';
+
+import AdminDashboard from './routes/admin/Dashboard';
+import PendingRequests from './components/admin/Requests';
+import UserDetails from './components/admin/UserProfile';
+import EditProfile from './components/shared/EditProfile.jsx';
+import ChangePassword from './components/shared/ChangePassword.jsx';
 
 const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MapSearch />
-  },
   {
     path: "/login",
     element: <Login />
@@ -36,6 +37,36 @@ const router = createBrowserRouter([
         path: "",
         element: <AddDocument />
       },
+      {
+        path: "maps",
+        element: <Maps />
+      },
+      // {
+      //   path: "maps",
+      //   element: <AutoComplete />
+      // },
+      {
+        path: "profile",
+        element: <Profile />
+      },
+      {
+        path: "profile/edit",
+        element: <EditProfile />
+      },
+      {
+        path: "profile/changepassword",
+        element: <ChangePassword />
+      }
+    ],
+  },
+  {
+    path: "/admin/dashboard",
+    element: <AdminDashboard />,
+    children: [
+      {
+        path: "",
+        element: <PendingRequests />
+      },
       // {
       //   path: "maps",
       //   element: <Maps />
@@ -45,11 +76,12 @@ const router = createBrowserRouter([
         element: <AutoComplete />
       },
       {
-        path: "profile",
-        element: <Profile />
+        path: "userprofile",
+        element: <UserDetails />
       }
     ],
   },
+  
   {
     path: "/sidebar",
     element: <SideBar />
