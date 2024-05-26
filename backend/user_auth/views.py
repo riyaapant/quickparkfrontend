@@ -14,8 +14,7 @@ UserModel = get_user_model()
 class Profile(APIView):
     permission_classes = [IsAuthenticated]
     def get(self, request):
-        user = request.user
-        user = UserModel.objects.get(id=user.id)
+        user = UserModel.objects.get(id=request.user.id)
         if user.is_owner==True:
             return Response({
                 'firstName' : user.first_name,
@@ -49,7 +48,7 @@ class UpdateUser(APIView):
 
 class UpdateProfile(APIView):
     def put(self,request):
-        user = request.user
+        user = UserModel.objects.get(id=request.user.id)
         if user.is_authenticated:
             return Response("Fuck off", status=status.HTTP_200_OK)
         serializer = UpdateProfileSerializer(user, data=request.data,partial=True)
@@ -127,13 +126,21 @@ class Login(APIView):
         else:
             return Response("Unacceptable Request", status = status.HTTP_406_NOT_ACCEPTABLE)
 
+class VehicleID(APIView):
+    def put(self,request):
+        vehicle = request.data['vehicle_id']
+        user = UserModel.objects.get(id=request.user.id)
+        customer = user.customer
+        customer.vehicle_id = vehicle
+        customer.save()
+        return Response('Vehicle Number updated', status=status.HTTP_200_OK)
 
 class UploadProfile(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request):
         # try:
         profile = request.data['profile']
-        user = request.user
+        user = UserModel.objects.get(id=request.user.id)
         # user = UserModel.objects.get(pk=id)
         user.profile_image = profile
         user.save()
@@ -145,7 +152,7 @@ class UploadFileCustomer(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request):
         document = request.data['file']
-        user = request.user
+        user = UserModel.objects.get(id=request.user.id)
         # user = UserModel.objects.get(pk=id)
         customer = user.customer
         customer.license_paper = document
@@ -159,7 +166,7 @@ class UploadFileOwner(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request):
         document = request.data['file']
-        user = request.user
+        user = UserModel.objects.get(id=request.user.id)
         # user = UserModel.objects.get(pk=id)
         owner = user.owner
         owner.home_paper = document

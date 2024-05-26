@@ -19,11 +19,11 @@ services:
   server:
     build: ./backend
     container_name: qp_server
-    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runserver 0.0.0.0:2564"
     volumes:
       - ./backend:/code/
     ports:
-      - "2564:8000"
+      - "2564:2564"
     depends_on:
       db:
         condition: service_healthy
