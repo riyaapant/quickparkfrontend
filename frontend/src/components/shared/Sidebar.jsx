@@ -1,12 +1,59 @@
 import LogoWhite from "./LogoWhite"
 import { UserCircle, MapPin, Home, SquareUser } from "lucide-react"
-import { useState } from "react";
-import { useDispatch } from 'react-redux';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
+import config from "../../features/config";
+import axios from "axios";
 
 import { setCred } from "../../features/credSlice";
 
 export default function SideBar() {
+    const token = useSelector((state) => state.token)
+
+    const api = axios.create({
+        baseURL: config.BASE_URL,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + `${token}`
+        },
+    });
+
+    const [user, setUser] = useState({
+        name: '',
+        email: '',
+        contact: '',
+        address: '',
+        document: '',
+        profile: '',
+        vehicleId: '',
+        isOwner: false,
+        status: 'pending'
+    })
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const response = await api.get(`/profile`);
+                console.log(response)
+                setUser({
+                    name: response.data.firstName + ' ' + response.data.lastName,
+                    email: response.data.email,
+                    contact: response.data.contact,
+                    address: response.data.address,
+                    isOwner: response.data.isOwner,
+                    document: response.data.document,
+                    profile: response.data.profile,
+                    vehicleId: response.data.vehicleId,
+                    status: 'pending'
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        };
+
+        fetchProfile();
+    }, []);
     const dispatch = useDispatch()
 
     const [dropdownVisible, setDropdownVisible] = useState(false)
@@ -45,7 +92,7 @@ export default function SideBar() {
 
             <div className="relative flex flex-row h-16 items-center gap-2 pl-10 text-white hover:bg-white active:bg-white hover:text-qp active:text-qp cursor-pointer" onClick={toggleDropdown}>
                 <UserCircle className="w-10 h-10" />
-                <span className="text-2xl">John Doe</span>
+                <span className="text-2xl">{user.name}</span>
                 {dropdownVisible && (
                     <button className="absolute left-0 bottom-16 w-48 bg-white border rounded-lg shadow-lg px-4 py-2 text-left text-black hover:bg-gray-200" onClick={handleLogout}>Logout</button>
                 )}

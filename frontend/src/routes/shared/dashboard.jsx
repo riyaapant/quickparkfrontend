@@ -13,6 +13,8 @@ export default function Dashboard() {
     const role = useSelector((state) => state.role)
     const refreshToken = useSelector((state) => state.refreshToken)
     const accessToken = useSelector((state) => state.token)
+    const documentsSubmitted = useSelector((state) => state.documentsSubmitted)
+    const userLocation = useSelector((state) => state.userLocation)
 
     const navigate = useNavigate();
 
@@ -21,6 +23,8 @@ export default function Dashboard() {
         console.log("Role: ", role)
         console.log("Refresh Token: ", refreshToken)
         console.log("Access Token: ", accessToken)
+        console.log("Documents Submitted: ", documentsSubmitted)
+        console.log("User Location: ", userLocation)
         if (!isLoggedIn) {
             navigate('/login')
         }

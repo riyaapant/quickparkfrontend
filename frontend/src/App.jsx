@@ -19,6 +19,7 @@ import PendingRequests from './components/admin/Requests';
 import UserDetails from './components/admin/UserProfile';
 import EditProfile from './components/shared/EditProfile.jsx';
 import ChangePassword from './components/shared/ChangePassword.jsx';
+import KhaltiCheckout from './experiment/khalti.jsx';
 
 const router = createBrowserRouter([
   {
@@ -41,10 +42,10 @@ const router = createBrowserRouter([
         path: "maps",
         element: <Maps />
       },
-      // {
-      //   path: "maps",
-      //   element: <AutoComplete />
-      // },
+      {
+        path: "maps/viewparking",
+        element: <AutoComplete />
+      },
       {
         path: "profile",
         element: <Profile />
@@ -97,6 +98,10 @@ const router = createBrowserRouter([
   {
     path: "/verify/:uid/:token",
     element: <Message />
+  },
+  {
+    path: "/khalti",
+    element: <KhaltiCheckout />
   }
 ])
 

@@ -11,7 +11,7 @@ export default function Profile() {
     const token = useSelector((state) => state.token)
 
     const api = axios.create({
-        baseURL: config.BASE_URL,
+        // baseURL: config.BASE_URL,
         headers: {
             'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + `${token}`
@@ -25,13 +25,13 @@ export default function Profile() {
     }
 
     const [user, setUser] = useState({
-        name: null,
-        email: null,
-        contact: null,
-        address: null,
-        document: null,
-        profile: null,
-        vehicleId: null,
+        name: '',
+        email: '',
+        contact: '',
+        address: '',
+        document: '',
+        profile: '',
+        vehicleId: '',
         isOwner: false,
         status: 'pending'
     })
@@ -40,6 +40,7 @@ export default function Profile() {
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`${config.BASE_URL}/profile`);
+                console.log(response)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
                     email: response.data.email,

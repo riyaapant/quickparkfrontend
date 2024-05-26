@@ -1,8 +1,11 @@
 import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 import { useState } from 'react';
+import { useSelector } from 'react-redux';
 
 
 const AutoComplete = () => {
+
+    const userLocation = useSelector((state) => state.userLocation)
 
     const apikey = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY
     const map = useMap('autocomplete')
@@ -10,11 +13,6 @@ const AutoComplete = () => {
     const [searchQuery, setSearchQuery] = useState('')
 
     const [searchResult, setSearchResult] = useState([{}])
-
-    const userLocation = {
-        lat: 27.7647344,
-        lng: 85.344622
-    }
 
     const handleSearchQueryChange = (e) => {
         setSearchQuery(e.target.value)
@@ -78,7 +76,7 @@ const AutoComplete = () => {
                         id='user-location'
                         icon={{
                             url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                          }}
+                        }}
                     />
                     {searchResult.map((result, index) => (
                         <Marker

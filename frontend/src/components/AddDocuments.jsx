@@ -1,38 +1,66 @@
 import React, { useState, useRef } from 'react';
-import { useSelector } from 'react-redux';
 import axios from 'axios';
 import config from '../features/config';
+import { setCred } from '../features/credSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 const AddDocument = () => {
-    const [isSubmitted, setIsSubmitted] = useState(false);
+
+    const dispatch = useDispatch()
+
+    const isSubmitted = useSelector((state) => state.documentsSubmitted)
+    
+    // const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
     const [profilePic, setProfilePic] = useState(null);
     // const [vehicleId, setVehicleId] = useState('');
-    // const [document, setDocument] = useState(null);
+    const [document, setDocument] = useState(null);
     const profilePicInputRef = useRef(null);
 
     const token = useSelector((state) => state.token)
 
-    // const api = axios.create({
-    //     baseURL: config.BASE_URL,
-    //     headers: {
-    //         'Content-Type': 'application/json',
-    //         'Authorization': 'Bearer ' + `${token}`
-    //     },
-    // });
+    const api = axios.create({
+        baseURL: config.BASE_URL,
+        headers: {
+            // 'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + `${token}`
+        },
+    });
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const formData = new FormData();
-        formData.append('file', profilePic);
+        console.log(profilePic)
+        console.log(document)
+        // console.log(vehicleId)
+
+        const profilePicture = new FormData();
+        profilePicture.append('file', profilePic);
+
+        const customerDocument = new FormData();
+        customerDocument.append('file', document)
         try {
-            await axios.put(`${config.BASE_URL}/upload/image`, formData, {
+            const profileUploadResponse = await api.put(`upload/image`, {profile:profilePicture}, {
                 headers: {
-                    'Content-Type': 'multipart/form-data',
+                    // 'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
-            console.log('File uploaded successfully');
+            console.log(profileUploadResponse);
+
+            const documentUploadResponse = await api.put(`upload/customer/file`, {file:customerDocument}, {
+                headers: {
+                    // 'Content-Type': 'multipart/form-data',
+                    'Authorization': 'Bearer ' + `${token}`
+                }
+            });
+            console.log(documentUploadResponse);
+            
+            dispatch(setCred({
+                documentsSubmitted:true
+        }))
         } catch (error) {
+            dispatch(setCred({
+                documentsSubmitted : false
+            }))
             console.error('Error uploading file: ', error);
         }
     };
@@ -48,12 +76,12 @@ const AddDocument = () => {
     //     setVehicleId(e.target.value);
     // };
 
-    // const handleDocumentChange = (e) => {
-    //     const file = e.target.files[0];
-    //     if (file) {
-    //         setDocument(file);
-    //     }
-    // };
+    const handleDocumentChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setDocument(file);
+        }
+    };
 
     const handleProfilePicClick = () => {
         profilePicInputRef.current.click();
@@ -76,8 +104,8 @@ const AddDocument = () => {
                                     type='file'
                                     id="profile-picture"
                                     name="profilePicture"
-                                    className="w-full hidden"
                                     ref={profilePicInputRef}
+                                    className="w-full hidden"
                                     onChange={handleProfilePicChange}
                                 />
                                 <div className='cursor-pointer' onClick={handleProfilePicClick}>
@@ -101,7 +129,7 @@ const AddDocument = () => {
                                     onChange={handleVehicleIdChange}
                                     required
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <label htmlFor="document" className='block mb-2'>Upload your document</label>
                                 <input
@@ -113,7 +141,7 @@ const AddDocument = () => {
                                     required
                                 />
                                 {document && <p className="mt-2">{document.name}</p>}
-                            </div> */}
+                            </div>
                             <div className='h-auto'>
                                 <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                     Next

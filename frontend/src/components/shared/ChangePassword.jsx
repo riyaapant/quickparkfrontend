@@ -88,6 +88,10 @@ export default function ChangePassword() {
         }
     }
 
+    const cancelUpdate = () => {
+        navigate(-1)
+    };
+
     return (
         <>
             {
@@ -141,8 +145,9 @@ export default function ChangePassword() {
                                     </div>
                                 }
 
-                                <div>
-                                    <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Change Password</button>
+                                <div className="flex flex-col gap-y-4">
+                                    <button type="submit" className="w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500">Change Password</button>
+                                    <button onClick={cancelUpdate} className="w-full px-5 justify-center rounded-md bg-slate-100 py-1.5 text-md font-semibold leading-6 text-gray-500 shadow-sm hover:bg-slate-200 hover:text-gray-700" >Cancel</button>
                                 </div>
                             </form>
                         </div>
