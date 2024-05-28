@@ -34,7 +34,7 @@ class Profile(APIView):
                 'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
                 'address'   : user.address,
-                'document'  : user.customer.license_paper if user.customer.license_paper else None,
+                'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
                 'vehicleId' : user.customer.vehicle_id,
                 'is_owner'  : user.is_owner,
             }, status= status.HTTP_200_OK)
