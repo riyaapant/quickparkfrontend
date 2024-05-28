@@ -20,7 +20,7 @@ class Profile(APIView):
                 'firstName' : user.first_name,
                 'lastName'  : user.last_name,
                 'email'     : user.email,
-                'profile'   : user.profile.url if user.profile else None,
+                'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
                 'address'   : user.address,
                 'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
@@ -42,8 +42,9 @@ class Profile(APIView):
 
 class UpdateUser(APIView):
     def get(self,request):
-        user = request.user
+        user = UserModel.objects.get(id=request.user.id)
         user.is_owner = False if user.is_owner else True
+        user.save()
         return Response("Updated Successfully", status=status.HTTP_200_OK)
 
 class UpdateProfile(APIView):
@@ -115,7 +116,7 @@ class Login(APIView):
                         'firstName' : user.first_name,
                         'lastName'  : user.last_name,
                         'email'     : user.email,
-                        'profile'   : user.profile.url if user.profile else None,
+                        'profile'   : user.profile_image.url if user.profile_image else None,
                         'contact'   : user.contact,
                         'address'   : user.address,
                         'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
