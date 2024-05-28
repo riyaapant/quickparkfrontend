@@ -23,7 +23,7 @@ class Profile(APIView):
                 'profile'   : user.profile.url if user.profile else None,
                 'contact'   : user.contact,
                 'address'   : user.address,
-                'document'  : user.owner.home_paper,
+                'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
                 'is_owner'  : user.is_owner
             }, status= status.HTTP_200_OK)
         elif user.is_owner==False:
@@ -34,7 +34,7 @@ class Profile(APIView):
                 'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
                 'address'   : user.address,
-                'document'  : user.customer.license_paper,
+                'document'  : user.customer.license_paper if user.customer.license_paper else None,
                 'vehicleId' : user.customer.vehicle_id,
                 'is_owner'  : user.is_owner,
             }, status= status.HTTP_200_OK)
@@ -108,19 +108,33 @@ class Login(APIView):
             if user:
                 login(request,user)
                 refresh = RefreshToken.for_user(user)
-                return Response({
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                    'firstName' : user.first_name,
-                    'lastName'  : user.last_name,
-                    'email'     : user.email,
-                    'profile'   : user.profile_image.url if user.profile_image else None,
-                    'contact'   : user.contact,
-                    'address'   : user.address,
-                    'document'  : user.customer.license_paper,
-                    'vehicleId' : user.customer.vehicle_id,
-                    'is_owner'  : user.is_owner,
-                }, status=status.HTTP_202_ACCEPTED)
+                if user.is_owner==True:
+                    return Response({
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                        'firstName' : user.first_name,
+                        'lastName'  : user.last_name,
+                        'email'     : user.email,
+                        'profile'   : user.profile.url if user.profile else None,
+                        'contact'   : user.contact,
+                        'address'   : user.address,
+                        'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
+                        'is_owner'  : user.is_owner
+                    }, status= status.HTTP_200_OK)
+                elif user.is_owner==False:
+                    return Response({
+                        'refresh': str(refresh),
+                        'access': str(refresh.access_token),
+                        'firstName' : user.first_name,
+                        'lastName'  : user.last_name,
+                        'email'     : user.email,
+                        'profile'   : user.profile_image.url if user.profile_image else None,
+                        'contact'   : user.contact,
+                        'address'   : user.address,
+                        'document'  : user.customer.license_paper if user.customer.license_paper else None,
+                        'vehicleId' : user.customer.vehicle_id,
+                        'is_owner'  : user.is_owner,
+                    }, status= status.HTTP_200_OK)
             else:
                 return Response("Invalid login credentials \n Have you verified your account?", status = status.HTTP_404_NOT_FOUND)
         else:
