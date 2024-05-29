@@ -24,13 +24,11 @@ export default function Login() {
     
     const api = axios.create({
         baseURL: config.BASE_URL,
-        headers: {
-          'Content-Type': 'application/json'
-        },
       });
 
     useEffect(() => {
         console.log(location)
+        console.log(isLoggedIn)
         if (isLoggedIn) {
             navigate('/dashboard')
         }
@@ -61,14 +59,23 @@ export default function Login() {
         e.preventDefault();
         try {
             const response = await api.post(`${config.BASE_URL}/login`, formData)
-            if (response.status == 202) {
+            if (response.status == 200) {
                 dispatch(setCred({
                     isLoggedIn: true,
                     token: response.data.access,
                     refreshToken: response.data.refresh
                 }))
+                if(!response.data.document){
+                    dispatch(setCred({
+                        documentsSubmitted: false
+                    }))
+                }
                 navigate(`/dashboard`)
             }
+            else{
+                console.log(response)
+            }
+            
         } catch (e) {
             setErrorMessage(e.response.data)
         }

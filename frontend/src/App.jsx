@@ -7,12 +7,17 @@ import ForgotPassword from './routes/shared/forgotpassword';
 import ResetPassword from './routes/shared/resetpassword'
 import Message from './routes/shared/emailverification'
 import Register from './routes/shared/register';
-import SideBar from './components/shared/Sidebar';
-import Dashboard from './routes/shared/dashboard';
-import AddDocument from './components/AddDocuments';
+import SideBar from './components/customer/Sidebar.jsx';
+import UserDashboard from './routes/customer/userdashboard.jsx';
+import AddDocument from './components/customer/AddDocuments.jsx';
 import Profile from './components/shared/Profile';
-import Maps from './maps/maps';
-import AutoComplete from './maps/autocomplete';
+import Maps from './components/customer/maps/maps.jsx';
+import AutoComplete from './components/customer/maps/autocomplete.jsx';
+
+import OwnerDashboard  from './routes/owner/ownerdashboard.jsx';
+import AddOwnerDocument from './components/owner/AddOwnerDocuments.jsx';
+import AddParking from './components/owner/AddParking.jsx';
+import OwnerMaps from './components/owner/maps/OwnerMap.jsx';
 
 import AdminDashboard from './routes/admin/Dashboard';
 import PendingRequests from './components/admin/Requests';
@@ -32,7 +37,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/dashboard",
-    element: <Dashboard />,
+    element: <UserDashboard />,
     children: [
       {
         path: "",
@@ -45,6 +50,36 @@ const router = createBrowserRouter([
       {
         path: "maps/viewparking",
         element: <AutoComplete />
+      },
+      {
+        path: "profile",
+        element: <Profile />
+      },
+      {
+        path: "profile/edit",
+        element: <EditProfile />
+      },
+      {
+        path: "profile/changepassword",
+        element: <ChangePassword />
+      }
+    ],
+  },
+  {
+    path: "/owner/dashboard",
+    element: <OwnerDashboard />,
+    children: [
+      {
+        path: "",
+        element: <AddOwnerDocument />
+      },
+      {
+        path: "maps",
+        element: <OwnerMaps />
+      },
+      {
+        path: "addparking",
+        element: <AddParking />
       },
       {
         path: "profile",

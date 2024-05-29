@@ -132,7 +132,10 @@ export default function Register() {
                     contact: formData.contactNumber,
                     address: formData.address,
                 })
-                setResponse(response.data)
+                console.log(response)
+                if(response.status == 201){
+                    setResponse('Account created. You may now login')
+                }
                 setLoading(false)
             } catch (e) {
                 // console.log(e.response.status)

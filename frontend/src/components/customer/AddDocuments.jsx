@@ -1,18 +1,19 @@
 import React, { useState, useRef } from 'react';
 import axios from 'axios';
-import config from '../features/config';
-import { setCred } from '../features/credSlice';
+import config from '../../features/config';
+import { setCred } from '../../features/credSlice';
 import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
 
 const AddDocument = () => {
 
     const dispatch = useDispatch()
 
-    const isSubmitted = useSelector((state) => state.documentsSubmitted)
-    
-    // const [documentsSubmitted, setDocumentsSubmitted] = useState(false);
+    const customerDocumentsSubmitted = useSelector((state) => state.customerDocumentsSubmitted)
+    const ownerDocumentsSubmitted = useSelector((state) => state.ownerDocumentsSubmitted)
+
     const [profilePic, setProfilePic] = useState(null);
-    // const [vehicleId, setVehicleId] = useState('');
+    const [vehicleId, setVehicleId] = useState('');
     const [document, setDocument] = useState(null);
     const profilePicInputRef = useRef(null);
 
@@ -20,46 +21,50 @@ const AddDocument = () => {
 
     const api = axios.create({
         baseURL: config.BASE_URL,
-        headers: {
-            // 'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + `${token}`
-        },
     });
 
     const handleSubmit = async (event) => {
         event.preventDefault();
         console.log(profilePic)
         console.log(document)
-        // console.log(vehicleId)
+        console.log(vehicleId)
 
         const profilePicture = new FormData();
-        profilePicture.append('file', profilePic);
+        profilePicture.append('profile', profilePic);
 
         const customerDocument = new FormData();
         customerDocument.append('file', document)
         try {
-            const profileUploadResponse = await api.put(`upload/image`, {profile:profilePicture}, {
+            const profileUploadResponse = await api.put(`upload/image`, profilePicture, {
                 headers: {
-                    // 'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
             console.log(profileUploadResponse);
 
-            const documentUploadResponse = await api.put(`upload/customer/file`, {file:customerDocument}, {
+            const documentUploadResponse = await api.put(`upload/customer/file`, customerDocument, {
                 headers: {
-                    // 'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
             console.log(documentUploadResponse);
-            
+
+            const vehicleIdResponse = await api.put(`vehicleid`, {vehicle_id:vehicleId}, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + `${token}`
+                }
+            })
+            console.log(vehicleIdResponse)
+
             dispatch(setCred({
-                documentsSubmitted:true
-        }))
+                customerDocumentsSubmitted: true
+            }))
         } catch (error) {
             dispatch(setCred({
-                documentsSubmitted : false
+                customerDocumentsSubmitted: false
             }))
             console.error('Error uploading file: ', error);
         }
@@ -69,17 +74,20 @@ const AddDocument = () => {
         const file = e.target.files[0];
         if (file) {
             setProfilePic(file);
+            console.log(file)
         }
+        console.log("File not found")
     };
 
-    // const handleVehicleIdChange = (e) => {
-    //     setVehicleId(e.target.value);
-    // };
+    const handleVehicleIdChange = (e) => {
+        setVehicleId(e.target.value);
+    };
 
     const handleDocumentChange = (e) => {
         const file = e.target.files[0];
         if (file) {
             setDocument(file);
+            console.log(file)
         }
     };
 
@@ -87,17 +95,22 @@ const AddDocument = () => {
         profilePicInputRef.current.click();
     };
 
+    useEffect(()=>{
+        console.log(ownerDocumentsSubmitted)
+        console.log(customerDocumentsSubmitted)
+    })
+
     return (
         <div>
-            {!isSubmitted ? (
+            {!customerDocumentsSubmitted ? (
                 <div className="h-screen p-10 flex flex-col w-2/3">
                     <section className='h-auto'>
                         <p className='text-2xl font-bold'>Let's get you verified</p>
-                        <p className='text-lg'>We will manually verify these documents to list you as a parking land owner</p>
+                        <p className='text-lg'>We will manually verify these documents to list you as a customer</p>
                     </section>
 
                     <section className='flex-grow justify-center pt-10'>
-                        <form className='flex flex-col gap-y-8' onSubmit={handleSubmit}>
+                        <form className='flex flex-col gap-y-8 divide-y-2' onSubmit={handleSubmit}>
                             <div className='flex flex-row justify-between'>
                                 <label htmlFor="profile-picture" className='block mb-2'>Upload your profile picture</label>
                                 <input
@@ -118,20 +131,24 @@ const AddDocument = () => {
                                     )}
                                 </div>
                             </div>
-                            {/* <div>
-                                <label htmlFor="vehicle-id" className='block mb-2'>Enter your vehicle ID</label>
+                            <div className='flex flex-row justify-between my-2'>
+                                <label htmlFor="vehicle-id" className='py-2'>Enter your vehicle ID
+                                    <span className='text-red-700 font-semibold'> *</span>
+                                </label>
                                 <input
                                     type='text'
                                     id="vehicle-id"
                                     name="vehicleId"
-                                    className="w-full px-3 py-2 border rounded-md"
+                                    className="w-1/2 py-2 my-2 border rounded-md"
                                     value={vehicleId}
                                     onChange={handleVehicleIdChange}
                                     required
                                 />
-                            </div> */}
+                            </div>
                             <div>
-                                <label htmlFor="document" className='block mb-2'>Upload your document</label>
+                                <label htmlFor="document" className='block my-2'>Upload your vehicle registration document
+                                    <span className='text-red-700 font-semibold'> *</span>
+                                </label>
                                 <input
                                     type='file'
                                     id="document"
@@ -165,3 +182,108 @@ const AddDocument = () => {
 
 export default AddDocument;
 
+// // src/FileUpload.js
+
+
+// // import React, { useState } from 'react';
+// // import { useSelector } from 'react-redux';
+
+// // const AddDocument = () => {
+// //     const token = useSelector((state) => state.token);
+
+// //     const [file, setFile] = useState(null);
+// //     const [message, setMessage] = useState('');
+
+// //     const onFileChange = (e) => {
+// //         setFile(e.target.files[0]);
+// //     };
+
+// //     const onFileUpload = async () => {
+// //         if (!file) {
+// //             setMessage('Please select a file first!');
+// //             return;
+// //         }
+
+// //         console.log(file);
+
+// //         const formData = new FormData();
+// //         formData.append('file', file);
+
+// //         try {
+// //             const response = await fetch('http://localhost:2564/upload/image', {
+// //                 method: 'PUT',
+// //                 body: formData, // Send FormData directly
+// //                 headers: {
+// //                     'Authorization': 'Bearer ' + token,
+// //                 },
+// //             });
+// //             console.log(response);
+
+// //             if (response.ok) {
+// //                 setMessage('File uploaded successfully!');
+// //             } else {
+// //                 setMessage('File upload failed.');
+// //             }
+// //         } catch (error) {
+// //             console.error('Error uploading file:', error);
+// //             setMessage('Error uploading file.');
+// //         }
+// //     };
+
+// //     return (
+// //         <div>
+// //             <h2>File Upload</h2>
+// //             <input type="file" onChange={onFileChange} />
+// //             <button onClick={onFileUpload}>Upload</button>
+// //             <p>{message}</p>
+// //         </div>
+// //     );
+// // };
+
+// // export default AddDocument;
+
+
+// import React, {useState} from 'react';
+// import axios from 'axios';
+// import { useSelector } from 'react-redux';
+
+// function AddDocument() {
+
+//   const [file, setFile] = useState()
+
+//   const token = useSelector((state) => state.token)
+
+//   function handleChange(event) {
+//     setFile(event.target.files[0])
+//   }
+  
+//   function handleSubmit(event) {
+//     event.preventDefault()
+//     const url = 'http://localhost:2564/upload/image';
+//     const formData = new FormData();
+//     formData.append('profile', file);
+//     // formData.append('fileName', file.name);
+//     const config = {
+//       headers: {
+//         'content-type': 'multipart/form-data',
+//         'Authorization': `Bearer ${token}`
+//       },
+//     };
+//     axios.put(url, formData, config).then((response) => {
+//       console.log(response.data);
+//     });
+
+//   }
+
+//   return (
+//     <div className="App">
+//         <form onSubmit={handleSubmit}>
+//           <h1>React File Uploading</h1>
+//           <input type="file" onChange={handleChange}/>
+//           <button type="submit">Upload</button>
+//         </form>
+//     </div>
+//   );
+// }
+
+// export default AddDocument;

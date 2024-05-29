@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useSelector } from 'react-redux';
 
 
-const AutoComplete = () => {
+const AutoCompleteOwner = () => {
 
     const userLocation = useSelector((state) => state.userLocation)
 
@@ -91,4 +91,4 @@ const AutoComplete = () => {
     )
 }
 
-export default AutoComplete
+export default AutoCompleteOwner

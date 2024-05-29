@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setCred } from '../features/credSlice';
+import { setCred } from '../../../features/credSlice';
 
 const Maps = () => {
   const dispatch = useDispatch();
@@ -11,7 +11,6 @@ const Maps = () => {
   const location = useSelector((state) => state.userLocation);
 
   const apikey = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY;
-  // const map = useMap('fetchUserLocation');
 
   const [locationFetched, setLocationFetched] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -37,13 +36,14 @@ const Maps = () => {
     );
   };
 
-  useEffect(() => {
-    if(location){
-      // setLocationFetched(true)
-      navigate('dashboard/maps/viewparking')
-    }
-    console.log(location);
-  }, [location]);
+  // useEffect(() => {
+  //   if(location != null){
+  //     console.log(location)
+  //     // setLocationFetched(true)
+  //     navigate('dashboard/maps/viewparking')
+  //   }
+  //   console.log(location);
+  // }, [location]);
 
   const onMapClick = (e) => {
     const newLocation = {
@@ -64,7 +64,7 @@ const Maps = () => {
   };
 
   const handleLocationConfirm = () => {
-    dispatch(setCred({userLocation: userLocation}))
+    dispatch(setCred({ userLocation: userLocation }))
     navigate(`viewparking`)
   }
 
@@ -101,7 +101,7 @@ const Maps = () => {
           {message && (
             <>
               <p className='text-lg'>Click on the map or drag the marker to change your location. Click
-                <Link className='text-qp underline' onClick={handleLocationConfirm}> confirm</Link> once you're done.</p>
+                <button className='text-qp underline px-1' onClick={handleLocationConfirm}>confirm</button> once you're done.</p>
             </>
           )}
         </>

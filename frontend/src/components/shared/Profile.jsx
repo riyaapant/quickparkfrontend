@@ -13,7 +13,7 @@ export default function Profile() {
     const api = axios.create({
         // baseURL: config.BASE_URL,
         headers: {
-            'Content-Type': 'application/json',
+            // 'Content-Type': 'application/json',
             'Authorization': 'Bearer ' + `${token}`
         },
     });
@@ -40,7 +40,7 @@ export default function Profile() {
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`${config.BASE_URL}/profile`);
-                console.log(response)
+                console.log(response.data)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
                     email: response.data.email,
@@ -81,7 +81,7 @@ export default function Profile() {
                 <div className="w-1/3 grid grid-rows-6 pr-5 gap-y-10">
                     <div className='row-span-3 flex justify-center border'>
                         <img
-                            className="w-auto h-full"
+                            className="w-2/3 h-auto"
                             src={user.profile}
                             alt="Profile"
                         />
@@ -116,11 +116,11 @@ export default function Profile() {
                     <div className="px-2 py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
                         <dt className="text-lg font-medium text-gray-500">Attachments</dt>
                         <dd className='mt-1 text-lg text-gray-800 sm:col-span-2 border-collapse border rounded-xl border-gray-300 px-2 py-5'>
-                            <div className='flex flex-row gap-x-2 pb-2'>
-                                <Paperclip className='w-auto' />
-                                <p className='flex-grow truncate'>{user.document}</p>
-                                <button className='text-qp hover:text-blue-700 w-auto'>
-                                    {!user.document ? ('Add Documents') : ('Download')}
+                            <div className='flex items-center gap-x-2'>
+                                <Paperclip className='w-6 h-6' />
+                                <p className='flex-grow'>{user.document}</p>
+                                <button className='text-qp hover:text-blue-700'>
+                                    {!user.document ? (<Link to="#">Add Documents</Link>) : ('Download')}
                                 </button>
                             </div>
                         </dd>
