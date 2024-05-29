@@ -15,9 +15,9 @@ from django.core.asgi import get_asgi_application
 from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from channels.security.websocket import AllowedHostsOriginValidator
-from rest_framework_jwt.authentication import JSONWebTokenAuthentication
-
-
+# from rest_framework_simplejwt.authentication import JWTAuthentication
+import parking.routing
+from django.contrib.staticfiles.handlers import ASGIStaticFilesHandler
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
@@ -25,10 +25,10 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 application = get_asgi_application()
 
 application = ProtocolTypeRouter({
-    'http':asgi_application,
+    'http':ASGIStaticFilesHandler(application),
     'websocket':AllowedHostsOriginValidator(
         AuthMiddlewareStack(
-            JSONWebTokenAuthentication(),
+            # JWTAuthentication(),
             URLRouter(parking.routing.ws_urlspatterns),
         )
     )

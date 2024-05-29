@@ -57,3 +57,8 @@ class Owner(models.Model):
     home_paper = CloudinaryField('documents', blank=True, null=True)
     is_paperverified = models.BooleanField(default=False)
 
+class Payment(models.Model):
+    user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
+    debited = models.BooleanField(default=True)
+    payment_date = models.DateTimeField(auto_now_add=True)

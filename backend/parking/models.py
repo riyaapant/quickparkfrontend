@@ -9,8 +9,8 @@ class ParkingLocation(models.Model):
     fee = models.DecimalField(max_digits=5,decimal_places=2,default=80.0)
     total_spot = models.IntegerField()
     used_spot = models.IntegerField(default=0)
-    lat = models.DecimalField(max_digits=8,decimal_places=6)
-    lon = models.DecimalField(max_digits=8,decimal_places=6)
+    lat = models.DecimalField(max_digits=9,decimal_places=7)
+    lon = models.DecimalField(max_digits=9,decimal_places=7)
 
 class Reservation(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)

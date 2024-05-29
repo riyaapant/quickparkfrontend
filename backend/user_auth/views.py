@@ -273,7 +273,7 @@ class EmailVerification(APIView):
         #     return Response("Invalid Token",status = status.HTTP_406_NOT_ACCEPTABLE)
 
         if default_token_generator.check_token(user, token):
-            user.is_active = True
+            user.is_emailverified = True
             user.save()
             return Response("Email Verification successfull",status = status.HTTP_200_OK)
         else:
