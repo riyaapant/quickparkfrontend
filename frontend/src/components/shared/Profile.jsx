@@ -118,7 +118,7 @@ export default function Profile() {
                         <dd className='mt-1 text-lg text-gray-800 sm:col-span-2 border-collapse border rounded-xl border-gray-300 px-2 py-5'>
                             <div className='flex items-center gap-x-2'>
                                 <Paperclip className='w-6 h-6' />
-                                <p className='flex-grow'>{user.document}</p>
+                                <p className='flex-grow'>https://res.cloudinary.com/d...</p>
                                 <button className='text-qp hover:text-blue-700'>
                                     {!user.document ? (<Link to="#">Add Documents</Link>) : ('Download')}
                                 </button>

@@ -10,6 +10,7 @@ const AddDocument = () => {
     const dispatch = useDispatch()
 
     const customerDocumentsSubmitted = useSelector((state) => state.customerDocumentsSubmitted)
+    const customerDocumentsVerified = useSelector((state) => state.customerDocumentsVerified)
     const ownerDocumentsSubmitted = useSelector((state) => state.ownerDocumentsSubmitted)
 
     const [profilePic, setProfilePic] = useState(null);
@@ -96,8 +97,9 @@ const AddDocument = () => {
     };
 
     useEffect(()=>{
-        console.log(ownerDocumentsSubmitted)
-        console.log(customerDocumentsSubmitted)
+        console.log("owner documents submitted: ",ownerDocumentsSubmitted)
+        console.log("customer documents submitted: ",customerDocumentsSubmitted)
+        console.log("customer documents verfied: ",customerDocumentsVerified)
     })
 
     return (
