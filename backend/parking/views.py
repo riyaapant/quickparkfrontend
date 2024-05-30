@@ -42,8 +42,8 @@ class ViewParking(APIView):
         parking = ParkingLocation.objects.get(pk=id)
         parking_info = {
             'id'    : parking.id,
-            'user'  :parking.user,
-            'address':Parking.address,
+            'user'  :parking.user.first_name+' '+parking.user.last_name,
+            'address':parking.address,
             'total' : parking.total_spot,
             'used'  : parking.used_spot,
             'fee'   :parking.fee,
