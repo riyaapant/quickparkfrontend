@@ -52,6 +52,21 @@ class ViewParking(APIView):
         }
         return Response(parking_info, status=status.HTTP_200_OK)
 
+class ViewOwnParking(APIView):
+    def get(self,request):
+        user = UserModel.objects.get(id=request.user.id)
+        parking_locations = ParkingLocation.objects.filter(user=user)
+        parking_data = []
+        for parking in parking_locations:
+            parking_data.append({
+                'id'    :parking.id,
+                'address':parking.address,
+                'lat'   :parking.lat,
+                'lon'   :parking.lon
+            })
+        return Response(parking_data,status=status.HTTP_200_OK)
+
+
 class ViewReservation(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):

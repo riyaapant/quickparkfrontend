@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
+from .khaltiverification import KhaltiVerification
 
 UserModel = get_user_model()
 
@@ -24,7 +25,9 @@ class Profile(APIView):
                 'contact'   : user.contact,
                 'address'   : user.address,
                 'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
-                'is_owner'  : user.is_owner
+                'is_owner'  : user.is_owner,
+                'is_emailverified': user.is_emailverified,
+                'is_paperverified': user.owner.is_paperverified
             }, status= status.HTTP_200_OK)
         elif user.is_owner==False:
             return Response({
@@ -37,6 +40,8 @@ class Profile(APIView):
                 'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
                 'vehicleId' : user.customer.vehicle_id,
                 'is_owner'  : user.is_owner,
+                'is_emailverified': user.is_emailverified,
+                'is_paperverified': user.customer.is_paperverified
             }, status= status.HTTP_200_OK)
         return Response("is_owner is not defined in user", status=status.HTTP_404_NOT_FOUND)
 
@@ -45,18 +50,38 @@ class UpdateUser(APIView):
         user = UserModel.objects.get(id=request.user.id)
         user.is_owner = False if user.is_owner else True
         user.save()
-        return Response("Updated Successfully", status=status.HTTP_200_OK)
+        if user.is_owner==True:
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'firstName' : user.first_name,
+                'lastName'  : user.last_name,
+                'email'     : user.email,
+                'profile'   : user.profile_image.url if user.profile_image else None,
+                'contact'   : user.contact,
+                'address'   : user.address,
+                'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
+                'is_owner'  : user.is_owner,
+                'is_emailverified': user.is_emailverified,
+                'is_paperverified': user.owner.is_paperverified
+            }, status= status.HTTP_200_OK)
+        elif user.is_owner==False:
+            return Response({
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'firstName' : user.first_name,
+                'lastName'  : user.last_name,
+                'email'     : user.email,
+                'profile'   : user.profile_image.url if user.profile_image else None,
+                'contact'   : user.contact,
+                'address'   : user.address,
+                'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
+                'vehicleId' : user.customer.vehicle_id,
+                'is_owner'  : user.is_owner,
+                'is_emailverified': user.is_emailverified,
+                'is_paperverified': user.customer.is_paperverified
+            }, status= status.HTTP_200_OK)
 
-class UpdateProfile(APIView):
-    def put(self,request):
-        user = UserModel.objects.get(id=request.user.id)
-        if user.is_authenticated:
-            return Response("Fuck off", status=status.HTTP_200_OK)
-        serializer = UpdateProfileSerializer(user, data=request.data,partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response("Profile Updated", status = status.HTTP_200_OK)
-        return Response("Profile updateation Failed", status =status.HTTP_400_BAD_REQUEST)
 
 class UserRegister(APIView):
     def post(self,request):
@@ -120,7 +145,9 @@ class Login(APIView):
                         'contact'   : user.contact,
                         'address'   : user.address,
                         'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
-                        'is_owner'  : user.is_owner
+                        'is_owner'  : user.is_owner,
+                        'is_emailverified': user.is_emailverified,
+                        'is_paperverified': user.owner.is_paperverified
                     }, status= status.HTTP_200_OK)
                 elif user.is_owner==False:
                     return Response({
@@ -135,6 +162,8 @@ class Login(APIView):
                         'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
                         'vehicleId' : user.customer.vehicle_id,
                         'is_owner'  : user.is_owner,
+                        'is_emailverified': user.is_emailverified,
+                        'is_paperverified': user.customer.is_paperverified
                     }, status= status.HTTP_200_OK)
             else:
                 return Response("Invalid login credentials \n Have you verified your account?", status = status.HTTP_404_NOT_FOUND)
@@ -224,6 +253,12 @@ class ImageUpload(APIView):
 #                 return Response('Owner Login Failed', status = status.HTTP_404_NOT_FOUND)
 #         return Response('Unacceptable Request',status = status.HTTP_406_NOT_ACCEPTABLE)
 
+
+class CreditBalance(APIView):
+    pass
+
+class DebitBalance(APIView):
+    pass
 
 class AdminRegister(APIView):
     def post(self,request):
