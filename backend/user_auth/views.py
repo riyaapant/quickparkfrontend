@@ -6,9 +6,11 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
+from .models import Customer,Owner
 from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
 from .khaltiverification import KhaltiVerification
+from decimal import Decimal
 
 UserModel = get_user_model()
 
@@ -23,6 +25,7 @@ class Profile(APIView):
                 'email'     : user.email,
                 'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
+                'balance'   : user.balance,
                 'address'   : user.address,
                 'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
                 'is_owner'  : user.is_owner,
@@ -36,6 +39,7 @@ class Profile(APIView):
                 'email'     : user.email,
                 'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
+                'balance'   : user.balance,
                 'address'   : user.address,
                 'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
                 'vehicleId' : user.customer.vehicle_id,
@@ -46,6 +50,7 @@ class Profile(APIView):
         return Response("is_owner is not defined in user", status=status.HTTP_404_NOT_FOUND)
 
 class UpdateUser(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self,request):
         user = UserModel.objects.get(id=request.user.id)
         user.is_owner = False if user.is_owner else True
@@ -57,6 +62,7 @@ class UpdateUser(APIView):
                 'email'     : user.email,
                 'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
+                'balance'   : user.balance,
                 'address'   : user.address,
                 'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
                 'is_owner'  : user.is_owner,
@@ -70,6 +76,7 @@ class UpdateUser(APIView):
                 'email'     : user.email,
                 'profile'   : user.profile_image.url if user.profile_image else None,
                 'contact'   : user.contact,
+                'balance'   : user.balance,
                 'address'   : user.address,
                 'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
                 'vehicleId' : user.customer.vehicle_id,
@@ -139,6 +146,7 @@ class Login(APIView):
                         'email'     : user.email,
                         'profile'   : user.profile_image.url if user.profile_image else None,
                         'contact'   : user.contact,
+                        'balance'   : user.balance,
                         'address'   : user.address,
                         'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
                         'is_owner'  : user.is_owner,
@@ -154,6 +162,7 @@ class Login(APIView):
                         'email'     : user.email,
                         'profile'   : user.profile_image.url if user.profile_image else None,
                         'contact'   : user.contact,
+                        'balance'   : user.balance,
                         'address'   : user.address,
                         'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
                         'vehicleId' : user.customer.vehicle_id,
@@ -251,10 +260,26 @@ class ImageUpload(APIView):
 
 
 class CreditBalance(APIView):
-    pass
+    permission_classes = [IsAuthenticated]
+    def put(self,request):
+        user = UserModel.objects.get(id=request.user.id)
+        balance = request.data['balance']
+        pidx = request.data['pidx']
+        verified = KhaltiVerification(pidx)
+        if verified:
+            user.balance += Decimal(balance)
+            user.save()
+            return Response(f'Amount {balance} has been credited to your account', status = status.HTTP_200_OK)
+        else:
+            return Response('Amount not found', status=status.HTTP_400_BAD_REQUEST)
 
 class DebitBalance(APIView):
+    # def put(self,request):
+    #     user = UserModel.objects.get(it=request.user.id)
+    #     balance = request.data['balance']
+    #     if balance:
     pass
+            
 
 class AdminRegister(APIView):
     def post(self,request):
@@ -272,12 +297,53 @@ class AdminLogin(APIView):
         serializer = LoginSerializer(data = request.data)
         if serializer.is_valid():
             user = authenticate(username = request.data['email'],password = request.data['password'])
-            if user and user.is_owner==False and user.is_superuser==True:
+            if user and user.is_superuser==True:
+                refresh = RefreshToken.for_user(user)
                 login(request,user)
-                return Response('Admin Loggedin successfully',status = status.HTTP_202_ACCEPTED)
+                return Response({
+                    'refresh': str(refresh),
+                    'access': str(refresh.access_token)
+                },status = status.HTTP_202_ACCEPTED)
             else:
                 return Response('Admin Login Failed', status = status.HTTP_404_NOT_FOUND)
         return Response('Unacceptable Request',status = status.HTTP_406_NOT_ACCEPTABLE)
+
+
+class AdminViewCustomer(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        users = UserModel.objects.all()
+        customer_data = []
+        for user in users:
+            if user.is_superuser==False:
+                if user.customer.license_paper is not None:
+                    customer_data.append({
+                        'name'      : user.first_name+' '+user.last_name,
+                        'email'     : user.email,
+                        'contact'   : user.contact,
+                        'vehicle_id': user.customer.vehicle_id,
+                        'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
+                        'is_paperverified': user.customer.is_paperverified,
+                    })
+        return Response(customer_data, status=status.HTTP_200_OK)
+
+class AdminViewOwner(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        users = UserModel.objects.all()
+        owner_data = []
+        for user in users:
+            if user.is_superuser==False:
+                if user.owner.home_paper is not None:
+                    owner_data.append({
+                        'name'      : user.first_name+' '+user.last_name,
+                        'email'     : user.email,
+                        'contact'   : user.contact,
+                        'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
+                        'is_paperverified': user.owner.is_paperverified,
+                    })
+        return Response(owner_data, status= status.HTTP_200_OK)
+
 
 
 class ForgetPassword(APIView):
