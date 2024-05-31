@@ -316,8 +316,9 @@ class AdminViewCustomer(APIView):
         customer_data = []
         for user in users:
             if user.is_superuser==False:
-                if user.customer.license_paper is not None:
+                if user.customer.license_paper is not None and user.customer.is_paperverified==True:
                     customer_data.append({
+                        'id'        : user.id,
                         'name'      : user.first_name+' '+user.last_name,
                         'email'     : user.email,
                         'contact'   : user.contact,
@@ -334,8 +335,9 @@ class AdminViewOwner(APIView):
         owner_data = []
         for user in users:
             if user.is_superuser==False:
-                if user.owner.home_paper is not None:
+                if user.owner.home_paper is not None and user.owner.is_paperverified==True:
                     owner_data.append({
+                        'id'        : user.id,
                         'name'      : user.first_name+' '+user.last_name,
                         'email'     : user.email,
                         'contact'   : user.contact,
@@ -344,7 +346,58 @@ class AdminViewOwner(APIView):
                     })
         return Response(owner_data, status= status.HTTP_200_OK)
 
+class AdminViewPendingCustomer(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        users = UserModel.objects.all()
+        customer_data = []
+        for user in users:
+            if user.is_superuser==False:
+                if user.customer.license_paper is not None and user.customer.is_paperverified==False:
+                    customer_data.append({
+                        'id'        : user.id,
+                        'name'      : user.first_name+' '+user.last_name,
+                        'email'     : user.email,
+                        'contact'   : user.contact,
+                        'vehicle_id': user.customer.vehicle_id,
+                        'document'  : user.customer.license_paper.url if user.customer.license_paper else None,
+                        'is_paperverified': user.customer.is_paperverified,
+                    })
+        return Response(customer_data, status=status.HTTP_200_OK)
 
+class AdminViewPendingOwner(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        users = UserModel.objects.all()
+        owner_data = []
+        for user in users:
+            if user.is_superuser==False:
+                if user.owner.home_paper is not None and user.owner.is_paperverified==False:
+                    owner_data.append({
+                        'id'        : user.id,
+                        'name'      : user.first_name+' '+user.last_name,
+                        'email'     : user.email,
+                        'contact'   : user.contact,
+                        'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
+                        'is_paperverified': user.owner.is_paperverified,
+                    })
+        return Response(owner_data, status= status.HTTP_200_OK)
+
+class AdminVerifyCustomer(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request,id):
+        user = UserModel.objects.get(id=id)
+        user.customer.is_paperverified=True
+        user.customer.save()
+        return Response('Customer Paper Verified',status=status.HTTP_200_OK)
+
+class AdminVerifyOwner(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request,id):
+        user = UserModel.objects.get(id=id)
+        user.owner.is_paperverified=True
+        user.owner.save()
+        return Response('Owner Paper Verified', status=status.HTTP_200_OK)
 
 class ForgetPassword(APIView):
     def post(self,request):
