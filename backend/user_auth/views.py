@@ -52,8 +52,6 @@ class UpdateUser(APIView):
         user.save()
         if user.is_owner==True:
             return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
                 'firstName' : user.first_name,
                 'lastName'  : user.last_name,
                 'email'     : user.email,
@@ -67,8 +65,6 @@ class UpdateUser(APIView):
             }, status= status.HTTP_200_OK)
         elif user.is_owner==False:
             return Response({
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
                 'firstName' : user.first_name,
                 'lastName'  : user.last_name,
                 'email'     : user.email,
