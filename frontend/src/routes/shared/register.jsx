@@ -136,7 +136,6 @@ export default function Register() {
                 if(response.status == 201){
                     setResponse('Account created. You may now login')
                 }
-                setLoading(false)
             } catch (e) {
                 // console.log(e.response.status)
                 if (e.response.status == 400) {
@@ -145,8 +144,8 @@ export default function Register() {
                 else {
                     setErrorMessage("An error occured")
                 }
-                setLoading(false)
             }
+            setLoading(false)
         }
     };
 

@@ -29,6 +29,7 @@ const ViewOwnParking = () => {
       const response = await api.get(`viewownparking`)
       console.log(response)
       setParkingLocations(response.data)
+      console.log(parkingLocations)
     }
     catch (e) {
       console.log(e.response)
@@ -52,49 +53,56 @@ const ViewOwnParking = () => {
           <Link to='/owner/dashboard/maps'>
             <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">Add Parking</button>
           </Link>
-          <Link to='map'>
-            <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">View on Map </button>
-          </Link>
+          {parkingLocations.length>0 &&
+            <Link to='map'>
+              <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">View on Map </button>
+            </Link>
+          }
         </div>
       </header>
-      <table className="table-fixed w-full text-left">
-        <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
-          <tr>
-            <th className="p-2 text-base">Id</th>
-            <th className="p-2 text-base">Address</th>
-            <th className="p-2 text-base">Total Spots</th>
-            <th className="p-2 text-base">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentItems.map((item) => (
-            <tr key={item.id} className="hover:bg-gray-100">
-              <td className="p-3">
-                <div className='font-medium text-gray-800'>
-                  {item.id}
-                </div>
-              </td>
-              <td className="p-3">
-                <div className='font-medium text-gray-800'>
-                  {item.address}
-                </div>
-              </td>
-              <td className="p-3">
-                <div className='font-medium text-gray-800'>
-                  Total spots
-                </div>
-              </td>
-              <td className="p-3">
-                <div className='font-medium text-gray-800'>
-                  <Link to="#">
-                    <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">View Surveillance</button>
-                  </Link>
-                </div>
-              </td>
+      {parkingLocations.length > 0 ? (
+        <table className="table-fixed w-full text-left">
+          <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
+            <tr>
+              <th className="p-2 text-base">Id</th>
+              <th className="p-2 text-base">Address</th>
+              <th className="p-2 text-base">Total Spots</th>
+              <th className="p-2 text-base">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {currentItems.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-100">
+                <td className="p-3">
+                  <div className='font-medium text-gray-800'>
+                    {item.id}
+                  </div>
+                </td>
+                <td className="p-3">
+                  <div className='font-medium text-gray-800'>
+                    {item.address}
+                  </div>
+                </td>
+                <td className="p-3">
+                  <div className='font-medium text-gray-800'>
+                    Total spots
+                  </div>
+                </td>
+                <td className="p-3">
+                  <div className='font-medium text-gray-800'>
+                    <Link to="#">
+                      <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">View Surveillance</button>
+                    </Link>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <div className='w-full text-center'>No parking locations to show.</div>
+      )}
+
       <ReactPaginate
         previousLabel={"Previous"}
         nextLabel={"Next"}

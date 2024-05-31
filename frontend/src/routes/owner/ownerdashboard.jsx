@@ -7,41 +7,41 @@ import { useSelector } from 'react-redux';
 import OwnerSidebar from '../../components/owner/OwnerSidebar';
 
 import { Outlet } from "react-router-dom";
-import axios from 'axios';
-import config from '../../features/config';
+// import axios from 'axios';
+// import config from '../../features/config';
 
 
 export default function OwnerDashboard() {
 
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
-    const token = useSelector((state) => state.token)
-    const isOwnerVerified = useSelector((state) => state.ownerDocumentsSubmitted)
+    // const token = useSelector((state) => state.token)
+    // const isOwnerVerified = useSelector((state) => state.ownerDocumentsSubmitted)
 
-    const api = axios.create({
-        baseURL: config.BASE_URL,
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + `${token}`
-        },
-    });
+    // const api = axios.create({
+    //     baseURL: config.BASE_URL,
+    //     headers: {
+    //         'Content-Type': 'application/json',
+    //         'Authorization': 'Bearer ' + `${token}`
+    //     },
+    // });
 
     const navigate = useNavigate();
 
-    const updateUser = async () => {
-        try {
-            const response = api.get(`/update`)
-            console.log(response)
-        }
-        catch (e) {
-            console.log(e)
-        }
-    }
+    // const updateUser = async () => {
+    //     try {
+    //         const response = api.get(`/update`)
+    //         console.log(response)
+    //     }
+    //     catch (e) {
+    //         console.log(e)
+    //     }
+    // }
 
     useEffect(() => {
         console.log("user mode: owner")
-        if (isOwnerVerified) {
-            updateUser()
-        }
+        // if (isOwnerVerified) {
+        //     updateUser()
+        // }
         if (!isLoggedIn) {
             navigate('/login')
         }

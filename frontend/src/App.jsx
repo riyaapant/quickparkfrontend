@@ -12,7 +12,7 @@ import UserDashboard from './routes/customer/userdashboard.jsx';
 import AddDocument from './components/customer/AddDocuments.jsx';
 import Profile from './components/shared/Profile';
 import Maps from './components/customer/maps/maps.jsx';
-import AutoComplete from './components/customer/maps/autocomplete.jsx';
+import AutoComplete from './components/customer/maps/viewparking.jsx';
 
 import OwnerDashboard  from './routes/owner/ownerdashboard.jsx';
 import AddOwnerDocument from './components/owner/AddOwnerDocuments.jsx';

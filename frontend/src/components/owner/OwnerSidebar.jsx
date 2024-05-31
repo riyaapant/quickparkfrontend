@@ -5,13 +5,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
 import config from "../../features/config";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import { setCred } from "../../features/credSlice";
 
 export default function OwnerSideBar() {
     const token = useSelector((state) => state.token)
-    const isCustomer = useSelector((state)=> state.isCustomer)
-    const isOwner = useSelector((state)=>state.isOwner)
+
+    const navigate = useNavigate()
 
     const api = axios.create({
         baseURL: config.BASE_URL,
@@ -26,10 +27,6 @@ export default function OwnerSideBar() {
     })
 
     useEffect(() => {
-        dispatch(setCred({
-            isOwner: true,
-            isCustomer:false
-        }))
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`/profile`);
@@ -55,19 +52,20 @@ export default function OwnerSideBar() {
     function handleLogout() {
         dispatch(setCred({
             isLoggedIn: false,
-            role: 'user',
             token: '',
             refreshToken: '',
-            documentsSubmitted: false,
-            userLocation: {
-                lat: null,
-                lng: null,
-            }
         }))
     }
 
-    function handleSwitchUser() {
-        console.log('user switch')
+    const updateUser = async () => {
+        try {
+            const response = await api.get(`/update`,)
+            console.log("update user to customer response: ",response)
+            navigate('/dashboard')
+        }
+        catch (e) {
+            console.log(e)
+        }
     }
 
     return (
@@ -95,9 +93,7 @@ export default function OwnerSideBar() {
                 {dropdownVisible && (
                     <div className="divide-y absolute left-0 bottom-16 w-52 bg-white border rounded-lg shadow-lg  text-black  flex flex-col">
                         <button className="px-4 py-2 text-left hover:bg-gray-200" onClick={handleLogout}>Logout</button>
-                        <Link className="hover:bg-gray-200 px-4 py-2 text-left" onClick={handleSwitchUser} to="/dashboard">
-                            Switch to User mode
-                        </Link>
+                        <button className="px-4 py-2 text-left hover:bg-gray-200" onClick={updateUser}>Switch to User Mode</button>
                     </div >
                 )}
             </div>
