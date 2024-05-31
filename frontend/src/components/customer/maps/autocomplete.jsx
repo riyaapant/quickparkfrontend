@@ -26,11 +26,7 @@ const AutoComplete = () => {
 
     // const [searchQuery, setSearchQuery] = useState('')
 
-    const [searchResult, setSearchResult] = useState([
-        // { id: 6, address: 'Balkumari, Kathmandu', lat: 27.669181, lon: 85.334197 },
-        // { id: 7, address: 'Lalitpur, Kathmandu', lat: 27.667022, lon: 85.318130 },
-        // { id: 8, address: 'Bhaktapur, Kathmandu', lat: 27.671000, lon: 85.429810 },
-    ]);
+    const [searchResult, setSearchResult] = useState([]);
 
     // const handleSearchQueryChange = (e) => {
     //     setSearchQuery(e.target.value)
@@ -81,8 +77,16 @@ const AutoComplete = () => {
 
     const [activeMarker, setActiveMarker] = useState(null);
 
-    const handleMarkerClick = (marker) => {
-        setActiveMarker(marker);
+    const handleMarkerClick = async(marker) => {
+        try{
+            console.log(marker)
+            const response = await api.get(`viewparking/${marker.id}`)
+            console.log(response)
+            setActiveMarker(response.data);
+        }
+        catch(e){
+            console.log(e.response)
+        }
     };
 
     const handleInfoWindowClose = () => {
@@ -143,13 +147,21 @@ const AutoComplete = () => {
                     ))}
                     {activeMarker && (
                         <InfoWindow
-                            position={{ lat: activeMarker.lat, lng: activeMarker.lon }}
-                            onCloseClick={handleInfoWindowClose}
-                        >
-                            <div>
-                                <p>{activeMarker.address}</p>
+                        position={{ lat: activeMarker.lat, lng: activeMarker.lon }}
+                        onCloseClick={handleInfoWindowClose}
+                    >
+                        <div className="bg-white p-4 rounded-md shadow-md">
+                            <h3 className="text-lg font-semibold mb-2">Parking Details</h3>
+                            <div className="mb-2">
+                                <p className="text-sm"><strong>Address:</strong> {activeMarker.address}</p>
+                                <p className="text-sm"><strong>Fee:</strong> {activeMarker.fee}</p>
+                                <p className="text-sm"><strong>Total Spaces:</strong> {activeMarker.total}</p>
+                                <p className="text-sm"><strong>Used Spaces:</strong> {activeMarker.used}</p>
+                                <p className="text-sm"><strong>Owner:</strong> {activeMarker.user}</p>
                             </div>
-                        </InfoWindow>
+                        </div>
+                    </InfoWindow>
+                    
                     )}
                 </Map>
             </APIProvider >

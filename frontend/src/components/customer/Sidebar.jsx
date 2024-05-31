@@ -10,8 +10,8 @@ import { setCred } from "../../features/credSlice";
 
 export default function SideBar() {
     const token = useSelector((state) => state.token)
-    const isCustomer = useSelector((state)=> state.isCustomer)
-    const isOwner = useSelector((state)=>state.isOwner)
+    const isCustomer = useSelector((state) => state.isCustomer)
+    const isOwner = useSelector((state) => state.isOwner)
 
     const api = axios.create({
         baseURL: config.BASE_URL,
@@ -28,7 +28,7 @@ export default function SideBar() {
     useEffect(() => {
         dispatch(setCred({
             isOwner: false,
-            isCustomer:true
+            isCustomer: true
         }))
         const fetchProfile = async () => {
             try {
@@ -56,7 +56,11 @@ export default function SideBar() {
         dispatch(setCred({
             isLoggedIn: false,
             token: '',
-            refreshToken: ''
+            refreshToken: '',
+            // customerDocumentsSubmitted: false,
+            // customerDocumentsVerified: false,
+            // ownerDocumentsSubmitted: false,
+            // ownerDocumentsVerified: false,
         }))
     }
 

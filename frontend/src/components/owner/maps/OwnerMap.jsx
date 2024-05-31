@@ -51,22 +51,22 @@ const OwnerMaps = () => {
     // }
   },[]);
 
-  const onMapClick = (e) => {
-    const newLocation = {
-      lat: e.detail.latLng.lat(),
-      lng: e.detail.latLng.lng(),
-    };
-    setUserLocation(newLocation);
-    // console.log(newLocation);
-  };
+  // const onMapClick = (e) => {
+  //   const newLocation = {
+  //     lat: e.detail.latLng.lat(),
+  //     lng: e.detail.latLng.lng(),
+  //   };
+  //   setUserLocation(newLocation);
+  //   // console.log(newLocation);
+  // };
 
   const onMarkerDrag = (e) => {
     const newLocation = {
-      lat: e.latLng.lat(),
-      lng: e.latLng.lng()
+      lat: parseFloat(e.latLng.lat().toFixed(7)),
+      lng: parseFloat(e.latLng.lng().toFixed(7))
     };
     setUserLocation(newLocation);
-    // console.log(newLocation);
+    console.log(newLocation);
   };
 
   const handleLocationConfirm = () => {
@@ -98,7 +98,7 @@ const OwnerMaps = () => {
                   id='fetchUserLocation'
                   center={userLocation}
                   defaultZoom={15}
-                  onClick={onMapClick}
+                  // onClick={onMapClick}
                 >
                   <Marker
                     position={userLocation}
@@ -109,7 +109,7 @@ const OwnerMaps = () => {
               </APIProvider>
               {message && (
                 <>
-                  <p className='text-lg'>Click on the map or drag the marker to change your location. Click
+                  <p className='text-lg'>Drag the marker to change your location. Click
                     <button className='text-qp underline px-1' onClick={handleLocationConfirm}>confirm</button> once you're done.</p>
                 </>
               )}

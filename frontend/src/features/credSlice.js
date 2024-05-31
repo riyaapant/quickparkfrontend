@@ -10,7 +10,7 @@ export const credSlice = createSlice({
         customerDocumentsSubmitted: false,
         customerDocumentsVerified: false,
         ownerDocumentsSubmitted: false,
-        ownerDocumentsVerified: true,
+        ownerDocumentsVerified: false,
         userLocation: {
             lat: null,
             lng: null,

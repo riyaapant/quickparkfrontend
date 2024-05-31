@@ -18,6 +18,8 @@ import OwnerDashboard  from './routes/owner/ownerdashboard.jsx';
 import AddOwnerDocument from './components/owner/AddOwnerDocuments.jsx';
 import AddParking from './components/owner/AddParking.jsx';
 import OwnerMaps from './components/owner/maps/OwnerMap.jsx';
+import ViewParkingLocationsOnMap from './components/owner/maps/locationsmap.jsx';
+import ViewOwnParking from './components/owner/viewOwnParking.jsx';
 
 import AdminDashboard from './routes/admin/Dashboard';
 import PendingRequests from './components/admin/Requests';
@@ -72,6 +74,14 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <AddOwnerDocument />
+      },
+      {
+        path: "parkinglocations",
+        element: <ViewOwnParking />
+      },
+      {
+        path: "parkinglocations/map",
+        element: <ViewParkingLocationsOnMap />
       },
       {
         path: "maps",

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Paperclip, Settings } from 'lucide-react';
 import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
@@ -11,14 +11,13 @@ export default function Profile() {
     const token = useSelector((state) => state.token)
 
     const api = axios.create({
-        // baseURL: config.BASE_URL,
-        headers: {
-            // 'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + `${token}`
-        },
+        baseURL: config.BASE_URL
     });
 
     const [dropdownVisible, setDropdownVisible] = useState(false)
+
+    const [profilePic, setProfilePic] = useState(null);
+    const profilePicInputRef = useRef(null);
 
     const toggleDropdown = () => {
         setDropdownVisible(!dropdownVisible)
@@ -36,10 +35,49 @@ export default function Profile() {
         status: 'pending'
     })
 
+    const handleProfilePicChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setProfilePic(file);
+            console.log(file)
+        }
+        console.log("File not found")
+    };
+
+    const handleProfilePicClick = () => {
+        profilePicInputRef.current.click();
+    };
+
+    const handleProfilePictureUpload = async(e) => {
+        e.preventDefault()
+        console.log(profilePic)
+
+        const profilePicture = new FormData();
+        profilePicture.append('profile', profilePic);
+
+        try {
+            const profileUploadResponse = await api.put(`upload/image`, profilePicture, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    'Authorization': 'Bearer ' + `${token}`
+                }
+            });
+            console.log(profileUploadResponse);
+        }
+        catch (e) {
+            console.log(e.response)
+        }
+    }
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await api.get(`${config.BASE_URL}/profile`);
+                const response = await api.get(`/profile`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + `${token}`
+                    }
+                });
                 console.log(response.data)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
@@ -79,13 +117,46 @@ export default function Profile() {
 
             <div className="pt-8 flex-grow flex flex-row">
                 <div className="w-1/3 grid grid-rows-6 pr-5 gap-y-10">
-                    <div className='row-span-3 flex justify-center border'>
+                    {user.profile ? (
+                        <div className='row-span-3 flex justify-center border'>
+                            <img
+                                className="w-2/3 h-auto"
+                                src={user.profile}
+                                alt="Profile"
+                            />
+                        </div>
+                    ) : (
+                        <div className=' flex flex-col gap-y-3 justify-center items-center'>
+                            <div className='cursor-pointer' onClick={handleProfilePicClick}>
+                                {profilePic ? (
+                                    <img src={profilePic} alt="Profile Preview" className="mt-2 w-40 h-40 object-cover rounded-md border" />
+                                ) : (
+                                    <div className="mt-2 w-40 h-40 flex items-center justify-center border rounded-md">
+                                        <span className="text-gray-500">Choose Picture</span>
+                                    </div>
+                                )}
+                            </div>
+                            <label htmlFor="profile-picture" className='block mb-2'>Upload your profile picture</label>
+                            <input
+                                type='file'
+                                id="profile-picture"
+                                name="profilePicture"
+                                ref={profilePicInputRef}
+                                className="w-full hidden"
+                                onChange={handleProfilePicChange}
+                            />
+                            <button className='flex w-2/3 justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 ' onClick={handleProfilePictureUpload}>Upload</button>
+                        </div>
+                    )
+
+                    }
+                    {/* <div className='row-span-3 flex justify-center border'>
                         <img
                             className="w-2/3 h-auto"
                             src={user.profile}
                             alt="Profile"
                         />
-                    </div>
+                    </div> */}
                     <div className='text-center'>Status: {user.status}</div>
                 </div>
 

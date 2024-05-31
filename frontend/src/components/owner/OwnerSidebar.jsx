@@ -82,7 +82,7 @@ export default function OwnerSideBar() {
                     <SquareUser className="w-6 h-6" />
                     <p>Profile</p>
                 </Link>
-                <Link to="maps" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
+                <Link to="parkinglocations" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
                     <MapPin className="w-6 h-6" />
                     <p>Add Parking</p>
                 </Link>
