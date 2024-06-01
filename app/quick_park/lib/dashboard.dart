@@ -1,78 +1,89 @@
 import 'package:flutter/material.dart';
-
-import 'login.dart';
+import 'dart:convert';
 import 'profile.dart';
-
+import 'services/api_service.dart';
 import 'location_search.dart';
+import 'nav.dart' as custom_nav;
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
+  const DashboardPage({super.key});
+
+  @override
+  _DashboardPageState createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  String profilePictureUrl = '';
+  bool isLoading = true;
+  String errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    fetchProfilePicture();
+  }
+
+  Future<void> fetchProfilePicture() async {
+    try {
+      final response = await ApiService.getProfile();
+      final profileData = jsonDecode(response.body);
+      setState(() {
+        profilePictureUrl = profileData['profile'] ?? '';
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-      ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            const DrawerHeader(
-              decoration: BoxDecoration(
-                color: Colors.blue,
-              ),
-              child: Align(
-                alignment: Alignment.bottomLeft,
-                child: Text(
-                  'Menu',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                  ),
+    return WillPopScope(
+      onWillPop: () async {
+        // Prevent going back to the login page
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Dashboard'),
+          actions: [
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (errorMessage.isNotEmpty)
+              Center(child: Text(errorMessage))
+            else
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()),
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundImage: profilePictureUrl.isNotEmpty
+                      ? NetworkImage(profilePictureUrl)
+                      : null,
+                  child: profilePictureUrl.isEmpty
+                      ? const Icon(Icons.person)
+                      : null,
                 ),
               ),
-            ),
-            ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Profile'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProfilePage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              onTap: () {
-                // Handle drawer item 2 tap
-              },
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(Icons.logout),
-              title: const Text('Logout'),
-              onTap: () {
-                // Perform logout actions here
-                // For example, clear authentication tokens or session data
-
-                // Navigate back to the LoginPage
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginPage()),
-                  (Route<dynamic> route) => false,
-                );
-              },
+            const SizedBox(width: 16), // Adds some padding to the right side
+          ],
+        ),
+        drawer: const custom_nav.NavigationDrawer(),
+        body: const Column(
+          children: [
+            Expanded(
+              child:
+                  SlideUpPanel(), // Assuming this is your map or similar widget
             ),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: SlideUpPanel(),
-          ),
-        ],
       ),
     );
   }

@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import 'signup.dart';
 import 'dashboard.dart';
+import './owner/owner_dashboard.dart';
 import 'forgot_password.dart';
+import 'document.dart';
+import 'services/api_service.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
@@ -17,8 +21,111 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   String emailErrorMessage = '';
   String passwordErrorMessage = '';
+  bool isLoading = false;
 
   final storage = const FlutterSecureStorage();
+
+  void _login() async {
+    // Reset existing error messages
+    setState(() {
+      emailErrorMessage = '';
+      passwordErrorMessage = '';
+      isLoading = true;
+    });
+
+    // Validate email
+    if (emailController.text.isEmpty) {
+      setState(() {
+        emailErrorMessage = 'Email is required';
+        isLoading = false;
+      });
+      return;
+    }
+
+    const emailPattern = r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$';
+    final emailRegExp = RegExp(emailPattern);
+    if (!emailRegExp.hasMatch(emailController.text)) {
+      setState(() {
+        emailErrorMessage = 'Invalid email format';
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Validate password
+    if (passwordController.text.isEmpty) {
+      setState(() {
+        passwordErrorMessage = 'Password is required';
+        isLoading = false;
+      });
+      return;
+    }
+
+    if (passwordController.text.length < 6) {
+      setState(() {
+        passwordErrorMessage = 'Password must be at least 6 characters long';
+        isLoading = false;
+      });
+      return;
+    }
+
+    // Prepare the login data
+    var loginData = {
+      'email': emailController.text,
+      'password': passwordController.text,
+    };
+
+    // Send a POST request using ApiService
+    var response = await ApiService.post('/login', loginData);
+
+    // Check the response status
+    if (response.statusCode == 200) {
+      // Login successful
+      var tokenData = jsonDecode(response.body);
+
+      // Extract the access and refresh tokens from the response
+      var accessToken = tokenData['access'];
+      var refreshToken = tokenData['refresh'];
+      var document = tokenData['document']; // Extract document parameter
+      var isOwner = tokenData['is_owner']; // Extract is_owner parameter
+
+      // Store the tokens locally
+      await storage.write(key: 'access_token', value: accessToken);
+      await storage.write(key: 'refresh_token', value: refreshToken);
+
+      // Navigate based on the is_owner parameter
+      if (mounted) {
+        if (isOwner) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const OwnerDashboardPage(),
+            ),
+          );
+        } else if (document == null) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DocumentPage(),
+            ),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DashboardPage(),
+            ),
+          );
+        }
+      }
+    } else {
+      setState(() {
+        emailErrorMessage = 'Invalid email or password';
+        passwordErrorMessage = 'Invalid email or password';
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,123 +166,35 @@ class _LoginPageState extends State<LoginPage> {
                 obscureText: true,
               ),
               const SizedBox(height: 16.0),
-              ElevatedButton(
-                child: const Text('Login'),
-                onPressed: () async {
-                  // Reset existing error messages
-                  setState(() {
-                    emailErrorMessage = '';
-                    passwordErrorMessage = '';
-                  });
-
-                  // Check if email field is empty
-                  if (emailController.text.isEmpty) {
-                    setState(() {
-                      emailErrorMessage = 'Email is required';
-                    });
-                    return;
-                  }
-
-                  // Check if email has a valid format
-                  const emailPattern =
-                      r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$';
-                  final emailRegExp = RegExp(emailPattern);
-                  if (!emailRegExp.hasMatch(emailController.text)) {
-                    setState(() {
-                      emailErrorMessage = 'Invalid email format';
-                    });
-                    return;
-                  }
-
-                  // Check if password field is empty
-                  if (passwordController.text.isEmpty) {
-                    setState(() {
-                      passwordErrorMessage = 'Password is required';
-                    });
-                    return;
-                  }
-
-                  // Check if password has at least 6 characters
-                  if (passwordController.text.length < 6) {
-                    setState(() {
-                      passwordErrorMessage =
-                          'Password must be at least 6 characters long';
-                    });
-                    return;
-                  }
-
-                  // Prepare the login data
-                  var loginData = {
-                    'email': emailController.text,
-                    'password': passwordController.text,
-                  };
-
-                  // Send a POST request
-                  var response = await http.post(
-                    Uri.parse('http://10.0.2.2:8000/user/login'),
-                    headers: {'Content-Type': 'application/json'},
-                    body: jsonEncode(loginData),
-                  );
-
-                  // Check the response status
-                  if (response.statusCode == 202) {
-                    // Login successful
-                    // Send a POST request to obtain the access and refresh tokens
-                    var tokenResponse = await http.post(
-                      Uri.parse('http://10.0.2.2:8000/api/token'),
-                      headers: {'Content-Type': 'application/json'},
-                      body: jsonEncode(loginData),
-                    );
-
-                    // Check the token response status
-                    if (tokenResponse.statusCode == 200) {
-                      // Tokens obtained successfully
-                      var tokenData = jsonDecode(tokenResponse.body);
-
-                      // Extract the access and refresh tokens from the response
-                      var accessToken = tokenData['access'];
-                      var refreshToken = tokenData['refresh'];
-
-                      // Store the tokens locally
-                      await storage.write(
-                          key: 'access_token', value: accessToken);
-                      await storage.write(
-                          key: 'refresh_token', value: refreshToken);
-                    }
-
-                    // Navigate to the DashboardPage
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => DashboardPage()),
-                    );
-                  } else {
-                    setState(() {
-                      emailErrorMessage = 'Invalid email or password';
-                      passwordErrorMessage = 'Invalid email or password';
-                    });
-                  }
-                },
-              ),
+              isLoading
+                  ? const CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: _login,
+                      child: const Text('Login'),
+                    ),
+              const SizedBox(height: 16.0),
               TextButton(
-                child: const Text('Create New Account'),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignupPage()),
-                  );
-                },
-              ),
-              TextButton(
-                child: const Text('Forgot Password?'),
                 onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) => ForgotPasswordPage()),
+                      builder: (context) => const ForgotPasswordPage(),
+                    ),
                   );
                 },
+                child: const Text('Forgot Password?'),
               ),
-              const SizedBox(height: 16.0),
+              TextButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const SignupPage(),
+                    ),
+                  );
+                },
+                child: const Text('Don\'t have an account? Sign up'),
+              ),
             ],
           ),
         ),

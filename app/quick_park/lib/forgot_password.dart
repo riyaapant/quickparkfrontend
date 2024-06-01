@@ -3,8 +3,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ForgotPasswordPage extends StatefulWidget {
+  const ForgotPasswordPage({super.key});
+
   @override
-  _ForgotPasswordPageState createState() => _ForgotPasswordPageState();
+  State<ForgotPasswordPage> createState() => _ForgotPasswordPageState();
 }
 
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
@@ -16,11 +18,11 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('QuickPark'),
+        title: const Text('QuickPark'),
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -28,21 +30,18 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                 'assets/images/forgot_password.png',
                 height: 200,
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               TextField(
                 controller: emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  prefixIcon: Icon(Icons.email),
+                  prefixIcon: const Icon(Icons.email),
                   errorText:
                       emailErrorMessage.isNotEmpty ? emailErrorMessage : null,
                 ),
               ),
-              SizedBox(height: 16.0),
+              const SizedBox(height: 16.0),
               ElevatedButton(
-                child: isLoading
-                    ? CircularProgressIndicator()
-                    : Text('Reset Password'),
                 onPressed: isLoading
                     ? null
                     : () async {
@@ -62,7 +61,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                         }
 
                         // Check if email has a valid format
-                        final emailPattern =
+                        const emailPattern =
                             r'^[\w-]+(\.[\w-]+)*@([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,7}$';
                         final emailRegExp = RegExp(emailPattern);
                         if (!emailRegExp.hasMatch(emailController.text)) {
@@ -80,7 +79,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
                         // Send a POST request to the backend
                         var response = await http.post(
-                          Uri.parse('http://10.0.2.2:8000/forgetpassword'),
+                          Uri.parse('http://110.44.121.73:2564/forgetpassword'),
                           headers: {'Content-Type': 'application/json'},
                           body: jsonEncode(resetPasswordData),
                         );
@@ -91,12 +90,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                title: Text('Verification Sent'),
-                                content: Text(
+                                title: const Text('Verification Sent'),
+                                content: const Text(
                                     'A verification email has been sent to your email address.'),
                                 actions: <Widget>[
                                   TextButton(
-                                    child: Text('OK'),
+                                    child: const Text('OK'),
                                     onPressed: () {
                                       Navigator.pop(context);
                                       Navigator.pop(context);
@@ -119,9 +118,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
                           // You can handle the failure scenario here, such as displaying an error message
                         }
                       },
+                child: isLoading
+                    ? const CircularProgressIndicator()
+                    : const Text('Reset Password'),
               ),
               TextButton(
-                child: Text('Back to Login'),
+                child: const Text('Back to Login'),
                 onPressed: () {
                   Navigator.pop(context);
                 },
