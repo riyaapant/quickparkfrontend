@@ -12,7 +12,7 @@ import requests
 #         pidx = request.GET.get('pidx','')
 #         return 0
 
-LIVE_SECRET_KEY='sdfsdfssd'
+LIVE_SECRET_KEY='f72317fd1e834f389c6ff25eaabd35d8'
 
 def KhaltiVerification(pidx):
 

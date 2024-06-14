@@ -60,16 +60,26 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 ASGI_APPLICATION = 'backend.asgi.application'
 
 #Redis for channels configuration
-CHANNELS_Layers = {
-    'default': {
-        'Backend': 'channel_redis.core.RedisChannelLayer',
-        'CONFIG': {
-            'hosts': [('redis',6379)],
-            # 'hosts': [('localhost',6379)],
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'Backend': 'channel_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             # 'hosts': [('redis',6379)],
+#             'hosts': [('localhost',6379)],
+#         },
+#     },
+# }
+
+# ASGI_APPLICATION = 'your_project.asgi.application'
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("redis", 6379)],
+            # "hosts": [("localhost", 6379)],
         },
     },
 }
-
 
 # Application definition
 
@@ -176,9 +186,13 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.BasicAuthentication',
-        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTStatelessUserAuthentication',
-    ]
+    ],
+    # 'DEFAULT_PERMISSION_CLASSES': [
+    #     'user_auth.permissions.IsAdmin',
+    # ],
+
 }
 
 # Internationalization

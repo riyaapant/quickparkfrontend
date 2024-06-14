@@ -11,6 +11,7 @@ from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
 from .khaltiverification import KhaltiVerification
 from decimal import Decimal
+# from .permissions import IsAdmin
 
 UserModel = get_user_model()
 

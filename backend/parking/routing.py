@@ -1,6 +1,6 @@
-from django.urls import re_path, path
-from .consumers import ViewParking
+from django.urls import path
+from .consumers import ParkingConsumers
 
 ws_urlspatterns=[
-    re_path(r"^view/", ViewParking.as_asgi()),
+    path("parking/<id>", ParkingConsumers.as_asgi()),
 ]
