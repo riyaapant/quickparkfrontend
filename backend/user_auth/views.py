@@ -11,6 +11,7 @@ from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
 from .khaltiverification import KhaltiVerification
 from decimal import Decimal
+# import asyncio
 # from .permissions import IsAdmin
 
 UserModel = get_user_model()
@@ -120,11 +121,8 @@ class Register(APIView):
         if serializer.is_valid(raise_exception=True):
             user = serializer.create_u(request.data)
             if user:
-                result = send_verification(user)
-                if result ==1:
-                    return Response(f'Verification Link is sent to your email address at {user.email}',status= status.HTTP_201_CREATED)
-                else:
-                    return Response('Email Not found', status= status.HTTP_404_NOT_FOUND)
+                result =  send_verification(user)
+                return Response(f'Verification Link is sent to your email address at {user.email}',status= status.HTTP_201_CREATED)
             else:
                 return Response('User Registration Failed', status = status.HTTP_400_BAD_REQUEST)
         return Response('Unacceptable Request', status = status.HTTP_406_NOT_ACCEPTABLE)
@@ -264,10 +262,11 @@ class CreditBalance(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request):
         user = UserModel.objects.get(id=request.user.id)
-        balance = request.data['balance']
+        # balance = request.data['balance']
         pidx = request.data['pidx']
         verified = KhaltiVerification(pidx)
         if verified:
+            balance = verified.total_amount
             user.balance += Decimal(balance)
             user.save()
             return Response(f'Amount {balance} has been credited to your account', status = status.HTTP_200_OK)

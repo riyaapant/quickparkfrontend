@@ -30,11 +30,15 @@ def KhaltiVerification(pidx):
     try:
         response.raise_for_status() #Raise response for HTTP errors
         data = response.json()   #decode data from response
+        if data.status=='Completed':
+            return data
+        else:
+            return False
     
     except requests.exceptions.HTTPError as e:
-        return Response(f'HTTP Error {e}')
-    
-    if data.status=='Completed':
-        return True
-    else:
         return False
+    
+    # if data.status=='Completed':
+    #     return True
+    # else:
+    #     return False

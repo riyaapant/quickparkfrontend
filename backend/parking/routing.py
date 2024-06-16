@@ -2,5 +2,5 @@ from django.urls import path
 from .consumers import ParkingConsumers
 
 ws_urlspatterns=[
-    path("parking/<id>", ParkingConsumers.as_asgi()),
+    path("parking/<parking_id>/<vehicle_id>", ParkingConsumers.as_asgi()),
 ]
