@@ -15,6 +15,7 @@ class ParkingLocation(models.Model):
 class Reservation(models.Model):
     user = models.ForeignKey(UserModel, on_delete=models.CASCADE)
     parking = models.ForeignKey(ParkingLocation, on_delete=models.CASCADE)
+    reservation = models.BooleanField(default=False)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True)
     total_amount = models.DecimalField(max_digits=8,decimal_places=2,null=True)

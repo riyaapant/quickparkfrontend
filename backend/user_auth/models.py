@@ -50,6 +50,7 @@ class Customer(models.Model):
     vehicle_id = models.CharField(max_length=7,null=True)
     license_paper = CloudinaryField('identity', blank=True, null=True)
     reservation_id = models.IntegerField(null=True)
+    reservation = models.BooleanField(default=False)
     is_paperverified = models.BooleanField(default=False)
 
 class Owner(models.Model):

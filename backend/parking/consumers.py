@@ -13,7 +13,7 @@ from decimal import Decimal
 
 UserModel = get_user_model()
 
-class ParkingConsumers(AsyncWebsocketConsumer):
+class ParkingConsumer(AsyncWebsocketConsumer):
 
     # channel_layer = settings.CHANNEL_LAYERS["default"]
 
@@ -59,13 +59,13 @@ class ParkingConsumers(AsyncWebsocketConsumer):
         action = data.get('action')
         if action == 'reserve':
             await self.reserve()
+        elif action == 'park':
+            await self.park()
         elif action == 'release':
             await self.release()
 
 
     async def reserve(self):
-        # parking = await self.get_parking(self.parking_id)
-        # customer = await self.get_customer(self.vehicle_id)
         parking = self.parking
         customer = self.customer
 
@@ -82,24 +82,60 @@ class ParkingConsumers(AsyncWebsocketConsumer):
             raise StopConsumer()
 
         parking.used_spot += 1
+        await self.save_parking(parking)
+
+        used_spot = parking.used_spot
 
         await self.channel_layer.group_send(
             self.parking_group_name,{
                 'type':'parking_update',
-                'used_spot':parking.used_spot,
+                'used_spot':used_spot,
+                'total_spot':parking.total_spot
+            }
+        )
+
+        await self.make_reservation(reserv=True)
+
+    async def park(self):
+        parking = self.parking
+        customer = self.customer
+
+
+        if customer.reservation and customer.reservation_id:
+            await self.end_reservation()
+            parking.used_spot -= 1
+            customer.reservation_id = None
+
+
+        if parking.used_spot == parking.total_spot:
+            await self.send(text_data= json.dumps({
+                'message'   : 'Parking is already Full'
+            }))
+            raise StopConsumer()
+
+        if customer.reservation_id:
+            await self.send(text_data= json.dumps({
+                'message'   : 'You have already parked your car'
+            }))
+            raise StopConsumer()
+
+        parking.used_spot += 1
+        await self.save_parking(parking)
+
+        used_spot = parking.used_spot
+
+        await self.channel_layer.group_send(
+            self.parking_group_name,{
+                'type':'parking_update',
+                'used_spot':used_spot,
                 'total_spot':parking.total_spot
             }
         )
 
         await self.make_reservation()
-        await self.save_parking(parking)
 
-
-        # await reservation
 
     async def release(self):
-        # parking = await self.get_parking(self.parking_id)
-        # customer = await self.get_customer(self.vehicle_id)
         parking = self.parking
         customer = self.customer
 
@@ -111,23 +147,23 @@ class ParkingConsumers(AsyncWebsocketConsumer):
 
         if parking.used_spot == 0:
             await self.send(text_data= json.dumps({
-                'message'   : 'Parking is already Full'
+                'message'   : 'Parking is already empty'
             }))
             raise StopConsumer()
 
         parking.used_spot -= 1
+        await self.save_parking(parking)
         used_spot = parking.used_spot
 
         await self.channel_layer.group_send(
             self.parking_group_name,{
                 'type':'parking_update',
-                'used_spot':parking.used_spot,
+                'used_spot':used_spot,
                 'total_spot':parking.total_spot
             }
         )
 
         await self.end_reservation()
-        await self.save_parking(parking)
 
 
 
@@ -151,10 +187,11 @@ class ParkingConsumers(AsyncWebsocketConsumer):
         return customer
 
     @database_sync_to_async
-    def make_reservation(self):
-        reservation = Reservation.objects.create(user=self.customer.user,parking=self.parking,start_time=timezone.now(),end_time=None,total_amount=None)
+    def make_reservation(self,reserv=False):
+        reservation = Reservation.objects.create(user=self.customer.user,parking=self.parking,reservation=reserv,start_time=timezone.now(),end_time=None,total_amount=None)
         reservation.save()
         self.customer.reservation_id = reservation.id
+        self.customer.reservation = reserv
         self.customer.save()
 
     @database_sync_to_async
@@ -165,13 +202,21 @@ class ParkingConsumers(AsyncWebsocketConsumer):
         time_difference = reservation.end_time - reservation.start_time
         minute_difference = time_difference.total_seconds()/60
         amount_per_minute = self.parking.fee/60
-        total_amount = amount_per_minute * Decimal(minute_difference)
+        if self.customer.reservation == True:
+            total_amount = amount_per_minute * Decimal(minute_difference)/2
+        elif self.customer.reservation ==False:
+            total_amount = amount_per_minute * Decimal(minute_difference)
+        
         reservation.total_amount = total_amount
         reservation.save()
 
         user = self.customer.user
         user.balance -= total_amount
         user.save()
+
+        self.customer.reservation_id = None
+        self.customer.reservetion = False
+        self.customer.save()
 
 
 

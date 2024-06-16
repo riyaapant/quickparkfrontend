@@ -1,6 +1,6 @@
 from django.urls import path
-from .consumers import ParkingConsumers
+from .consumers import ParkingConsumer
 
 ws_urlspatterns=[
-    path("parking/<parking_id>/<vehicle_id>", ParkingConsumers.as_asgi()),
+    path("parking/<parking_id>/<vehicle_id>", ParkingConsumer.as_asgi()),
 ]
