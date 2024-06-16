@@ -1,6 +1,0 @@
-Python
-Google colab
-opencv
-Yolo8
-ROI
-OCR
