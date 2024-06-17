@@ -35,13 +35,13 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         total_spot = self.parking.total_spot
         if used_spot < total_spot:
             await self.send(text_data= json.dumps({
-                'used_spots': used_spot,
+                'used_spot': used_spot,
                 'total_spot': total_spot,
                 'message'   : 'available'
             }))
         else:
             await self.send(text_data= json.dumps({
-                'used_spots': used_spot,
+                'used_spot': used_spot,
                 'total_spot': total_spot,
                 'message'   : 'full'
             }))
@@ -81,6 +81,12 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             }))
             raise StopConsumer()
 
+        # if await self.get_balance() < parking.fee:
+        #     await self.send(text_data= json.dumps({
+        #         'message'   : 'Please Recharge your account'
+        #     }))
+        #     raise StopConsumer()
+
         parking.used_spot += 1
         await self.save_parking(parking)
 
@@ -93,6 +99,10 @@ class ParkingConsumer(AsyncWebsocketConsumer):
                 'total_spot':parking.total_spot
             }
         )
+
+        await self.send(text_data= json.dumps({
+                'value'   : 'Reserved'
+        }))
 
         await self.make_reservation(reserv=True)
 
@@ -119,8 +129,15 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             }))
             raise StopConsumer()
 
+        # if await self.get_balance() < parking.fee:
+        #     await self.send(text_data= json.dumps({
+        #         'message'   : 'Please recharge you account'
+        #     }))
+        #     raise StopConsumer()
+
         parking.used_spot += 1
         await self.save_parking(parking)
+
 
         used_spot = parking.used_spot
 
@@ -131,6 +148,9 @@ class ParkingConsumer(AsyncWebsocketConsumer):
                 'total_spot':parking.total_spot
             }
         )
+        await self.send(text_data= json.dumps({
+                'value'   : 'Parked'
+        }))
 
         await self.make_reservation()
 
@@ -153,6 +173,8 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
         parking.used_spot -= 1
         await self.save_parking(parking)
+
+
         used_spot = parking.used_spot
 
         await self.channel_layer.group_send(
@@ -162,6 +184,9 @@ class ParkingConsumer(AsyncWebsocketConsumer):
                 'total_spot':parking.total_spot
             }
         )
+        await self.send(text_data= json.dumps({
+                'value'   : 'Released'
+        }))
 
         await self.end_reservation()
 
@@ -210,14 +235,22 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         reservation.total_amount = total_amount
         reservation.save()
 
-        user = self.customer.user
-        user.balance -= total_amount
-        user.save()
-
         self.customer.reservation_id = None
         self.customer.reservetion = False
         self.customer.save()
 
+        user = self.customer.user
+        user.balance -= total_amount
+        user.save()
+
+        owner = self.parking.user
+        owner.balance += (total_amount* Decimal(0.9))
+        owner.save()
+
+
+    @database_sync_to_async
+    def get_balance(self):
+        return self.customer.user.balance
 
 
     @database_sync_to_async
