@@ -33,7 +33,7 @@ export default function AdminPanel() {
                     <Home className="w-6 h-6"/>
                     <p>Home</p>
                 </Link>
-                <Link to="#" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
+                <Link to="viewusers" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
                     <Users className="w-6 h-6"/>
                     <p>Users</p>
                 </Link>

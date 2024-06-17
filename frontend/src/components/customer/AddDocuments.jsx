@@ -3,6 +3,7 @@ import axios from 'axios';
 import config from '../../features/config';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
+import { ThumbsUp } from 'lucide-react';
 
 const AddDocument = () => {
 
@@ -10,6 +11,7 @@ const AddDocument = () => {
     const [loading, setLoading] = useState(false)
 
     const [documentsSubmitted, setDocumentsSubmitted] = useState(false)
+    const [documentsVerified, setDocumentsVerified] = useState(false)
 
     const [vehicleId, setVehicleId] = useState('');
     const [document, setDocument] = useState(null);
@@ -74,9 +76,12 @@ const AddDocument = () => {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
-            console.log(response)
+            console.log(response.data.is_paperverified)
             if(response.data.document){
                 setDocumentsSubmitted(true)
+            }
+            if(response.data.is_paperverified){
+                setDocumentsVerified(true)
             }
         }
         catch(e){
@@ -145,13 +150,24 @@ const AddDocument = () => {
                     </section>
                 </div>
             ) : (
-                <div className="h-screen p-20 flex flex-col w-2/3 justify-center items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#qp" className="w-16 h-16">
-                        <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
-                    </svg>
-                    <p className="text-lg">Documents Submitted</p>
-                    <p className="text-lg">We will get back to you shortly!</p>
-                </div>
+                <>
+                    {!documentsVerified ? (
+                        <div className="h-screen p-20 flex flex-col w-2/3 justify-center items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#qp" className="w-16 h-16">
+                                <path fillRule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 0 0-1.06 1.06l2.25 2.25a.75.75 0 0 0 1.14-.094l3.75-5.25Z" clipRule="evenodd" />
+                            </svg>
+                            <p className="text-lg">Documents Submitted</p>
+                            <p className="text-lg">We will get back to you shortly!</p>
+                        </div>
+                    ) : (
+                    <div className="h-screen p-20 flex flex-col w-2/3 justify-center items-center">
+                            <ThumbsUp className='w-24 h-24'/>
+                            <p className="text-lg font-semibold">Congratulations!</p>
+                            <p className="text-lg">You have been verified.</p>
+                        </div>
+                    )
+                    }
+                </>
             )}
         </div>
     );

@@ -35,7 +35,7 @@ const AddOwnerDocument = () => {
             });
             console.log(documentUploadResponse);
             setDocumentsSubmitted(true)
-            setDocumentsVerified(true)
+            // setDocumentsVerified(true)
         } catch (error) {
             console.error('Error uploading file: ', error);
         }
@@ -64,6 +64,8 @@ const AddOwnerDocument = () => {
             console.log(response.data)
             if(response.data.document){
                 setDocumentsSubmitted(true)
+            }
+            if(response.data.is_paperverified === true){
                 setDocumentsVerified(true)
             }
         }
@@ -71,9 +73,10 @@ const AddOwnerDocument = () => {
             console.log(e.response)
         }
     }
-
+    
     useEffect(() => {
         fetchProfile()
+        console.log(documentsVerified)
     })
 
     return (

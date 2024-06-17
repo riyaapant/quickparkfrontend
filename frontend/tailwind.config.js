@@ -8,6 +8,7 @@ export default {
     extend: {
       colors: {
         'qp': '#265073',
+        'admin': ' #4B4B4B'
       },
     },
   },

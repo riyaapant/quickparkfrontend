@@ -84,7 +84,7 @@ export default function Profile() {
                         'Authorization': 'Bearer ' + `${token}`
                     }
                 });
-                // console.log(response.data)
+                console.log(response.data)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
                     email: response.data.email,
@@ -104,7 +104,7 @@ export default function Profile() {
         };
 
         fetchProfile();
-    }, []);
+    }, [profilePic]);
 
     return (
         <section className="max-h-screen m-4 p-4 border-collapse border rounded-xl border-gray-200 flex flex-col">
@@ -161,7 +161,7 @@ export default function Profile() {
                                 className="w-full hidden"
                                 onChange={handleProfilePicChange}
                             />
-                            <button className='flex w-2/3 justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 ' onClick={handleProfilePictureUpload}>Upload</button>
+                            <button className='flex w-2/3 justify-center rounded-md bg-qp py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 ' onClick={handleProfilePictureUpload}>Upload</button>
                         </div>
                     )
 
@@ -198,9 +198,9 @@ export default function Profile() {
                         <dd className='mt-1 text-lg text-gray-800 sm:col-span-2 border-collapse border rounded-xl border-gray-300 px-2 py-5'>
                             <div className='flex items-center gap-x-2'>
                                 <Paperclip className='w-6 h-6' />
-                                <p className='flex-grow'>https://res.cloudinary.com/d...</p>
+                                <p className='flex-grow'>{user.document}</p>
                                 <button className='text-qp hover:text-blue-700'>
-                                    {!user.document ? (<Link to="#">Add Documents</Link>) : ('Download')}
+                                    {user.document ? (<a href={user.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>) : ('Add')}
                                 </button>
                             </div>
                         </dd>

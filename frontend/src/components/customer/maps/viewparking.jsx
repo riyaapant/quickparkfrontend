@@ -1,10 +1,10 @@
-import { APIProvider, Map, Marker, useMap, InfoWindow, useMarkerRef } from '@vis.gl/react-google-maps';
+import { APIProvider, Map, Marker, useMap } from '@vis.gl/react-google-maps';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../../features/config';
 
+import ParkingInfoWindow from '../ParkingInfoWindow';
 
 const AutoComplete = () => {
 
@@ -28,6 +28,7 @@ const AutoComplete = () => {
     // const [searchQuery, setSearchQuery] = useState('')
 
     const [searchResult, setSearchResult] = useState([]);
+    const [searchDone, setSearchDone] = useState(false)
 
     // const handleSearchQueryChange = (e) => {
     //     setSearchQuery(e.target.value)
@@ -66,8 +67,9 @@ const AutoComplete = () => {
         try {
             const response = await api.get(`/viewparkinglocations`)
             console.log("response: ", response.data)
+            setSearchDone(true)
             setSearchResult(response.data)
-            console.log("search result: ",searchResult)
+            console.log("search result: ", searchResult)
         }
         catch (e) {
             console.log(e.response)
@@ -85,7 +87,7 @@ const AutoComplete = () => {
         try {
             console.log(marker)
             const response = await api.get(`viewparking/${marker.id}`)
-            console.log(response)
+            // console.log("marker click response: ",response.data)
             setActiveMarker(response.data);
         }
         catch (e) {
@@ -157,27 +159,15 @@ const AutoComplete = () => {
 
                         </>
                     ))}
-                    {activeMarker && (
-                        <InfoWindow
-                            position={{ lat: activeMarker.lat, lng: activeMarker.lon }}
-                            onCloseClick={handleInfoWindowClose}
-                        >
-                            <div className="bg-white p-4 rounded-md shadow-md">
-                                <h3 className="text-lg font-semibold mb-2">Parking Details</h3>
-                                <div className="mb-2">
-                                    <p className="text-sm"><strong>Address:</strong> {activeMarker.address}</p>
-                                    <p className="text-sm"><strong>Fee:</strong> {activeMarker.fee}</p>
-                                    <p className="text-sm"><strong>Total Spaces:</strong> {activeMarker.total}</p>
-                                    <p className="text-sm"><strong>Used Spaces:</strong> {activeMarker.used}</p>
-                                    <p className="text-sm"><strong>Owner:</strong> {activeMarker.user}</p>
-                                </div>
-                            </div>
-                        </InfoWindow>
 
+                    {activeMarker && (
+                        <ParkingInfoWindow
+                        marker={activeMarker}
+                        onClose={handleInfoWindowClose} />
                     )}
                 </Map>
             </APIProvider >
-            {searchResult.length == 0 && (
+            {searchDone == true && searchResult.length == 0 && (
                 <p className='text-red-700'> No parking locations to show</p>
             )}
         </main>

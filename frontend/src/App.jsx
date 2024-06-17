@@ -22,11 +22,15 @@ import ViewParkingLocationsOnMap from './components/owner/maps/locationsmap.jsx'
 import ViewOwnParking from './components/owner/viewOwnParking.jsx';
 
 import AdminDashboard from './routes/admin/Dashboard';
-import PendingRequests from './components/admin/Requests';
+import PendingRequests from './components/admin/Requests.jsx';
 import UserDetails from './components/admin/UserProfile';
 import EditProfile from './components/shared/EditProfile.jsx';
 import ChangePassword from './components/shared/ChangePassword.jsx';
 import KhaltiCheckout from './experiment/khalti.jsx';
+import AdminRegistration from './routes/admin/adminregistration.jsx';
+import AdminLogin from './routes/admin/adminlogin.jsx';
+import ViewUsers from './components/admin/Users.jsx'
+import ReserveParking from './components/customer/ReserveParking.jsx';
 
 const router = createBrowserRouter([
   {
@@ -47,7 +51,8 @@ const router = createBrowserRouter([
       },
       {
         path: "maps",
-        element: <Maps />
+        element: <AutoComplete />
+        // element: <Maps />
       },
       {
         path: "maps/viewparking",
@@ -64,6 +69,10 @@ const router = createBrowserRouter([
       {
         path: "profile/changepassword",
         element: <ChangePassword />
+      },
+      {
+        path:"reserveparking",
+        element: <ReserveParking />
       }
     ],
   },
@@ -113,18 +122,14 @@ const router = createBrowserRouter([
         path: "",
         element: <PendingRequests />
       },
-      // {
-      //   path: "maps",
-      //   element: <Maps />
-      // },
+      {
+        path: "viewusers",
+        element: <ViewUsers />
+      },
       {
         path: "maps",
         element: <AutoComplete />
       },
-      {
-        path: "userprofile",
-        element: <UserDetails />
-      }
     ],
   },
   
@@ -147,6 +152,14 @@ const router = createBrowserRouter([
   {
     path: "/khalti",
     element: <KhaltiCheckout />
+  },
+  {
+    path: "/admin/register",
+    element: <AdminRegistration />
+  },
+  {
+    path: "/admin/login",
+    element: <AdminLogin />
   }
 ])
 

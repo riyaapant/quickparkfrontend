@@ -57,7 +57,7 @@ const OwnerMaps = () => {
         try {
             const response = await api.get(`/profile`);
             console.log(response)
-            if(response.data.document){
+            if(response.data.is_paperverified===true){
                 setDocumentsVerified(true)
             }
         } catch (error) {
