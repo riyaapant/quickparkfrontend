@@ -35,3 +35,10 @@ BAC5666	2024-06-16 22:07:22
 NumberPlate        Date      Time
 BAA9955	2024-06-16 22:11:25
 EAn9955	2024-06-16 22:11:26
+NumberPlate        Date      Time
+BAA9550	2024-06-17 10:52:16
+NumberPlate        Date      Time
+BAA1926	2024-06-17 10:59:29
+NumberPlate        Date      Time
+BAB0126	2024-06-17 11:01:41
+BAB6126	2024-06-17 11:02:02
