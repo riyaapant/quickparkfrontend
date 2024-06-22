@@ -23,7 +23,13 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
         self.customer = await self.get_customer()
         self.parking = await self.get_parking()
-        await self.send_parking_status()
+        if self.customer.reservation_id and self.customer.reservation:
+            await self.send_parking_status(value='Reserved')
+        elif self.customer.reservation_id:
+            await self.send_parking_status(value='Parkerd')
+        else:
+            await self.send_parking_status(value='Reserve')
+            
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.parking_group_name, self.channel_name)
@@ -44,12 +50,12 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         await self.end_reservation()
         # await self.update_parking(-1)
 
-    async def send_parking_status(self):
+    async def send_parking_status(self,value):
         if self.parking.used_spot < self.parking.total_spot:
             await self.send(json.dumps({
                 'used_spot': self.parking.used_spot,
                 'total_spot': self.parking.total_spot,
-                'value': 'Available'
+                'value': value
             }))
         else:
             await self.send(json.dumps({
@@ -125,7 +131,7 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             'total_spot': self.parking.total_spot
         })
 
-        await self.send(json.dumps({'value':'Available'}))
+        await self.send(json.dumps({'value':'Reserve'}))
 
         await self.end_reservation()
 
