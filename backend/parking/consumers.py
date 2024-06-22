@@ -1,60 +1,34 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 from .models import ParkingLocation, Reservation
-from user_auth.models import Customer
+from user_auth.models import Customer, Payment
 import json
 from django.conf import settings
 from channels.db import database_sync_to_async
-from asgiref.sync import sync_to_async
 from django.contrib.auth import get_user_model
-from channels.exceptions import StopConsumer
 from django.utils import timezone
+from django.db import transaction, models
 from decimal import Decimal
-
 
 UserModel = get_user_model()
 
 class ParkingConsumer(AsyncWebsocketConsumer):
 
-    # channel_layer = settings.CHANNEL_LAYERS["default"]
-
     async def connect(self):
-        # if self.scope['user'].is_anonymous:
-        #     await self.close()
-        #     raise DenyConnection("Authentication Failed")
-        self.parking_id =self.scope['url_route']['kwargs']['parking_id']
+        self.parking_id = self.scope['url_route']['kwargs']['parking_id']
         self.vehicle_id = self.scope['url_route']['kwargs']['vehicle_id']
         self.parking_group_name = f'parking_{self.parking_id}'
 
-        await self.channel_layer.group_add(self.parking_group_name,self.channel_name)
-
+        await self.channel_layer.group_add(self.parking_group_name, self.channel_name)
         await self.accept()
 
         self.customer = await self.get_customer()
         self.parking = await self.get_parking()
-        used_spot = self.parking.used_spot
-        total_spot = self.parking.total_spot
-        if used_spot < total_spot:
-            await self.send(text_data= json.dumps({
-                'used_spot': used_spot,
-                'total_spot': total_spot,
-                'message'   : 'available'
-            }))
-        else:
-            await self.send(text_data= json.dumps({
-                'used_spot': used_spot,
-                'total_spot': total_spot,
-                'message'   : 'full'
-            }))
-
-
+        await self.send_parking_status()
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(
-            self.parking_group_name,
-            self.channel_name
-        )
+        await self.channel_layer.group_discard(self.parking_group_name, self.channel_name)
 
-    async def receive(self,text_data):
+    async def receive(self, text_data):
         data = json.loads(text_data)
         action = data.get('action')
         if action == 'reserve':
@@ -63,196 +37,182 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             await self.park()
         elif action == 'release':
             await self.release()
+        elif action == 'frelease':
+            await self.frelease()
 
+    async def frelease(self):
+        await self.end_reservation()
+        # await self.update_parking(-1)
 
+    async def send_parking_status(self):
+        if self.parking.used_spot < self.parking.total_spot:
+            await self.send(json.dumps({
+                'used_spot': self.parking.used_spot,
+                'total_spot': self.parking.total_spot,
+                'value': 'Available'
+            }))
+        else:
+            await self.send(json.dumps({
+                'used_spot': self.parking.used_spot,
+                'total_spot': self.parking.total_spot,
+                'value': 'Full'
+            }))
+
+            
     async def reserve(self):
-        parking = self.parking
-        customer = self.customer
+        if self.customer.reservation_id:
+            await self.send(json.dumps({'message': 'You have already reserved a space'}))
+            return
 
-        if customer.reservation_id:
-            await self.send(text_data= json.dumps({
-                'message'   : 'You have already reserved a space'
-            }))
-            raise StopConsumer()
+        if self.parking.used_spot == self.parking.total_spot:
+            await self.send(json.dumps({'message': 'Parking is already Full'}))
+            return
 
-        if parking.used_spot == parking.total_spot:
-            await self.send(text_data= json.dumps({
-                'message'   : 'Parking is already Full'
-            }))
-            raise StopConsumer()
+        # if await self.get_balance() < self.parking.fee:
+        #     await self.send(json.dumps({'message': 'Please Recharge your account'}))
+        #     return
 
-        # if await self.get_balance() < parking.fee:
-        #     await self.send(text_data= json.dumps({
-        #         'message'   : 'Please Recharge your account'
-        #     }))
-        #     raise StopConsumer()
-
-        parking.used_spot += 1
-        await self.save_parking(parking)
-
-        used_spot = parking.used_spot
-
-        await self.channel_layer.group_send(
-            self.parking_group_name,{
-                'type':'parking_update',
-                'used_spot':used_spot,
-                'total_spot':parking.total_spot
-            }
-        )
-
-        await self.send(text_data= json.dumps({
-                'value'   : 'Reserved'
-        }))
+        await self.update_parking(1)
+        await self.channel_layer.group_send(self.parking_group_name, {
+            'type': 'parking_update',
+            'used_spot': self.parking.used_spot,
+            'total_spot': self.parking.total_spot
+        })
+        await self.send(json.dumps({'value':'Reserved'}))
 
         await self.make_reservation(reserv=True)
 
     async def park(self):
-        parking = self.parking
-        customer = self.customer
-
-
-        if customer.reservation and customer.reservation_id:
+        if self.customer.reservation and self.customer.reservation_id:
+            await self.update_parking(-1)
             await self.end_reservation()
-            parking.used_spot -= 1
-            customer.reservation_id = None
 
+        if self.parking.used_spot == self.parking.total_spot:
+            await self.send(json.dumps({'message': 'Parking is already Full'}))
+            return
 
-        if parking.used_spot == parking.total_spot:
-            await self.send(text_data= json.dumps({
-                'message'   : 'Parking is already Full'
-            }))
-            raise StopConsumer()
+        if self.customer.reservation_id and self.customer.reservation==False:
+            await self.send(json.dumps({'message': 'You have already parked your car'}))
+            return
 
-        if customer.reservation_id:
-            await self.send(text_data= json.dumps({
-                'message'   : 'You have already parked your car'
-            }))
-            raise StopConsumer()
+        # if await self.get_balance() < self.parking.fee:
+        #     await self.send(json.dumps({'message': 'Please recharge your account'}))
+        #     return
 
-        # if await self.get_balance() < parking.fee:
-        #     await self.send(text_data= json.dumps({
-        #         'message'   : 'Please recharge you account'
-        #     }))
-        #     raise StopConsumer()
-
-        parking.used_spot += 1
-        await self.save_parking(parking)
-
-
-        used_spot = parking.used_spot
-
-        await self.channel_layer.group_send(
-            self.parking_group_name,{
-                'type':'parking_update',
-                'used_spot':used_spot,
-                'total_spot':parking.total_spot
-            }
-        )
-        await self.send(text_data= json.dumps({
-                'value'   : 'Parked'
-        }))
+        await self.update_parking(1)
+        await self.channel_layer.group_send(self.parking_group_name, {
+            'type': 'parking_update',
+            'used_spot': self.parking.used_spot,
+            'total_spot': self.parking.total_spot
+        })
+        await self.send(json.dumps({'value':'Parked'}))
 
         await self.make_reservation()
 
-
     async def release(self):
-        parking = self.parking
-        customer = self.customer
+        if self.customer.reservation_id is None:
+            await self.send(json.dumps({'message': 'You have not reserved any space'}))
+            return
 
-        if customer.reservation_id is None:
-            await self.send(text_data= json.dumps({
-                'message'   : 'You have not reserved any space'
-            }))
-            raise StopConsumer()
+        # if self.parking.used_spot == 0:
+        #     await self.send(json.dumps({'message': 'Parking is already empty'}))
+        #     return
 
-        if parking.used_spot == 0:
-            await self.send(text_data= json.dumps({
-                'message'   : 'Parking is already empty'
-            }))
-            raise StopConsumer()
+        await self.update_parking(-1)
+        await self.channel_layer.group_send(self.parking_group_name, {
+            'type': 'parking_update',
+            'used_spot': self.parking.used_spot,
+            'total_spot': self.parking.total_spot
+        })
 
-        parking.used_spot -= 1
-        await self.save_parking(parking)
-
-
-        used_spot = parking.used_spot
-
-        await self.channel_layer.group_send(
-            self.parking_group_name,{
-                'type':'parking_update',
-                'used_spot':used_spot,
-                'total_spot':parking.total_spot
-            }
-        )
-        await self.send(text_data= json.dumps({
-                'value'   : 'Released'
-        }))
+        await self.send(json.dumps({'value':'Available'}))
 
         await self.end_reservation()
 
-
-
     async def parking_update(self, data):
-        used_spot   = data['used_spot']
-        total_spot  = data['total_spot']
-
-        await self.send(text_data = json.dumps({
-            'used_spot': used_spot,
-            'total_spot': total_spot,
+        await self.send(json.dumps({
+            'used_spot': data['used_spot'],
+            'total_spot': data['total_spot']
         }))
 
     @database_sync_to_async
     def get_parking(self):
-        parking = ParkingLocation.objects.get(id=self.parking_id)
-        return parking
+        return ParkingLocation.objects.get(id=self.parking_id)
 
     @database_sync_to_async
     def get_customer(self):
-        customer = Customer.objects.get(vehicle_id=self.vehicle_id)
-        return customer
-
-    @database_sync_to_async
-    def make_reservation(self,reserv=False):
-        reservation = Reservation.objects.create(user=self.customer.user,parking=self.parking,reservation=reserv,start_time=timezone.now(),end_time=None,total_amount=None)
-        reservation.save()
-        self.customer.reservation_id = reservation.id
-        self.customer.reservation = reserv
-        self.customer.save()
-
-    @database_sync_to_async
-    def end_reservation(self):
-        reservation = Reservation.objects.get(id=self.customer.reservation_id)
-        reservation.end_time = timezone.now()
-
-        time_difference = reservation.end_time - reservation.start_time
-        minute_difference = time_difference.total_seconds()/60
-        amount_per_minute = self.parking.fee/60
-        if self.customer.reservation == True:
-            total_amount = amount_per_minute * Decimal(minute_difference)/2
-        elif self.customer.reservation ==False:
-            total_amount = amount_per_minute * Decimal(minute_difference)
-        
-        reservation.total_amount = total_amount
-        reservation.save()
-
-        self.customer.reservation_id = None
-        self.customer.reservetion = False
-        self.customer.save()
-
-        user = self.customer.user
-        user.balance -= total_amount
-        user.save()
-
-        owner = self.parking.user
-        owner.balance += (total_amount* Decimal(0.9))
-        owner.save()
-
+        return Customer.objects.get(vehicle_id=self.vehicle_id)
 
     @database_sync_to_async
     def get_balance(self):
         return self.customer.user.balance
 
+    @database_sync_to_async
+    def update_parking(self, increment):
+        ParkingLocation.objects.filter(id=self.parking_id).update(
+            used_spot=models.F('used_spot') + increment
+        )
+        self.parking = ParkingLocation.objects.get(id=self.parking_id)
 
     @database_sync_to_async
-    def save_parking(self, parking):
-        parking.save()
+    def make_reservation(self, reserv=False):
+        with transaction.atomic():
+            reservation = Reservation.objects.create(
+                user=self.customer.user,
+                parking=self.parking,
+                reservation=reserv,
+                start_time=timezone.now(),
+                end_time=None,
+                total_amount=None
+            )
+            reservation.save()
+            Customer.objects.filter(id=self.customer.id).update(
+                reservation_id=reservation.id,
+                reservation=reserv
+            )
+            self.customer = Customer.objects.get(vehicle_id=self.vehicle_id)
+
+    @database_sync_to_async
+    def end_reservation(self):
+        with transaction.atomic():
+            reservation = Reservation.objects.select_for_update().get(id=self.customer.reservation_id)
+            reservation.end_time = timezone.now()
+
+            time_difference = reservation.end_time - reservation.start_time
+            minute_difference = time_difference.total_seconds() / 60
+            amount_per_minute = self.parking.fee / 60
+
+            if self.customer.reservation:
+                total_amount = (amount_per_minute * Decimal(minute_difference)) / 2
+            else:
+                total_amount = amount_per_minute * Decimal(minute_difference)
+
+            reservation.total_amount = total_amount
+            reservation.save()
+
+            Customer.objects.filter(id=self.customer.id).update(
+                reservation_id=None,
+                reservation=False
+            )
+            self.customer = Customer.objects.get(vehicle_id=self.vehicle_id)
+
+            UserModel.objects.filter(id=self.customer.user.id).update(
+                balance=models.F('balance') - total_amount
+            )
+
+            UserModel.objects.filter(id=self.parking.user.id).update(
+                balance=models.F('balance') + (total_amount * Decimal(0.9))
+            )
+
+            # payment = Payment.objects.create(
+            #     from_user=f'{self.customer.user.first_name} {self.customer.user.last_name}',
+            #     to_user=f'{self.parking.user.first_name} {self.parking.user.last_name}',
+            #     amount=total_amount
+            # )
+            payment = Payment.objects.create(
+                from_user   = self.customer.user.id,
+                to_user     = self.parking.user.id,
+                amount      = total_amount
+            )
+            payment.save()
+
