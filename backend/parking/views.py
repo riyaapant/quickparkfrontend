@@ -13,6 +13,8 @@ class AddParking(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         user = UserModel.objects.get(id=request.user.id)
+        if user.owner.is_paperverified==False:
+            return Response('Please verify your documents first', status=status.HTTP_400_BAD_REQUEST)
         serializer = ParkingSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save(user=user)
@@ -81,4 +83,53 @@ class ViewReservation(APIView):
                 'amount'    : reservation.amount
             })
             return Response(reservation_data, status = status.HTTP_200_OK)
+
+class AdminParkingVIew(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        parking_locations = ParkingLocation.objects.all()
+        parking_data=[]
+        for parking in parking_locations:
+            parking_data.append({
+                'id'        :parking.id,
+                'address'   :parking.address,
+                'fee'       :parking.fee,
+                'used_spot' :parking.used_spot,
+                'total_spot':parking.total_spot,
+            })
+        return Response(parking_data,status=status.HTTP_200_OK)
+
+class ViewCustomerReservation(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        user = UserModel.objects.get(id=request.user.id)
+        reservations = Reservation.objects.all().filter(user=user)
+        reservation_data=[]
+        for reservation in reservations:
+            reservation_data.append({
+                # 'id'        :reserve.id,
+                'address'   :reservation.parking.address,
+                'start_time':reservation.start_time,
+                'end_time'  :reservation.end_time,
+                'total_amount':reservation.total_amount,
+            })
+        return Response(reservation_data,status=status.HTTP_200_OK)
+
+
+class ViewParkingReservation(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request,id):
+        # user = UserModel.objects.get(id=request.user.id)
+        park = Parking.objects.get(id=id)
+        reservations = Reservation.objects.all().filter(park=park)
+        reservation_data=[]
+        for reservation in reservations:
+            reservation_data.append({
+                # 'id'        :reserve.id,
+                'address'   :reservation.parking.address,
+                'start_time':reservation.start_time,
+                'end_time'  :reservation.end_time,
+                'total_amount':reservation.total_amount,
+            })
+        return Response(reservation_data,status=status.HTTP_200_OK)
 

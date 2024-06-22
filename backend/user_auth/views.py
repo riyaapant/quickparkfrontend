@@ -461,3 +461,31 @@ class Logout(APIView):
         logout(request)
         return Response("User logged out successfully", status = status.HTTP_200_OK)
 
+
+class ViewCreditedPayment(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        payments = Payment.objects.all().filter(to_user=request.user.id)
+        payment_data=[]
+        for payment in payments:
+            payment_data.append({
+                'From'  :payment.from_user,
+                'Amount':payment.amount,
+                'Time'  :payment.payment_date,
+            })
+        return Response(payment_data, status=status.HTTP_200_OK)
+
+
+class ViewDebitedPayment(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        payments = Payment.objects.all().filter(from_user=request.user.id)
+        payment_data=[]
+        for payment in payments:
+            payment_data.append({
+                'To'  :payment.to_user,
+                'Amount':payment.amount,
+                'Time'  :payment.payment_date,
+            })
+        return Response(payment_data, status=status.HTTP_200_OK)
+
