@@ -24,6 +24,8 @@ from .views import (
     AdminViewPendingOwner,
     AdminVerifyCustomer,
     AdminVerifyOwner,
+    ViewCreditedPayment,
+    ViewDebitedPayment,
 )
 urlpatterns = [
     path('register',Register.as_view(), name='register'),
@@ -35,7 +37,9 @@ urlpatterns = [
     path('update', UpdateUser.as_view(), name = 'update_user'),
     path('vehicleid', VehicleID.as_view(), name = 'Vehicle Update'),
     path('credit', CreditBalance.as_view(), name = 'credited_balance'),
-    path('debit', DebitBalance.as_view(), name = 'debited_balance'),
+    path('view/credit' ViewCreditedPayment.as_view(), name = 'view_credited_balances'),
+    path('view/debit' ViewDebitedPayment.as_view(), name = 'view_debited_balances'),
+    # path('debit', DebitBalance.as_view(), name = 'debited_balance'),
     # path('owner',Owner.as_view(), name = 'owner'),
     # path('<usr>/upload',ImageUpload.as_view(), name='upload'),
     path('admin/signup',AdminRegister.as_view(), name = 'admin_signup'),
