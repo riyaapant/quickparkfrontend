@@ -29,7 +29,11 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
         if self.customer.reservation_id:
             p_id = await self.get_parking_id()
-            if p_id != self.parking_id:
+            # await self.send(json.dumps({
+            #     "parking_id":p_id,
+            #     "listed_p_id":self.parking_id
+            # }))
+            if p_id is not int(self.parking_id):
                 await self.close(code=4001)
 
         if self.customer.reservation_id and self.customer.reservation:
