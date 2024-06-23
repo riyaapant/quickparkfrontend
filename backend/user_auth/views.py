@@ -6,10 +6,10 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from .models import Customer,Owner
+from .models import Customer,Owner,Payment
 from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
-from .khaltiverification import KhaltiVerification
+from .khalti import KhaltiVerification,KhaltiInitiate
 from decimal import Decimal
 # import asyncio
 # from .permissions import IsAdmin
@@ -258,21 +258,6 @@ class ImageUpload(APIView):
 #         return Response('Unacceptable Request',status = status.HTTP_406_NOT_ACCEPTABLE)
 
 
-class CreditBalance(APIView):
-    permission_classes = [IsAuthenticated]
-    def put(self,request):
-        user = UserModel.objects.get(id=request.user.id)
-        # balance = request.data['balance']
-        pidx = request.data['pidx']
-        verified = KhaltiVerification(pidx)
-        if verified:
-            balance = verified.total_amount
-            user.balance += Decimal(balance)
-            user.save()
-            return Response(f'Amount {balance} has been credited to your account', status = status.HTTP_200_OK)
-        else:
-            return Response('Amount not found', status=status.HTTP_400_BAD_REQUEST)
-
 class DebitBalance(APIView):
     # def put(self,request):
     #     user = UserModel.objects.get(it=request.user.id)
@@ -468,8 +453,9 @@ class ViewCreditedPayment(APIView):
         payments = Payment.objects.all().filter(to_user=request.user.id)
         payment_data=[]
         for payment in payments:
+            user = UserModel.objects.get(id=payment.from_user)
             payment_data.append({
-                'From'  :payment.from_user,
+                'From'  :f'{user.first_name} {user.last_name}' if user.is_superuser==False else 'Khalti',
                 'Amount':payment.amount,
                 'Time'  :payment.payment_date,
             })
@@ -482,10 +468,49 @@ class ViewDebitedPayment(APIView):
         payments = Payment.objects.all().filter(from_user=request.user.id)
         payment_data=[]
         for payment in payments:
+            user = UserModel.objects.get(id=payment.from_user)
             payment_data.append({
-                'To'  :payment.to_user,
+                'To'  :f'{user.first_name} {user.last_name}',
                 'Amount':payment.amount,
                 'Time'  :payment.payment_date,
             })
         return Response(payment_data, status=status.HTTP_200_OK)
+
+class KhaltiTopup(APIView):
+    permission_classes = [IsAuthenticated]
+    def post(self,request):
+        amount_data = request.data['amount']
+        amount = Decimal(amount)* Decimal(100)
+        user = UserModel.objects.get(id=request.user.id)
+        name = f"{user.first_name} {user.last_name}"
+        email = user.email
+        phone = user.contact
+        result = KhaltiInitiate(amount,name,email,phone)
+        if result:
+            return Response(result, status = status.HTTP_200_OK)
+        else:
+            return Response("Error while fetchine khalti", status= status.HTTP_200_OK)
+
+class KhaltiTopupVerification(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self,request):
+        user = UserModel.objects.get(id=request.user.id)
+        pidx = request.data['pidx']
+        verified = KhaltiVerification(pidx)
+        if verified:
+            balance = Decimal(verified['total_amount']) / Decimal(100)
+            user.balance += Decimal(balance)
+            user.save()
+            if UserModel.objects.filter(is_superuser=True).exists():
+                admin = UserModel.objects.filter(is_superuser=True).first()
+                payment = Payment.objects.create(from_user=admin.id,to_user=user.id,amount=balance)
+                payment.save()
+            return Response(f'Amount {balance} has been credited to your account', status = status.HTTP_200_OK)
+        else:
+            return Response('Amount not found', status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReturnURL(APIView):
+    def get(self,request):
+        return Response(request.data, status=status.HTTP_200_OK)
 
