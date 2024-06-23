@@ -6,7 +6,8 @@ from .views import (
     ViewParking,
     ViewReservation,
     AdminParkingVIew,
-    ViewReservation,
+    ViewCustomerReservation,
+    ViewParkingReservation,
 )
 
 urlpatterns = [
