@@ -6,7 +6,8 @@ from rest_framework.permissions import IsAuthenticated,AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from .models import Customer,Owner,Payment
+from django.db import models
+from .models import Customer,Owner,Payment,KhaltiPayment
 from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
 from .khalti import KhaltiVerification,KhaltiInitiate
@@ -480,13 +481,15 @@ class KhaltiTopup(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         amount_data = request.data['amount']
-        amount = Decimal(amount_data)* Decimal(100)
+        amount = float(amount_data)*100
         user = UserModel.objects.get(id=request.user.id)
         name = f"{user.first_name} {user.last_name}"
         email = user.email
         phone = user.contact
         result = KhaltiInitiate(amount,name,email,phone)
         if result:
+            khalti = KhaltiPayment.objects.create(pidx=result['pidx'],user_id=request.user.id,amount=Decimal(amount_data))
+            khalti.save()
             return Response(result, status = status.HTTP_200_OK)
         else:
             return Response("Error while fetchine khalti", status= status.HTTP_200_OK)
@@ -497,17 +500,23 @@ class KhaltiTopupVerification(APIView):
         user = UserModel.objects.get(id=request.user.id)
         pidx = request.data['pidx']
         verified = KhaltiVerification(pidx)
+        print(verified)
+        # verified = {'total_amount':'200','pidx':pidx}
         if verified:
+            kpayment = KhaltiPayment.objects.get(pidx=verified['pidx'])
             balance = Decimal(verified['total_amount']) / Decimal(100)
-            user.balance += Decimal(balance)
-            user.save()
-            if UserModel.objects.filter(is_superuser=True).exists():
-                admin = UserModel.objects.filter(is_superuser=True).first()
-                payment = Payment.objects.create(from_user=admin.id,to_user=user.id,amount=balance)
-                payment.save()
-            return Response(f'Amount {balance} has been credited to your account', status = status.HTTP_200_OK)
+            if kpayment.is_verified==False and request.user.id==kpayment.user_id:
+                UserModel.objects.filter(id=request.user.id).update(
+                    balance = models.F('balance') + balance
+                )
+                KhaltiPayment.objects.filter(pidx=kpayment.pidx).update(is_verified=True)
+                if UserModel.objects.filter(is_superuser=True).exists():
+                    admin = UserModel.objects.filter(is_superuser=True).first()
+                    payment = Payment.objects.create(from_user=admin.id,to_user=user.id,amount=balance)
+                    payment.save()
+            return Response(f'Rs:{balance} has been credited to your account', status = status.HTTP_200_OK)
         else:
-            return Response('Amount not found', status=status.HTTP_400_BAD_REQUEST)
+            return Response('Payment can not be veified', status=status.HTTP_400_BAD_REQUEST)
 
 
 class ReturnURL(APIView):

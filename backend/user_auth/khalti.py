@@ -37,7 +37,7 @@ def KhaltiInitiate(amount,name,email,phone):
         "phone": phone
         }
     })
-    response = requests.post(url,headers=headers,data=payload)#make request to khalti lookup endpoint
+    response = requests.post(url,headers=headers,data=payload)#make request to khalti initiate endpoint
     print(response.json())
 
     return response.json()

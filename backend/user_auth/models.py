@@ -63,3 +63,9 @@ class Payment(models.Model):
     to_user     = models.IntegerField(null=True)
     amount      = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
     payment_date= models.DateTimeField(auto_now_add=True)
+
+class KhaltiPayment(models.Model):
+    pidx = models.CharField(max_length=30,null=False)
+    user_id = models.IntegerField(null=False)
+    amount = models.DecimalField(max_digits=10,decimal_places=2,null=False)
+    is_verified = models.BooleanField(default=False)
