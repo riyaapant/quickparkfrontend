@@ -480,7 +480,7 @@ class KhaltiTopup(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         amount_data = request.data['amount']
-        amount = Decimal(amount)* Decimal(100)
+        amount = Decimal(amount_data)* Decimal(100)
         user = UserModel.objects.get(id=request.user.id)
         name = f"{user.first_name} {user.last_name}"
         email = user.email
