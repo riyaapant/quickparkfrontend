@@ -59,7 +59,7 @@ const ViewUsers = () => {
 
   return (
     <main className="m-4 p-4 h-auto border-collapse border rounded-xl border-gray-300">
-      <header className="pb-5 flex justify-between items-center">
+      <header className="pb-5 flex justify-between items-center border-b border-gray-300">
         <div>
           <p className="text-xl font-bold text-black">View Users</p>
         </div>
@@ -67,13 +67,13 @@ const ViewUsers = () => {
           <div>
           <button 
               type="button" 
-              className="w-36 justify-center rounded-md bg-qp py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500" 
+              className="w-60 justify-center rounded-md bg-qp py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500" 
               id="options-menu" 
               aria-haspopup="true" 
               aria-expanded="true"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              Select View
+              Select View : {viewType}
             </button>
           </div>
           {dropdownOpen && ( // Render dropdown based on state

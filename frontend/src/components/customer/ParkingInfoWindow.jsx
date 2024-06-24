@@ -22,7 +22,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
     const [parkingResponse, setParkingResponse] = useState({})
     const [status, setStatus] = useState('empty')
     const [userVehicleId, setUserVehicleId] = useState('')
-
+    const [value, setValue] = useState('')
 
     const socketUrl = `ws://localhost:2564/parking/${marker.id}/${userVehicleId}`;
 
@@ -67,29 +67,39 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
     };
 
     useEffect(() => {
-        fetchProfile()
-        console.log("connection status: ", connectionStatus)
+        fetchProfile();
+        console.log("connection status: ", connectionStatus);
+    
         if (lastMessage !== null) {
-            console.log('message: ', lastMessage.data);
+            // console.log('message: ', lastMessage.data);
             const data = JSON.parse(lastMessage.data);
-            setParkingResponse(data)
-            console.log("socket response: ", data)
-            const totalSpots = data.total_spot;
-            const usedSpots = data.used_spot;
-            const parkedSpots = data.parked_spots || 0;
-            const newSpots = Array(totalSpots).fill('empty');
-
-            for (let i = 0; i < usedSpots; i++) {
-                newSpots[i] = 'reserved';
+            setParkingResponse(data);
+            console.log("socket response: ", data);
+    
+            if (data.value) {
+                console.log("socket value: ", data.value);
+                setValue(data.value);
             }
-
-            for (let i = 0; i < parkedSpots; i++) {
-                newSpots[i] = 'parked';
+    
+            if (data.total_spot !== undefined && data.used_spot !== undefined) {
+                const totalSpots = data.total_spot;
+                const usedSpots = data.used_spot;
+                const parkedSpots = data.parked_spots || 0;
+                const newSpots = Array(totalSpots).fill('empty');
+    
+                for (let i = 0; i < usedSpots; i++) {
+                    newSpots[i] = 'reserved';
+                }
+    
+                for (let i = 0; i < parkedSpots; i++) {
+                    newSpots[i] = 'parked';
+                }
+    
+                setSpots(newSpots);
             }
-
-            setSpots(newSpots);
         }
     }, [lastMessage]);
+    
 
     const connectionStatus = {
         [ReadyState.CONNECTING]: 'Connecting',
@@ -100,7 +110,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
     }[readyState];
 
     return (
-        <div className="bg-white p-4 rounded-md text-qp absolute top-28 left-1/4 h-auto w-1/2 m-auto shadow-2xl border-qp-8">
+        <div className="bg-white p-4 rounded-md text-qp absolute top-28 left-1/4 h-auto w-auto m-auto shadow-2xl border-qp-8">
             <div className='flex justify-between'>
                 <h3 className="text-lg font-semibold mb-2">Parking Details</h3>
                 <X className='hover:cursor-pointer' onClick={onClose} />
@@ -109,7 +119,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
             <p className="text-sm"><strong>Address:</strong> {marker.address}</p>
             <p className="text-sm"><strong>Fee:</strong> {marker.fee}</p>
             <p className="text-sm"><strong>Total Spaces:</strong> {parkingResponse.total_spot}</p>
-            <p className="text-sm"><strong>Used Spaces:</strong> {parkingResponse.used_spots}</p>
+            <p className="text-sm"><strong>Used Spaces:</strong> {parkingResponse.used_spot}</p>
             <p className="text-sm"><strong>Owner:</strong> {marker.user}</p>
             <p className="text-sm"><strong>Status:</strong> {status}</p>
             <div className="grid grid-cols-5 gap-2 my-4">

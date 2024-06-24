@@ -13,7 +13,7 @@ const AutoComplete = () => {
 
 
     const apikey = import.meta.env.VITE_REACT_APP_GOOGLE_MAPS_API_KEY
-    const map = useMap('autocomplete')
+    // const map = useMap('autocomplete')
 
     const token = useSelector((state) => state.token)
 

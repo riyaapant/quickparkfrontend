@@ -18,19 +18,18 @@ const PendingRequests = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 6;
+  const [requests, setRequests] = useState([]);
+  const [viewType, setViewType] = useState('customers'); // Initially set to 'customers'
+  const [dropdownOpen, setDropdownOpen] = useState(false); // State to track dropdown open/close
+  const [verificationMessage, setVerificationMessage] = useState('');
 
   const handlePageClick = ({ selected }) => {
     setCurrentPage(selected);
   };
 
-  const [requests, setRequests] = useState([]);
-  const [viewType, setViewType] = useState('customers'); // Initially set to 'customers'
-  const [dropdownOpen, setDropdownOpen] = useState(false); // State to track dropdown open/close
-
   const fetchCustomers = async () => {
     try {
       const response = await api.get('/admin/view/pendingcustomer');
-      console.log(response)
       setRequests(response.data.map((item) => ({ ...item, role: 'Customer' })));
     } catch (e) {
       console.log(e.response);
@@ -40,48 +39,44 @@ const PendingRequests = () => {
   const fetchOwners = async () => {
     try {
       const response = await api.get('/admin/view/pendingowner');
-      console.log(response.data)
       setRequests(response.data.map((item) => ({ ...item, role: 'Owner' })));
     } catch (e) {
       console.log(e.response);
     }
   };
 
-  const verifyUser = async(id, role) => {
-    console.log("Item ID:", id);
-    console.log("Item ID:", role);
-    if(role == 'Customer'){
-      try{
-        const response = await api.get(`admin/verify/customer/${id}`)
-        console.log(response)
+  const verifyUser = async (id, role) => {
+    try {
+      let response;
+      if (role === 'Customer') {
+        response = await api.get(`admin/verify/customer/${id}`);
+      } else if (role === 'Owner') {
+        response = await api.get(`admin/verify/owner/${id}`);
       }
-      catch(e){
-        console.log(e.response)
-      }
-    }
-    else if(role=='Owner'){
-      try{
-        const response = await api.get(`admin/verify/owner/${id}`)
-        console.log(response)
-      }
-      catch(e){
-        console.log(e.response)
-      }
+      console.log(response);
+      setVerificationMessage(`User has been verified successfully.`);
+      setTimeout(() => setVerificationMessage(''), 5000);
+      fetchCurrentViewType();
+    } catch (e) {
+      console.log(e.response);
     }
   };
 
-  useEffect(() => {
+  const fetchCurrentViewType = () => {
     if (viewType === 'customers') {
       fetchCustomers();
     } else if (viewType === 'owners') {
       fetchOwners();
     }
+  };
+
+  useEffect(() => {
+    fetchCurrentViewType();
   }, [viewType]);
 
   const offset = currentPage * itemsPerPage;
   const currentItems = requests.slice(offset, offset + itemsPerPage);
   const pageCount = Math.ceil(requests.length / itemsPerPage);
-
 
   return (
     <main className="m-4 p-4 h-auto border-collapse border rounded-xl border-gray-300">
@@ -94,13 +89,13 @@ const PendingRequests = () => {
           <div>
             <button
               type="button"
-              className="w-36 justify-center rounded-md bg-qp py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500"
+              className="w-60 justify-center rounded-md bg-qp py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500"
               id="options-menu"
               aria-haspopup="true"
               aria-expanded="true"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              Select View
+              Select View : {viewType}
             </button>
           </div>
           {dropdownOpen && (
@@ -168,22 +163,14 @@ const PendingRequests = () => {
                 </td>
                 <td className="p-3">
                   <div className='font-medium text-gray-800'>
-                  <a href={item.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View document</a>
-                    {/* <Link to={{
-                      pathname: `userprofile/${viewType}/${item.id}`
-                    }}>
-                      <button className="w-full justify-center rounded-md bg-black py-1 text-md font-semibold text-white shadow-sm hover:bg-qp">View</button>
-                    </Link> */}
-                    {/* <Link to={{ pathname: 'userprofile', state: {props: requests} }}>
-                      <button className="w-full justify-center rounded-md bg-black py-1 text-md font-semibold text-white shadow-sm hover:bg-qp">View</button>
-                    </Link> */}
+                    <a href={item.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View document</a>
                   </div>
                 </td>
                 <td className="p-3">
                   <div className='font-medium text-gray-800'>
-                      <button className="w-full justify-center rounded-md bg-black py-1 text-md font-semibold text-white shadow-sm hover:bg-qp"
+                    <button className="w-full justify-center rounded-md bg-black py-1 text-md font-semibold text-white shadow-sm hover:bg-qp"
                       onClick={() => verifyUser(item.id, item.role)}
-                      >Verify</button>
+                    >Verify</button>
                   </div>
                 </td>
               </tr>
@@ -206,6 +193,8 @@ const PendingRequests = () => {
           nextLinkClassName={"px-3 py-1 border border-gray-300 rounded"}
           activeClassName={"bg-blue-500 text-white"}
         />
+        
+        {verificationMessage && <p className='text-green-900 font-bold text-center pt-10'>{verificationMessage}</p>}
       </>
     </main>
   );

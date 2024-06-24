@@ -55,6 +55,7 @@ export default function OwnerSideBar() {
             token: '',
             refreshToken: '',
         }))
+        updateUser()
     }
 
     const updateUser = async () => {

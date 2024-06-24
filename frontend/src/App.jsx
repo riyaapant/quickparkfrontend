@@ -13,6 +13,7 @@ import AddDocument from './components/customer/AddDocuments.jsx';
 import Profile from './components/shared/Profile';
 import Maps from './components/customer/maps/maps.jsx';
 import AutoComplete from './components/customer/maps/viewparking.jsx';
+import PaymentHandler from './components/customer/PaymentHandler.jsx';
 
 import OwnerDashboard  from './routes/owner/ownerdashboard.jsx';
 import AddOwnerDocument from './components/owner/AddOwnerDocuments.jsx';
@@ -30,7 +31,7 @@ import KhaltiCheckout from './experiment/khalti.jsx';
 import AdminRegistration from './routes/admin/adminregistration.jsx';
 import AdminLogin from './routes/admin/adminlogin.jsx';
 import ViewUsers from './components/admin/Users.jsx'
-import ReserveParking from './components/customer/ReserveParking.jsx';
+import Topup from './components/customer/Topup.jsx';
 
 const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ const router = createBrowserRouter([
   {
     path: "/register",
     element: <Register />
+  },
+  {
+    path: "/return_url",
+    element: <PaymentHandler />
   },
   {
     path: "/dashboard",
@@ -59,6 +64,10 @@ const router = createBrowserRouter([
         element: <AutoComplete />
       },
       {
+        path: "topup",
+        element: <Topup />
+      },
+      {
         path: "profile",
         element: <Profile />
       },
@@ -69,10 +78,6 @@ const router = createBrowserRouter([
       {
         path: "profile/changepassword",
         element: <ChangePassword />
-      },
-      {
-        path:"reserveparking",
-        element: <ReserveParking />
       }
     ],
   },

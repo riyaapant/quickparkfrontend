@@ -4,6 +4,7 @@ import config from '../../features/config';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { ThumbsUp } from 'lucide-react';
+import Topup from './Topup';
 
 const AddDocument = () => {
 
@@ -38,7 +39,7 @@ const AddDocument = () => {
             });
             console.log(documentUploadResponse);
 
-            const vehicleIdResponse = await api.put(`vehicleid`, {vehicle_id:vehicleId}, {
+            const vehicleIdResponse = await api.put(`vehicleid`, { vehicle_id: vehicleId }, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + `${token}`
@@ -63,36 +64,36 @@ const AddDocument = () => {
             setDocument(file);
             // console.log(file)
         }
-        else{
+        else {
             console.log("File not found")
         }
     };
 
-    const fetchProfile = async() => {
-        try{
-            const response = await api.get(`/profile`,{
+    const fetchProfile = async () => {
+        try {
+            const response = await api.get(`/profile`, {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
             console.log(response.data.is_paperverified)
-            if(response.data.document){
+            if (response.data.document) {
                 setDocumentsSubmitted(true)
             }
-            if(response.data.is_paperverified){
+            if (response.data.is_paperverified) {
                 setDocumentsVerified(true)
             }
         }
-        catch(e){
+        catch (e) {
             console.log(e.response)
         }
     }
 
 
-    useEffect(()=>{
+    useEffect(() => {
         fetchProfile()
-    },[])
+    }, [])
 
     return (
         <div>
@@ -160,10 +161,13 @@ const AddDocument = () => {
                             <p className="text-lg">We will get back to you shortly!</p>
                         </div>
                     ) : (
-                    <div className="h-screen p-20 flex flex-col w-2/3 justify-center items-center">
-                            <ThumbsUp className='w-24 h-24'/>
-                            <p className="text-lg font-semibold">Congratulations!</p>
-                            <p className="text-lg">You have been verified.</p>
+                        <div className='flex flex-row'>
+                            <div className="h-screen p-20 flex flex-col w-2/3 justify-center items-center">
+                                <ThumbsUp className='w-24 h-24' />
+                                <p className="text-lg font-semibold">Congratulations!</p>
+                                <p className="text-lg">You have been verified.</p>
+                            </div>
+                            {/* <Topup /> */}
                         </div>
                     )
                     }
@@ -174,109 +178,3 @@ const AddDocument = () => {
 };
 
 export default AddDocument;
-
-// // src/FileUpload.js
-
-
-// // import React, { useState } from 'react';
-// // import { useSelector } from 'react-redux';
-
-// // const AddDocument = () => {
-// //     const token = useSelector((state) => state.token);
-
-// //     const [file, setFile] = useState(null);
-// //     const [message, setMessage] = useState('');
-
-// //     const onFileChange = (e) => {
-// //         setFile(e.target.files[0]);
-// //     };
-
-// //     const onFileUpload = async () => {
-// //         if (!file) {
-// //             setMessage('Please select a file first!');
-// //             return;
-// //         }
-
-// //         console.log(file);
-
-// //         const formData = new FormData();
-// //         formData.append('file', file);
-
-// //         try {
-// //             const response = await fetch('http://localhost:2564/upload/image', {
-// //                 method: 'PUT',
-// //                 body: formData, // Send FormData directly
-// //                 headers: {
-// //                     'Authorization': 'Bearer ' + token,
-// //                 },
-// //             });
-// //             console.log(response);
-
-// //             if (response.ok) {
-// //                 setMessage('File uploaded successfully!');
-// //             } else {
-// //                 setMessage('File upload failed.');
-// //             }
-// //         } catch (error) {
-// //             console.error('Error uploading file:', error);
-// //             setMessage('Error uploading file.');
-// //         }
-// //     };
-
-// //     return (
-// //         <div>
-// //             <h2>File Upload</h2>
-// //             <input type="file" onChange={onFileChange} />
-// //             <button onClick={onFileUpload}>Upload</button>
-// //             <p>{message}</p>
-// //         </div>
-// //     );
-// // };
-
-// // export default AddDocument;
-
-
-// import React, {useState} from 'react';
-// import axios from 'axios';
-// import { useSelector } from 'react-redux';
-
-// function AddDocument() {
-
-//   const [file, setFile] = useState()
-
-//   const token = useSelector((state) => state.token)
-
-//   function handleChange(event) {
-//     setFile(event.target.files[0])
-//   }
-  
-//   function handleSubmit(event) {
-//     event.preventDefault()
-//     const url = 'http://localhost:2564/upload/image';
-//     const formData = new FormData();
-//     formData.append('profile', file);
-//     // formData.append('fileName', file.name);
-//     const config = {
-//       headers: {
-//         'content-type': 'multipart/form-data',
-//         'Authorization': `Bearer ${token}`
-//       },
-//     };
-//     axios.put(url, formData, config).then((response) => {
-//       console.log(response.data);
-//     });
-
-//   }
-
-//   return (
-//     <div className="App">
-//         <form onSubmit={handleSubmit}>
-//           <h1>React File Uploading</h1>
-//           <input type="file" onChange={handleChange}/>
-//           <button type="submit">Upload</button>
-//         </form>
-//     </div>
-//   );
-// }
-
-// export default AddDocument;
