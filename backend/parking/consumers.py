@@ -42,7 +42,7 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         if self.customer.reservation_id and self.customer.reservation:
             await self.send_parking_status(value='Reserved')
         elif self.customer.reservation_id:
-            await self.send_parking_status(value='Parkerd')
+            await self.send_parking_status(value='Parked')
         else:
             await self.send_parking_status(value='Reserve')
             
@@ -149,10 +149,13 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             'used_spot': self.parking.used_spot,
             'total_spot': self.parking.total_spot
         })
+        deducted_amount = await self.end_reservation()
 
-        await self.send(json.dumps({'value':'Reserve'}))
+        await self.send(json.dumps({
+            'value':'Reserve',
+            'message':f'Rs:{deducted_amount} has been deducted from your amount.'
+        }))
 
-        await self.end_reservation()
 
     async def parking_update(self, data):
         await self.send(json.dumps({
@@ -252,6 +255,7 @@ class ParkingConsumer(AsyncWebsocketConsumer):
                 amount      = total_amount
             )
             payment.save()
+            return "{:.2f}".format(total_amount)
 
 class IOTParkingConsumers(AsyncWebsocketConsumer):
     async def connect(self):
@@ -328,7 +332,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_send(self.vehicle_group_name, {
             'type': 'status_update',
-            'value': 'Parked,'
+            'value': 'Parked'
         })
 
         await self.make_reservation()
@@ -348,12 +352,15 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
             'used_spot': self.parking.used_spot,
             'total_spot': self.parking.total_spot
         })
+
+        deducted_amount = await self.end_reservation()
+
         await self.channel_layer.group_send(self.vehicle_group_name, {
             'type': 'status_update',
-            'value': 'Reserve,'
+            'value': 'Reserve',
+            'message':f'Rs:{deducted_amount} has been deducted from you account'
         })
 
-        await self.end_reservation()
     
     async def parking_update(self, data):
         await self.send(json.dumps({
@@ -447,3 +454,4 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
                 amount      = total_amount
             )
             payment.save()
+            return "{:.2f}".format(total_amount)

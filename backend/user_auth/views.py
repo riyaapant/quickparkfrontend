@@ -522,4 +522,8 @@ class KhaltiTopupVerification(APIView):
 class ReturnURL(APIView):
     def get(self,request):
         return Response(request.data, status=status.HTTP_200_OK)
+    # def post(self,request):
+    #     data = request.data
+    #     print(data)
+    #     return Response(data,status=status.HTTP_200_OK)
 
