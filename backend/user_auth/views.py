@@ -8,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout,get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.db import models
 from .models import Customer,Owner,Payment,KhaltiPayment
+from parking.models import ParkingLocation
 from .serializers import UserSerializer,LoginSerializer, UpdateProfileSerializer
 from .sendemail import send_verification,reset_password
 from .khalti import KhaltiVerification,KhaltiInitiate
@@ -30,10 +31,8 @@ class Profile(APIView):
                 'contact'   : user.contact,
                 'balance'   : user.balance,
                 'address'   : user.address,
-                'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
                 'is_owner'  : user.is_owner,
-                'is_emailverified': user.is_emailverified,
-                'is_paperverified': user.owner.is_paperverified
+                'is_emailverified': user.is_emailverified
             }, status= status.HTTP_200_OK)
         elif user.is_owner==False:
             return Response({
@@ -67,10 +66,8 @@ class UpdateUser(APIView):
                 'contact'   : user.contact,
                 'balance'   : user.balance,
                 'address'   : user.address,
-                'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
                 'is_owner'  : user.is_owner,
-                'is_emailverified': user.is_emailverified,
-                'is_paperverified': user.owner.is_paperverified
+                'is_emailverified': user.is_emailverified
             }, status= status.HTTP_200_OK)
         elif user.is_owner==False:
             return Response({
@@ -148,10 +145,8 @@ class Login(APIView):
                         'contact'   : user.contact,
                         'balance'   : user.balance,
                         'address'   : user.address,
-                        'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
                         'is_owner'  : user.is_owner,
-                        'is_emailverified': user.is_emailverified,
-                        'is_paperverified': user.owner.is_paperverified
+                        'is_emailverified': user.is_emailverified
                     }, status= status.HTTP_200_OK)
                 elif user.is_owner==False:
                     return Response({
@@ -177,11 +172,14 @@ class Login(APIView):
 
 class VehicleID(APIView):
     def put(self,request):
-        vehicle = request.data['vehicle_id']
-        user = UserModel.objects.get(id=request.user.id)
-        customer = user.customer
-        customer.vehicle_id = vehicle
-        customer.save()
+        # vehicle = request.data['vehicle_id']
+        # user = UserModel.objects.get(id=request.user.id)
+        # customer = user.customer
+        # customer.vehicle_id = vehicle
+        # customer.save()
+        Customer.objects.filter(user=request.user.id).update(
+            vehicle_id = request.data['vehicle_id']
+        )
         return Response('Vehicle Number updated', status=status.HTTP_200_OK)
 
 class UploadProfile(APIView):
@@ -200,12 +198,15 @@ class UploadProfile(APIView):
 class UploadFileCustomer(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request):
-        document = request.data['file']
-        user = UserModel.objects.get(id=request.user.id)
-        # user = UserModel.objects.get(pk=id)
-        customer = user.customer
-        customer.license_paper = document
-        customer.save()
+        # document = request.data['file']
+        # user = UserModel.objects.get(id=request.user.id)
+        # # user = UserModel.objects.get(pk=id)
+        # customer = user.customer
+        # customer.license_paper = document
+        # customer.save()
+        Customer.objects.filter(user=request.user.id).update(
+            license_paper = request.data['file']
+        )
         return Response("File Uploaded", status = status.HTTP_200_OK)
         # except:
         #     return Response("File update failed", status=status.HTTP_400_BAD_REQUEST)
@@ -314,23 +315,22 @@ class AdminViewCustomer(APIView):
                     })
         return Response(customer_data, status=status.HTTP_200_OK)
 
-class AdminViewOwner(APIView):
+class AdminViewParking(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):
-        users = UserModel.objects.all()
-        owner_data = []
-        for user in users:
-            if user.is_superuser==False:
-                if user.owner.home_paper is not None and user.owner.is_paperverified==True:
-                    owner_data.append({
-                        'id'        : user.id,
-                        'name'      : user.first_name+' '+user.last_name,
-                        'email'     : user.email,
-                        'contact'   : user.contact,
-                        'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
-                        'is_paperverified': user.owner.is_paperverified,
-                    })
-        return Response(owner_data, status= status.HTTP_200_OK)
+        parkings = ParkingLocation.objects.all()
+        parking_data = []
+        for parking in parkings:
+            if parking.parking_paper is not None and parking.is_paperverified==True:
+                parking_data.append({
+                    'id'        : parking.id,
+                    'name'      : f'{parking.user.first_name} {parking.user.last_name}',
+                    'email'     : parking.user.email,
+                    'contact'   : parking.user.contact,
+                    'document'  : parking.parking_paper.url if parking.parking_paper else None,
+                    'is_paperverified': parking.is_paperverified,
+                })
+        return Response(parking_data, status= status.HTTP_200_OK)
 
 class AdminViewPendingCustomer(APIView):
     permission_classes = [IsAuthenticated]
@@ -351,39 +351,38 @@ class AdminViewPendingCustomer(APIView):
                     })
         return Response(customer_data, status=status.HTTP_200_OK)
 
-class AdminViewPendingOwner(APIView):
+class AdminViewPendingParking(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):
-        users = UserModel.objects.all()
-        owner_data = []
-        for user in users:
-            if user.is_superuser==False:
-                if user.owner.home_paper is not None and user.owner.is_paperverified==False:
-                    owner_data.append({
-                        'id'        : user.id,
-                        'name'      : user.first_name+' '+user.last_name,
-                        'email'     : user.email,
-                        'contact'   : user.contact,
-                        'document'  : user.owner.home_paper.url if user.owner.home_paper else None,
-                        'is_paperverified': user.owner.is_paperverified,
-                    })
-        return Response(owner_data, status= status.HTTP_200_OK)
+        parkings = ParkingLocation.objects.all()
+        parking_data = []
+        for parking in parkings:
+            if parking.parking_paper is not None and parking.is_paperverified==False:
+                parking_data.append({
+                    'id'        : parking.id,
+                    'name'      : f'{parking.user.first_name} {parking.user.last_name}',
+                    'email'     : parking.user.email,
+                    'contact'   : parking.user.contact,
+                    'document'  : parking.parking_paper.url if parking.parking_paper else None,
+                    'is_paperverified': parking.is_paperverified,
+                })
+        return Response(parking_data, status= status.HTTP_200_OK)
 
 class AdminVerifyCustomer(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request,id):
-        user = UserModel.objects.get(id=id)
-        user.customer.is_paperverified=True
-        user.customer.save()
+        Customer.objects.filter(user=id).update(
+            is_paperverified=True
+        )
         return Response('Customer Paper Verified',status=status.HTTP_200_OK)
 
-class AdminVerifyOwner(APIView):
+class AdminVerifyParking(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request,id):
-        user = UserModel.objects.get(id=id)
-        user.owner.is_paperverified=True
-        user.owner.save()
-        return Response('Owner Paper Verified', status=status.HTTP_200_OK)
+        ParkingLocation.objects.filter(id=id).update(
+            is_paperverified=True
+        )
+        return Response('Parking Paper Verified', status=status.HTTP_200_OK)
 
 class ForgetPassword(APIView):
     def post(self,request):
@@ -438,8 +437,6 @@ class ChangePassword(APIView):
             else:
                 return Response('Please enter valid old password', status = status.HTTP_406_NOT_ACCEPTABLE)
         return Response('Invalid REquest', status = status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class Logout(APIView):

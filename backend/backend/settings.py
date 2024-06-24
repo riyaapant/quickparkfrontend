@@ -65,8 +65,8 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis", 6379)],
-            # "hosts": [("localhost", 6379)],
+            # "hosts": [("redis", 6379)],
+            "hosts": [("localhost", 6379)],
         },
     },
 }
@@ -134,10 +134,10 @@ DATABASES = {
         'NAME': 'quickpark',
         'USER': 'parker',
         'PASSWORD': 'parker',
-        'HOST': 'db',
-        'PORT': '5432',
-        # 'HOST': 'localhost',
-        # 'PORT': '5444'
+        # 'HOST': 'db',
+        # 'PORT': '5432',
+        'HOST': 'localhost',
+        'PORT': '5444'
     }
 }
 

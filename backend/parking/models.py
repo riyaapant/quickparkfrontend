@@ -1,10 +1,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from cloudinary.models import CloudinaryField
 
 UserModel = get_user_model()
 
 class ParkingLocation(models.Model):
     user = models.ForeignKey(UserModel,on_delete=models.CASCADE)
+    parking_paper = CloudinaryField('document', blank=True, null=True)
+    is_paperverified = models.BooleanField(default=False)
     address = models.CharField(max_length=255)
     fee = models.DecimalField(max_digits=5,decimal_places=2,default=80.0)
     total_spot = models.IntegerField()

@@ -13,16 +13,17 @@ class AddParking(APIView):
     permission_classes = [IsAuthenticated]
     def post(self,request):
         user = UserModel.objects.get(id=request.user.id)
-        if user.owner.is_paperverified==False:
-            return Response('Please verify your documents first', status=status.HTTP_400_BAD_REQUEST)
-        serializer = ParkingSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            serializer.save(user=user)
-            return Response("parking added successfully", status=status.HTTP_200_OK)
-        return Response('Parking data serialization failed', status = status.HTTP_400_BAD_REQUEST)
-        # park_obj = ParkingLocation.objects.create(user=user,address=request.data['address'],total_spot=request.data['total_spot'],lat=request.data['lat'],lon=request.data['lon'])
-        # park_obj.save()
-        # return Response(park_obj.id, status=status.HTTP_200_OK)
+        # serializer = ParkingSerializer(data=request.data, context={'request': request})
+        # if serializer.is_valid():
+        #     serializer.save(user=user)
+        #     return Response("parking added successfully", status=status.HTTP_200_OK)
+        # return Response("Parking Serializer Failed", status = status.HTTP_400_BAD_REQUEST)
+        try:
+            park_obj = ParkingLocation.objects.create(user=user,address=request.data['address'],total_spot=request.data['total_spot'],lat=request.data['lat'],lon=request.data['lon'],parking_paper=request.data['file'])
+            park_obj.save()
+            return Response("Parking added Successfully", status=status.HTTP_200_OK)
+        except:
+            return Response('Parking creation failed', status=status.HTTP_400_BAD_REQUEST)
 
 class ViewParkingLocations(APIView):
     permission_classes = [IsAuthenticated]
@@ -30,12 +31,13 @@ class ViewParkingLocations(APIView):
         parking_locations = ParkingLocation.objects.all()
         parking_data=[]
         for parking in parking_locations:
-            parking_data.append({
-                'id'    :parking.id,
-                'address':parking.address,
-                'lat'   :parking.lat,
-                'lon'   :parking.lon
-            })
+            if parking.is_paperverified:
+                parking_data.append({
+                    'id'    :parking.id,
+                    'address':parking.address,
+                    'lat'   :parking.lat,
+                    'lon'   :parking.lon
+                })
         return Response(parking_data,status=status.HTTP_200_OK)
 
 class ViewParking(APIView):
@@ -44,7 +46,7 @@ class ViewParking(APIView):
         parking = ParkingLocation.objects.get(pk=id)
         parking_info = {
             'id'    : parking.id,
-            'user'  :parking.user.first_name+' '+parking.user.last_name,
+            'user'  :f'{parking.user.first_name} {parking.user.last_name}',
             'address':parking.address,
             'total' : parking.total_spot,
             'used'  : parking.used_spot,

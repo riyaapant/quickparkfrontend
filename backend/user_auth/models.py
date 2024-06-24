@@ -48,15 +48,15 @@ class UserModel(AbstractBaseUser):
 class Customer(models.Model):
     user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
     vehicle_id = models.CharField(max_length=7,null=True)
-    license_paper = CloudinaryField('identity', blank=True, null=True)
+    license_paper = CloudinaryField('identity', blank=True,null=True)
     reservation_id = models.IntegerField(null=True)
     reservation = models.BooleanField(default=False)
     is_paperverified = models.BooleanField(default=False)
 
 class Owner(models.Model):
     user =models.OneToOneField(UserModel, on_delete=models.CASCADE)
-    home_paper = CloudinaryField('documents', blank=True, null=True)
-    is_paperverified = models.BooleanField(default=False)
+    # home_paper = CloudinaryField('documents', blank=True, null=True)
+    # is_paperverified = models.BooleanField(default=False)
 
 class Payment(models.Model):
     from_user   = models.IntegerField(null=True)
