@@ -176,7 +176,7 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_customer(self):
-        return Customer.objects.get(vehicle_id=self.vehicle_id)
+        return Customer.objects.filter(vehicle_id=self.vehicle_id).last()
 
     @database_sync_to_async
     def get_balance(self):
@@ -281,10 +281,12 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         action = data['action']
         self.vehicle_id = data['vehicle_id']
         self.vehicle_group_name = f'vehicle_{self.vehicle_id}'
+        self.customer = await self.get_customer()
+        if not self.customer:
+            return
         await self.channel_layer.group_add(self.vehicle_group_name,self.channel_name)
 
 
-        self.customer = await self.get_customer()
         if action == 'park':
             await self.park()
         elif action == 'release':
@@ -295,7 +297,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
             await self.send(json.dumps({
                 'used_spot': self.parking.used_spot,
                 'total_spot': self.parking.total_spot,
-                'value': 'Available'
+                'value': 'Reserve'
             }))
         else:
             await self.send(json.dumps({
@@ -380,7 +382,12 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_customer(self):
-        return Customer.objects.get(vehicle_id=self.vehicle_id)
+        # return Customer.objects.get(vehicle_id=self.vehicle_id)
+        try:
+            return Customer.objects.filter(vehicle_id=self.vehicle_id).last()
+        except:
+            return False
+            
 
     @database_sync_to_async
     def get_balance(self):
@@ -442,6 +449,11 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
             UserModel.objects.filter(id=self.parking.user.id).update(
                 balance=models.F('balance') + (total_amount * Decimal(0.9))
             )
+            if UserModel.objects.filter(is_superuser=True).exists():
+                balance = total_amount * Decimal(0.1)
+                admin = UserModel.objects.filter(is_superuser=True).first()
+                payment = Payment.objects.create(from_user=admin.id,to_user=user.id,amount=balance)
+                payment.save()
 
             # payment = Payment.objects.create(
             #     from_user=f'{self.customer.user.first_name} {self.customer.user.last_name}',
