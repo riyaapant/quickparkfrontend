@@ -33,6 +33,19 @@ class UploadParkingFile(APIView):
         )
         return Response("File Uploaded", status = status.HTTP_200_OK)
 
+class ViewUnverifiedParkingLocations(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self,request):
+        parking_locations = ParkingLocation.objects.all()
+        parking_data= []
+        for parking in parking_locations:
+            parking_data.append({
+                'id'    :parking.id,
+                'address':parking.address,
+                'lat'   :parking.lat,
+                'lon'   :parking.lon,
+            })
+        return Response(parking_data, status =status.HTTP_200_OK)
 
 class ViewParkingLocations(APIView):
     permission_classes = [IsAuthenticated]
