@@ -20,7 +20,6 @@ export default function Topup() {
 
     const [balance, setBalance] = useState(0);
     const [amount, setAmount] = useState("")
-    const [pidx, setPidx] = useState("")
 
     const [txnMessage, setTxnMessage] = useState({
         message: '',
@@ -33,16 +32,14 @@ export default function Topup() {
 
     const handleFormSubmission = async (e) => {
         e.preventDefault();
-        console.log("form data: ", amount);
         try {
             const response = await api.post('/topup', {
                 amount: amount
             });
-            setPidx(response.data.pidx);
             if (response.data.payment_url) {
                 window.location.href = response.data.payment_url;
             }
-            console.log(response.data);
+            console.log("/topup response: ",response.data);
         } catch (e) {
             console.log(e);
         }
@@ -52,7 +49,6 @@ export default function Topup() {
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`/profile`);
-                console.log("balance: ", response.data.balance);
                 setBalance(response.data.balance);
             } catch (error) {
                 console.log(error);
@@ -67,7 +63,7 @@ export default function Topup() {
                     const reponse = await api.put(`/topup/verify`, {
                         pidx: transactionPidx
                     })
-                    console.log(reponse)
+                    console.log("/topup/verify response: ",reponse)
                 } catch (e) {
                     console.log(e)
                 }
@@ -79,8 +75,6 @@ export default function Topup() {
         verifyTopup();
 
         if (location.state) {
-            console.log("message: ", location.state.message)
-            console.log("status: ", location.state.status)
             setTxnMessage({
                 message: location.state.message,
                 status: location.state.status

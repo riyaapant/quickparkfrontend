@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import ReactPaginate from 'react-paginate';
-import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import config from '../../features/config';

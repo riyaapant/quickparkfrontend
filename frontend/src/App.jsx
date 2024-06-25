@@ -11,7 +11,7 @@ import SideBar from './components/customer/Sidebar.jsx';
 import UserDashboard from './routes/customer/userdashboard.jsx';
 import AddDocument from './components/customer/AddDocuments.jsx';
 import Profile from './components/shared/Profile';
-import Maps from './components/customer/maps/maps.jsx';
+// import Maps from './components/customer/maps/maps.jsx';
 import AutoComplete from './components/customer/maps/viewparking.jsx';
 import PaymentHandler from './components/customer/PaymentHandler.jsx';
 
@@ -24,10 +24,9 @@ import ViewOwnParking from './components/owner/viewOwnParking.jsx';
 
 import AdminDashboard from './routes/admin/Dashboard';
 import PendingRequests from './components/admin/Requests.jsx';
-import UserDetails from './components/admin/UserProfile';
+// import UserDetails from './components/admin/UserProfile';
 import EditProfile from './components/shared/EditProfile.jsx';
 import ChangePassword from './components/shared/ChangePassword.jsx';
-import KhaltiCheckout from './experiment/khalti.jsx';
 import AdminRegistration from './routes/admin/adminregistration.jsx';
 import AdminLogin from './routes/admin/adminlogin.jsx';
 import ViewUsers from './components/admin/Users.jsx'
@@ -153,10 +152,6 @@ const router = createBrowserRouter([
   {
     path: "/verify/:uid/:token",
     element: <Message />
-  },
-  {
-    path: "/khalti",
-    element: <KhaltiCheckout />
   },
   {
     path: "/admin/register",

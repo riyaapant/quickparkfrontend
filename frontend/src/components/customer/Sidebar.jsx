@@ -8,7 +8,6 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 import { setCred } from "../../features/credSlice";
-import Topup from "./Topup";
 
 export default function SideBar() {
     const token = useSelector((state) => state.token)
