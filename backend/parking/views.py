@@ -25,6 +25,15 @@ class AddParking(APIView):
         except:
             return Response('Parking creation failed', status=status.HTTP_400_BAD_REQUEST)
 
+class UploadParkingFile(APIView):
+    permission_classes = [IsAuthenticated]
+    def put(self,request,id):
+        ParkingLocation.objects.filter(id=id).update(
+            parking_paper = request.data['file']
+        )
+        return Response("File Uploaded", status = status.HTTP_200_OK)
+
+
 class ViewParkingLocations(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):
@@ -74,15 +83,15 @@ class ViewOwnParking(APIView):
 class ViewReservation(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):
-        user = request.user
-        reservations = Reservation.objects.all(user = user)
+        # user = UserModel.objects.get(id=request.user.id)
+        reservations = Reservation.objects.filter(user = request.user.id)
         reservation_data = []
         for reservation in reservations:
             reservation_data.append({
                 'address'   : reservation.parking.address,
                 'start_time': reservation.start_time,
                 'end_time'  : reservation.end_time,
-                'amount'    : reservation.amount
+                'amount'    : reservation.total_amount
             })
             return Response(reservation_data, status = status.HTTP_200_OK)
 
@@ -98,14 +107,15 @@ class AdminParkingVIew(APIView):
                 'fee'       :parking.fee,
                 'used_spot' :parking.used_spot,
                 'total_spot':parking.total_spot,
+                'document'  :parking.parking_paper.url if parking.parking_paper else None,
+                'is_paperverified':parking.is_paperverified,
             })
         return Response(parking_data,status=status.HTTP_200_OK)
 
 class ViewCustomerReservation(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request):
-        user = UserModel.objects.get(id=request.user.id)
-        reservations = Reservation.objects.all().filter(user=user)
+        reservations = Reservation.objects.filter(user=request.user.id)
         reservation_data=[]
         for reservation in reservations:
             reservation_data.append({
@@ -121,9 +131,7 @@ class ViewCustomerReservation(APIView):
 class ViewParkingReservation(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request,id):
-        # user = UserModel.objects.get(id=request.user.id)
-        park = Parking.objects.get(id=id)
-        reservations = Reservation.objects.all().filter(park=park)
+        reservations = Reservation.objects.filter(park=id)
         reservation_data=[]
         for reservation in reservations:
             reservation_data.append({

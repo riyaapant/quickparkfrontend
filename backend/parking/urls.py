@@ -8,6 +8,7 @@ from .views import (
     AdminParkingVIew,
     ViewCustomerReservation,
     ViewParkingReservation,
+    UploadParkingFile,
 )
 
 urlpatterns = [
@@ -16,7 +17,8 @@ urlpatterns = [
     path('viewownparking',ViewOwnParking.as_view(), name='view_own parking'),
     path('viewparking/<id>', ViewParking.as_view(), name='View_parking'),
     path('viewreservation', ViewReservation.as_view(), name='view_reservations'),
-    path('viewparking/adminview', AdminParkingVIew.as_view(), name='admin_view_parking'),
+    path('admin/view/parking', AdminParkingVIew.as_view(), name='admin_view_parking'),
     path('view/customer/reservation', ViewCustomerReservation.as_view(), name='view_customer_reservation'),
     path('view/parking/reservation/<id>', ViewParkingReservation.as_view(), name='view_parking_reservation'),
+    path('upload/parking/file/<id>', UploadParkingFile.as_view(), name='upload_parking_file'),
 ]
