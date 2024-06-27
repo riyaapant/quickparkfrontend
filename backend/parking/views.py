@@ -28,7 +28,7 @@ class AddParking(APIView):
 class UploadParkingFile(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request,id):
-        parking = ParkingLocation.objects.filter(id=id)
+        parking = ParkingLocation.objects.get(id=id)
         parking.parking_paper = request.data['file']
         return Response("File Uploaded", status = status.HTTP_200_OK)
 

@@ -198,13 +198,14 @@ class UploadProfile(APIView):
 class UploadFileCustomer(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request):
-        document = request.data['file']
-        customer = Customer.objects.filter()
-        customer.license_paper = document
-        customer.save()
-        return Response("File Uploaded", status = status.HTTP_200_OK)
-        # except:
-        #     return Response("File update failed", status=status.HTTP_400_BAD_REQUEST)
+        try:
+            document = request.data['file']
+            customer = Customer.objects.get(user = request.user.id)
+            customer.license_paper = document
+            customer.save()
+            return Response("File Uploaded", status = status.HTTP_200_OK)
+        except:
+            return Response("File update failed", status=status.HTTP_400_BAD_REQUEST)
 
 
 class UploadFileOwner(APIView):
