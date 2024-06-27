@@ -19,7 +19,7 @@ class AddParking(APIView):
         #     return Response("parking added successfully", status=status.HTTP_200_OK)
         # return Response("Parking Serializer Failed", status = status.HTTP_400_BAD_REQUEST)
         try:
-            park_obj = ParkingLocation.objects.create(user=user,address=request.data['address'],total_spot=request.data['total_spot'],lat=request.data['lat'],lon=request.data['lon'],parking_paper=request.data['file'])
+            park_obj = ParkingLocation.objects.create(user=user,address=request.data['address'],total_spot=request.data['total_spot'],lat=request.data['lat'],lon=request.data['lon'],parking_paper=request.data['file'],fee=request.data['fee'])
             park_obj.save()
             return Response("Parking added Successfully", status=status.HTTP_200_OK)
         except:
@@ -28,9 +28,8 @@ class AddParking(APIView):
 class UploadParkingFile(APIView):
     permission_classes = [IsAuthenticated]
     def put(self,request,id):
-        ParkingLocation.objects.filter(id=id).update(
-            parking_paper = request.data['file']
-        )
+        parking = ParkingLocation.objects.filter(id=id)
+        parking.parking_paper = request.data['file']
         return Response("File Uploaded", status = status.HTTP_200_OK)
 
 class ViewUnverifiedParkingLocations(APIView):
