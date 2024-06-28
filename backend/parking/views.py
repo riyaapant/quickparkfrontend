@@ -87,7 +87,9 @@ class ViewOwnParking(APIView):
                 'id'    :parking.id,
                 'address':parking.address,
                 'lat'   :parking.lat,
-                'lon'   :parking.lon
+                'lon'   :parking.lon,
+                'document': parking.parking_paper,
+                'is_paperverified': parking.is_paperverified,
             })
         return Response(parking_data,status=status.HTTP_200_OK)
 
