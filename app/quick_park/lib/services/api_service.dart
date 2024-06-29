@@ -212,37 +212,34 @@ class ApiService {
       throw Exception('Access token is missing');
     }
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-    );
+    final response = await _getWithTokenRefresh(url);
 
     if (response.statusCode == 200) {
       List<dynamic> data = jsonDecode(response.body);
       return data.map((item) => item as Map<String, dynamic>).toList();
-    } else if (response.statusCode == 401) {
-      bool tokenRefreshed = await _refreshToken();
-      if (tokenRefreshed) {
-        final newAccessToken = await storage.read(key: 'access_token');
-        final newResponse = await http.get(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $newAccessToken',
-          },
-        );
+    } else {
+      throw Exception('Failed to load parking locations');
+    }
+  }
 
-        if (newResponse.statusCode == 200) {
-          List<dynamic> data = jsonDecode(newResponse.body);
-          return data.map((item) => item as Map<String, dynamic>).toList();
-        }
-      }
+  // Method to get parking location details by ID
+  static Future<Map<String, dynamic>> getParkingLocationDetails(
+      String id) async {
+    final url = Uri.parse('$_baseUrl/viewparking/$id');
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
     }
 
-    throw Exception('Failed to load parking locations');
+    final response = await _getWithTokenRefresh(url);
+
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else {
+      throw Exception('Failed to load parking location details');
+    }
   }
 
   // Method to update user to owner mode
@@ -255,30 +252,91 @@ class ApiService {
       throw Exception('Access token is missing');
     }
 
-    final response = await http.get(
+    final response = await _getWithTokenRefresh(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update user to owner mode');
+    }
+
+    return response;
+  }
+
+  // Method to update vehicle ID
+  static Future<http.Response> updateVehicleId(String vehicleId) async {
+    final url = Uri.parse('$_baseUrl/vehicleid');
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
+    }
+
+    final response = await http.put(
       url,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $accessToken',
       },
+      body: jsonEncode({'vehicle_id': vehicleId}),
     );
 
-    if (response.statusCode == 401) {
-      bool tokenRefreshed = await _refreshToken();
-      if (tokenRefreshed) {
-        final newAccessToken = await storage.read(key: 'access_token');
-        return await http.get(
-          url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $newAccessToken',
-          },
-        );
-      } else {
-        throw Exception('Failed to refresh token');
-      }
+    if (response.statusCode != 200) {
+      throw Exception('Failed to update vehicle ID');
     }
 
     return response;
+  }
+
+  /// Method to generate pidx for Khalti payment
+  static Future<String?> generatePidx(int amount) async {
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
+    }
+
+    final url = Uri.parse('$_baseUrl/topup');
+    final response = await http.post(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({'amount': amount}),
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return responseData['pidx']; // Assumes the response contains the pidx
+    } else {
+      throw Exception('Failed to generate pidx');
+    }
+  }
+
+  // Method to verify top-up using pidx
+  static Future<bool> verifyTopUp(String pidx) async {
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
+    }
+
+    final url = Uri.parse('$_baseUrl/topup/verify');
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({'pidx': pidx}),
+    );
+
+    if (response.statusCode == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }

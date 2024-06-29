@@ -48,10 +48,19 @@ class _DashboardPageState extends State<DashboardPage> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Dashboard'),
+          title: Padding(
+            padding: const EdgeInsets.only(top: 16.0), // Add top margin
+            child: Image.asset(
+              'assets/images/logo.png', // Path to your logo
+              height: 150, // Adjust the height as needed
+            ),
+          ),
           actions: [
             if (isLoading)
-              const Center(child: CircularProgressIndicator())
+              const Center(
+                  child: CircularProgressIndicator(
+                color: Color(0xFF275072), // Custom spinner color
+              ))
             else if (errorMessage.isNotEmpty)
               Center(child: Text(errorMessage))
             else

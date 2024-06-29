@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'services/api_service.dart'; // Add this import
+import 'services/api_service.dart';
+import 'location_detail.dart';
 
 class SlideUpPanel extends StatefulWidget {
   const SlideUpPanel({super.key});
@@ -15,6 +16,7 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
   late List<String> locations;
   late List<String> filteredLocations;
   late Map<String, LatLng> locationCoordinates;
+  late Map<String, String> locationIds;
   LocationData? _currentLocation;
   late GoogleMapController _mapController;
   final Location _locationService = Location();
@@ -27,6 +29,7 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
     locations = [];
     filteredLocations = locations;
     locationCoordinates = {};
+    locationIds = {};
     _checkLocationPermission();
     _fetchParkingLocations();
   }
@@ -80,14 +83,19 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
     });
   }
 
-  void _onLocationSelected(String location) {
+  void _onLocationSelected(String location) async {
     LatLng coordinates = locationCoordinates[location]!;
+    String locationId = locationIds[location]!;
+
     setState(() {
       _selectedMarker = Marker(
         markerId: MarkerId(location),
         position: coordinates,
         infoWindow: InfoWindow(title: location),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
+        onTap: () async {
+          await _fetchParkingLocationDetails(locationId);
+        },
       );
     });
     _mapController.animateCamera(
@@ -101,6 +109,25 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
     _panelController.close();
     _mapController
         .showMarkerInfoWindow(MarkerId(location)); // Show the info window
+
+    // Navigate directly to the LocationDetail page
+    await _fetchParkingLocationDetails(locationId);
+  }
+
+  Future<void> _fetchParkingLocationDetails(String id) async {
+    try {
+      await ApiService.getParkingLocationDetails(id);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => LocationDetail(
+            locationId: id,
+          ),
+        ),
+      );
+    } catch (e) {
+      print('Failed to load parking location details: $e');
+    }
   }
 
   Future<void> _fetchParkingLocations() async {
@@ -112,6 +139,9 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
         locationCoordinates = {
           for (var item in data)
             item['address']: LatLng(item['lat'], item['lon']),
+        };
+        locationIds = {
+          for (var item in data) item['address']: item['id'].toString(),
         };
       });
     } catch (e) {
@@ -197,6 +227,9 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
         }
       },
       markers: _createMarkers(),
+      onTap: (LatLng latLng) {
+        _selectedMarker = null;
+      },
     );
   }
 
@@ -206,6 +239,13 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
         markerId: MarkerId(entry.key),
         position: entry.value,
         infoWindow: InfoWindow(title: entry.key),
+        onTap: () async {
+          final locationName = entry.key;
+          final locationId = locationIds[locationName];
+          if (locationId != null) {
+            await _fetchParkingLocationDetails(locationId);
+          }
+        },
       );
     }).toSet();
 

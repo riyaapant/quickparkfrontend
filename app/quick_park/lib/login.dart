@@ -131,7 +131,11 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QuickPark'),
+        title: Image.asset(
+          'assets/images/logo.png', // Path to your logo
+          height: 150, // Adjust the height as needed
+        ),
+        centerTitle: true, // Center the logo in the AppBar
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -167,7 +171,9 @@ class _LoginPageState extends State<LoginPage> {
               ),
               const SizedBox(height: 16.0),
               isLoading
-                  ? const CircularProgressIndicator()
+                  ? const CircularProgressIndicator(
+                      color: Color(0xFF275072), // Custom spinner color
+                    )
                   : ElevatedButton(
                       onPressed: _login,
                       child: const Text('Login'),

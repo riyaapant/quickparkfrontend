@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'payment_service.dart';
+import './services/api_service.dart'; // Import the ApiService
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -10,8 +12,28 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
   final TextEditingController _amountController = TextEditingController();
-  int _availablePoints = 1000;
+  double _availableBalance = 0.0;
   String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchAvailableBalance(); // Fetch balance when the widget is initialized
+  }
+
+  Future<void> _fetchAvailableBalance() async {
+    try {
+      final response = await ApiService.getProfile();
+      final profileData = jsonDecode(response.body);
+      setState(() {
+        _availableBalance = profileData['balance'];
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to fetch balance';
+      });
+    }
+  }
 
   void _handleTopUp() {
     final amount = int.tryParse(_amountController.text);
@@ -32,7 +54,7 @@ class _WalletPageState extends State<WalletPage> {
 
   void _onPaymentSuccess(int amount) {
     setState(() {
-      _availablePoints += amount;
+      _availableBalance += amount;
     });
   }
 
@@ -48,7 +70,7 @@ class _WalletPageState extends State<WalletPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Available Points: $_availablePoints',
+              'Available Balance in Rupees (Rs): $_availableBalance',
               style: const TextStyle(fontSize: 16),
             ),
             const SizedBox(height: 16), // Increased height for more space

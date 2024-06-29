@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:khalti_flutter/khalti_flutter.dart';
 import 'login.dart';
 import 'dashboard.dart';
 import 'document.dart';
@@ -15,47 +14,63 @@ class QuickPark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return KhaltiScope(
-      publicKey: 'khalti key',
-      enabledDebugging: true,
-      builder: (context, navigatorKey) {
-        return MaterialApp(
-          navigatorKey: navigatorKey,
-          title: 'QuickPark',
-          theme: ThemeData(
-            primarySwatch: Colors.blue,
+    return MaterialApp(
+      title: 'QuickPark',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Color(0xFF275072), // Custom button text color
           ),
-          home: FutureBuilder<Map<String, dynamic>>(
-            future: _checkTokenAndMode(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Scaffold(
-                  body: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else if (snapshot.hasData && snapshot.data!['isValid']) {
-                if (snapshot.data!['mode'] == 'owner') {
-                  return const OwnerDashboardPage();
-                } else if (snapshot.data!['document'] == null) {
-                  return const DocumentPage();
-                } else {
-                  return const DashboardPage();
-                }
-              } else {
-                return const LoginPage();
-              }
-            },
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Color(0xFF275072), // Custom button text color
           ),
-          localizationsDelegates: const [
-            KhaltiLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en', 'US'),
-            Locale('ne', 'NP'),
-          ],
-        );
-      },
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: Color(0xFF275072), // Custom button text color
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          focusedBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+                color: Color(0xFF275072)), // Border color when focused
+          ),
+          enabledBorder: UnderlineInputBorder(
+            borderSide: BorderSide(
+                color: Colors.grey), // Default border color when enabled
+          ),
+          labelStyle: TextStyle(color: Colors.grey), // Default label color
+          floatingLabelStyle:
+              TextStyle(color: Color(0xFF275072)), // Label color when focused
+        ),
+      ),
+      home: FutureBuilder<Map<String, dynamic>>(
+        future: _checkTokenAndMode(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF275072), // Custom spinner color
+                ),
+              ),
+            );
+          } else if (snapshot.hasData && snapshot.data!['isValid']) {
+            if (snapshot.data!['mode'] == 'owner') {
+              return const OwnerDashboardPage();
+            } else if (snapshot.data!['document'] == null) {
+              return const DocumentPage();
+            } else {
+              return const DashboardPage();
+            }
+          } else {
+            return const LoginPage();
+          }
+        },
+      ),
     );
   }
 }

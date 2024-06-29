@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 import '../services/api_service_owner.dart';
 
 class AddParkingPage extends StatefulWidget {
@@ -21,6 +23,7 @@ class _AddParkingPageState extends State<AddParkingPage> {
   final Location _locationService = Location();
   LatLng? _selectedLocation;
   bool isLoading = false;
+  File? selectedPdfFile;
 
   @override
   void initState() {
@@ -80,10 +83,30 @@ class _AddParkingPageState extends State<AddParkingPage> {
     return value.toStringAsFixed(6);
   }
 
+  Future<void> _selectPdfDocument() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null) {
+      setState(() {
+        selectedPdfFile = File(result.files.single.path!);
+      });
+    }
+  }
+
   Future<void> _addParking() async {
     if (_selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Please select a location on the map.')),
+      );
+      return;
+    }
+
+    if (selectedPdfFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please upload a PDF document.')),
       );
       return;
     }
@@ -93,7 +116,6 @@ class _AddParkingPageState extends State<AddParkingPage> {
     });
 
     final parkingData = {
-      'user': '*tokenized user', // Add logic to get the tokenized user
       'address': addressController.text,
       'fee': feeController.text.isNotEmpty ? feeController.text : '50.00',
       'total_spot': totalSpotController.text,
@@ -101,11 +123,8 @@ class _AddParkingPageState extends State<AddParkingPage> {
       'lon': _formatCoordinate(_selectedLocation!.longitude),
     };
 
-    final response = await ApiServiceOwner.addParking(parkingData);
-
-    setState(() {
-      isLoading = false;
-    });
+    final response =
+        await ApiServiceOwner.addParking(parkingData, selectedPdfFile!);
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -117,6 +136,10 @@ class _AddParkingPageState extends State<AddParkingPage> {
         SnackBar(content: Text('Failed to add parking')),
       );
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -192,6 +215,16 @@ class _AddParkingPageState extends State<AddParkingPage> {
                       ),
                       keyboardType: TextInputType.number,
                     ),
+                    const SizedBox(height: 16.0),
+                    ElevatedButton(
+                      onPressed: _selectPdfDocument,
+                      child: Text('Upload PDF Document'),
+                    ),
+                    const SizedBox(height: 8.0),
+                    selectedPdfFile != null
+                        ? Text(
+                            'Selected File: ${selectedPdfFile!.path.split('/').last}')
+                        : Text('No file selected'),
                     const SizedBox(height: 16.0),
                     ElevatedButton(
                       onPressed: _addParking,

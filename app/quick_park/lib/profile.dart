@@ -19,6 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String contactNumber = '';
   String email = '';
   String profilePictureUrl = '';
+  String vehicleId = '';
 
   bool isLoading = true;
   String errorMessage = '';
@@ -41,6 +42,7 @@ class _ProfilePageState extends State<ProfilePage> {
         contactNumber = profileData['contact'] ?? '';
         email = profileData['email'] ?? '';
         profilePictureUrl = profileData['profile'] ?? '';
+        vehicleId = profileData['vehicleId'] ?? '';
         isLoading = false;
       });
     } catch (e) {
@@ -90,6 +92,81 @@ class _ProfilePageState extends State<ProfilePage> {
       final imageFile = File(pickedFile.path);
       await uploadProfilePicture(imageFile);
     }
+  }
+
+  Future<void> updateVehicleId(String newVehicleId) async {
+    try {
+      final response = await ApiService.updateVehicleId(newVehicleId);
+      if (response.statusCode == 200) {
+        setState(() {
+          vehicleId = newVehicleId;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'Failed to update vehicle ID';
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = e.toString();
+      });
+    }
+  }
+
+  Future<void> showUpdateVehicleIdDialog() async {
+    final _formKey = GlobalKey<FormState>();
+    TextEditingController vehicleIdController = TextEditingController();
+
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Update Vehicle ID'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: ListBody(
+                children: <Widget>[
+                  Text('Enter new Vehicle ID:'),
+                  TextFormField(
+                    controller: vehicleIdController,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a vehicle ID';
+                      }
+                      final regex = RegExp(r'^B[A-Z]{2}\d{4}$');
+                      if (!regex.hasMatch(value)) {
+                        return 'Invalid vehicle ID';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Update'),
+              onPressed: () {
+                if (_formKey.currentState?.validate() ?? false) {
+                  final newVehicleId = vehicleIdController.text;
+                  updateVehicleId(newVehicleId);
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -180,6 +257,24 @@ class _ProfilePageState extends State<ProfilePage> {
                         Text(
                           email,
                           style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Vehicle ID:',
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(
+                          vehicleId.isNotEmpty ? vehicleId : 'Not set',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        Center(
+                          child: ElevatedButton(
+                            onPressed: showUpdateVehicleIdDialog,
+                            child: const Text('Update Vehicle ID'),
+                          ),
                         ),
                       ],
                     ),

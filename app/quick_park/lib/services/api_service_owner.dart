@@ -1,6 +1,8 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart';
 
 class ApiServiceOwner {
   static const String _baseUrl = 'http://10.0.2.2:2564';
@@ -83,7 +85,7 @@ class ApiServiceOwner {
 
   // Method to add parking
   static Future<http.Response> addParking(
-      Map<String, String> parkingData) async {
+      Map<String, String> parkingData, File file) async {
     final url = Uri.parse('$_baseUrl/addparking');
     const storage = FlutterSecureStorage();
     final accessToken = await storage.read(key: 'access_token');
@@ -92,34 +94,28 @@ class ApiServiceOwner {
       throw Exception('Access token is missing');
     }
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $accessToken',
-      },
-      body: jsonEncode(parkingData),
-    );
+    final request = http.MultipartRequest('POST', url)
+      ..headers['Authorization'] = 'Bearer $accessToken'
+      ..fields.addAll(parkingData)
+      ..files.add(await http.MultipartFile.fromPath('file', file.path));
+
+    final response = await request.send();
 
     if (response.statusCode == 401) {
-      // Token might be expired, try to refresh it
       bool tokenRefreshed = await refreshToken();
       if (tokenRefreshed) {
         final newAccessToken = await storage.read(key: 'access_token');
         if (newAccessToken != null) {
-          return await http.post(
-            url,
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer $newAccessToken',
-            },
-            body: jsonEncode(parkingData),
-          );
+          final newRequest = http.MultipartRequest('POST', url)
+            ..headers['Authorization'] = 'Bearer $newAccessToken'
+            ..fields.addAll(parkingData)
+            ..files.add(await http.MultipartFile.fromPath('file', file.path));
+          return await http.Response.fromStream(await newRequest.send());
         }
       }
     }
 
-    return response;
+    return await http.Response.fromStream(response);
   }
 
   // Method to view parking locations

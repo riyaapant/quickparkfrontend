@@ -14,7 +14,13 @@ class OwnerDashboardPage extends StatelessWidget {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('Owner Dashboard'),
+          title: Padding(
+            padding: const EdgeInsets.only(top: 16.0), // Add top margin
+            child: Image.asset(
+              'assets/images/logo.png', // Path to your logo
+              height: 150, // Adjust the height as needed
+            ),
+          ),
         ),
         drawer:
             const OwnerNavigationDrawer(), // Use the owner navigation drawer

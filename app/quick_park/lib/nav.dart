@@ -23,7 +23,7 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
         children: <Widget>[
           const DrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.blue,
+              color: Color(0xFF275072),
             ),
             child: Align(
               alignment: Alignment.bottomLeft,
