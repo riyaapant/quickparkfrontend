@@ -102,7 +102,7 @@ const OwnerMaps = () => {
                     </svg>
                 </div>
             )}
-      {documentsVerified ? (
+      {/* {documentsVerified ? (
         <>
           {!locationFetched ? (
             <>
@@ -144,7 +144,43 @@ const OwnerMaps = () => {
       ) : (
         <p>You need to be verified before you can list your parking land</p>
       )
-      }
+      } */}
+          {!locationFetched ? (
+            <>
+              <button
+                className="w-48 rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                onClick={fetchUserLocation}
+              >
+                Get your location
+              </button>
+              {errorMessage && (
+                <p className='mt-4 text-red-600'>{errorMessage}</p>
+              )}
+            </>
+          ) : (
+            <>
+              <APIProvider apiKey={apikey}>
+                <Map
+                  id='fetchUserLocation'
+                  center={userLocation}
+                  defaultZoom={15}
+                  // onClick={onMapClick}
+                >
+                  <Marker
+                    position={userLocation}
+                    draggable={true}
+                    onDragEnd={onMarkerDrag}
+                  />
+                </Map>
+              </APIProvider>
+              {message && (
+                <>
+                  <p className='text-lg'>Drag the marker to change your location. Click
+                    <button className='text-qp underline px-1' onClick={handleLocationConfirm}>confirm</button> once you're done.</p>
+                </>
+              )}
+            </>
+          )}
     </main>
   );
 };

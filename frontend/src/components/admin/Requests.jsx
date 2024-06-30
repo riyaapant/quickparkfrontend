@@ -37,7 +37,8 @@ const PendingRequests = () => {
 
   const fetchOwners = async () => {
     try {
-      const response = await api.get('/admin/view/pendingowner');
+      const response = await api.get('/admin/view/pendingparking');
+      console.log("pending parking: ", response)
       setRequests(response.data.map((item) => ({ ...item, role: 'Owner' })));
     } catch (e) {
       console.log(e.response);
@@ -50,7 +51,7 @@ const PendingRequests = () => {
       if (role === 'Customer') {
         response = await api.get(`admin/verify/customer/${id}`);
       } else if (role === 'Owner') {
-        response = await api.get(`admin/verify/owner/${id}`);
+        response = await api.get(`admin/verify/parking/${id}`);
       }
       console.log(response);
       setVerificationMessage(`User has been verified successfully.`);

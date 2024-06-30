@@ -38,7 +38,7 @@ const ViewUsers = () => {
 
   const fetchOwners = async () => {
     try {
-      const response = await api.get('/admin/view/owner');
+      const response = await api.get('/admin/view/parking');
       setRequests(response.data.map((item) => ({ ...item, role: 'Owner' })));
     } catch (e) {
       console.log(e.response);

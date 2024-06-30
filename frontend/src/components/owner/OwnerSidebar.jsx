@@ -1,5 +1,5 @@
 import LogoWhite from "../shared//LogoWhite"
-import { UserCircle, MapPin, Home, SquareUser } from "lucide-react"
+import { UserCircle, MapPin, Home, SquareUser, History } from "lucide-react"
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from "react-router-dom";
@@ -24,6 +24,7 @@ export default function OwnerSideBar() {
 
     const [user, setUser] = useState({
         name: '',
+        balance: ''
     })
 
     useEffect(() => {
@@ -33,6 +34,7 @@ export default function OwnerSideBar() {
                 console.log(response)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
+                    balance: response.data.balance
                 });
             } catch (error) {
                 console.log(error);
@@ -83,10 +85,17 @@ export default function OwnerSideBar() {
                 </Link>
                 <Link to="parkinglocations" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
                     <MapPin className="w-6 h-6" />
-                    <p>Add Parking</p>
+                    <p>Manage Parking</p>
                 </Link>
+                {/* <Link to="history" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
+                    <History className="w-6 h-6" />
+                    <p>History</p>
+                </Link> */}
             </div>
 
+                <div className=" text-center text-black justify-center items-center">
+                    <span className="bg-slate-200 border rounded-md shadow-md text-sm w-fit p-2">Blc: {user.balance}</span>
+                </div>
             <div className="relative flex flex-row h-16 items-center gap-2 pl-10 text-white hover:bg-white active:bg-white hover:text-qp active:text-qp cursor-pointer" onClick={toggleDropdown}>
                 <UserCircle className="w-10 h-10" />
                 <span className="text-2xl">{user.name}</span>

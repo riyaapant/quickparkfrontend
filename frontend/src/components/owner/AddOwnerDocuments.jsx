@@ -26,19 +26,19 @@ const AddOwnerDocument = () => {
         setLoading(true)
         const ownerDocument = new FormData();
         ownerDocument.append('file', document)
-        try {
-            const documentUploadResponse = await api.put(`upload/owner/file`, ownerDocument, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                    'Authorization': 'Bearer ' + `${token}`
-                }
-            });
-            console.log(documentUploadResponse);
-            setDocumentsSubmitted(true)
-            // setDocumentsVerified(true)
-        } catch (error) {
-            console.error('Error uploading file: ', error);
-        }
+        // try {
+        //     const documentUploadResponse = await api.put(`upload/owner/file`, ownerDocument, {
+        //         headers: {
+        //             'Content-Type': 'multipart/form-data',
+        //             'Authorization': 'Bearer ' + `${token}`
+        //         }
+        //     });
+        //     console.log(documentUploadResponse);
+        //     setDocumentsSubmitted(true)
+        //     // setDocumentsVerified(true)
+        // } catch (error) {
+        //     console.error('Error uploading file: ', error);
+        // }
         setLoading(false)
     };
 

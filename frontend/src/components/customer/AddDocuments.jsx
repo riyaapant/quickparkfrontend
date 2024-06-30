@@ -31,7 +31,7 @@ const AddDocument = () => {
         customerDocument.append('file', document)
         try {
 
-            const documentUploadResponse = await api.put(`upload/customer/file`, customerDocument, {
+            const documentUploadResponse = await api.put(`/upload/customer/file`, customerDocument, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                     'Authorization': 'Bearer ' + `${token}`

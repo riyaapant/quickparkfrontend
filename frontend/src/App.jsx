@@ -21,6 +21,8 @@ import AddParking from './components/owner/AddParking.jsx';
 import OwnerMaps from './components/owner/maps/OwnerMap.jsx';
 import ViewParkingLocationsOnMap from './components/owner/maps/locationsmap.jsx';
 import ViewOwnParking from './components/owner/viewOwnParking.jsx';
+import History from './components/customer/History.jsx';
+import ReservationHistory from './components/owner/ReservationHistory.jsx';
 
 import AdminDashboard from './routes/admin/Dashboard';
 import PendingRequests from './components/admin/Requests.jsx';
@@ -31,6 +33,7 @@ import AdminRegistration from './routes/admin/adminregistration.jsx';
 import AdminLogin from './routes/admin/adminlogin.jsx';
 import ViewUsers from './components/admin/Users.jsx'
 import Topup from './components/customer/Topup.jsx';
+import Dashboard from './components/owner/Dashboard.jsx';
 
 const router = createBrowserRouter([
   {
@@ -67,6 +70,10 @@ const router = createBrowserRouter([
         element: <Topup />
       },
       {
+        path: "history",
+        element: <History />
+      },
+      {
         path: "profile",
         element: <Profile />
       },
@@ -86,11 +93,15 @@ const router = createBrowserRouter([
     children: [
       {
         path: "",
-        element: <AddOwnerDocument />
+        element: <Dashboard />
       },
       {
         path: "parkinglocations",
         element: <ViewOwnParking />
+      },
+      {
+        path: "parkinglocations/:id",
+        element: <ReservationHistory />
       },
       {
         path: "parkinglocations/map",
@@ -115,7 +126,11 @@ const router = createBrowserRouter([
       {
         path: "profile/changepassword",
         element: <ChangePassword />
-      }
+      },
+      // {
+      //   path: "history",
+      //   element: <ReservationHistory />
+      // }
     ],
   },
   {
