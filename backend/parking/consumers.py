@@ -8,6 +8,7 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.db import transaction, models
 from decimal import Decimal
+from datetime import timedelta
 
 UserModel = get_user_model()
 
@@ -282,15 +283,12 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         self.vehicle_id = data['vehicle_id']
         self.vehicle_group_name = f'vehicle_{self.vehicle_id}'
         self.customer = await self.get_customer()
-        if not self.customer:
-            return
-        await self.channel_layer.group_add(self.vehicle_group_name,self.channel_name)
-
-
-        if action == 'park':
+        if self.customer:
+            await self.channel_layer.group_add(self.vehicle_group_name,self.channel_name)
             await self.park()
-        elif action == 'release':
-            await self.release()
+        else:
+            return
+
 
     async def send_parking_status(self):
         if self.parking.used_spot < self.parking.total_spot:
@@ -313,12 +311,20 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
             await self.update_parking(-1)
             await self.end_reservation()
 
+        if self.customer.reservation_id and not self.customer.reservation:
+            reservation_time = await self.get_reservation_time()
+            print(reservation_time)
+            if (timezone.now() - reservation_time > timedelta(minutes=1)):
+                print('Checkpoint2')
+                await self.release()
+                return
+
         if self.parking.used_spot == self.parking.total_spot:
-            await self.send(json.dumps({'message': 'Parking Full'}))
+            await self.send(json.dumps({'value': 'Parking Full'}))
             return
 
         if self.customer.reservation_id and self.customer.reservation==False:
-            await self.send(json.dumps({'message': 'Car has been parked already'}))
+            await self.send(json.dumps({'value': 'Car has been parked already'}))
             return
 
         # if await self.get_balance() < self.parking.fee:
@@ -341,12 +347,12 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
 
     async def release(self):
         if self.customer.reservation_id is None:
-            await self.send(json.dumps({'message': 'You have not reserved any space'}))
+            await self.send(json.dumps({'value': 'You have not reserved any space'}))
             return
 
-        # if self.parking.used_spot == 0:
-        #     await self.send(json.dumps({'message': 'Parking is already empty'}))
-        #     return
+        if self.parking.used_spot == 0:
+            await self.send(json.dumps({'value': 'Parking is already empty'}))
+            return
 
         await self.update_parking(-1)
         await self.channel_layer.group_send(self.parking_group_name, {
@@ -392,6 +398,11 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_balance(self):
         return self.customer.user.balance
+
+    @database_sync_to_async
+    def get_reservation_time(self):
+        reservation = Reservation.objects.get(id = self.customer.reservation_id)
+        return reservation.start_time
 
     @database_sync_to_async
     def update_parking(self, increment):
@@ -452,7 +463,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
             if UserModel.objects.filter(is_superuser=True).exists():
                 balance = total_amount * Decimal(0.1)
                 admin = UserModel.objects.filter(is_superuser=True).first()
-                payment = Payment.objects.create(from_user=admin.id,to_user=user.id,amount=balance)
+                payment = Payment.objects.create(from_user=self.customer.id,to_user=admin.id,amount=balance)
                 payment.save()
 
             # payment = Payment.objects.create(

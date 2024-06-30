@@ -145,7 +145,7 @@ class ViewCustomerReservation(APIView):
 class ViewParkingReservation(APIView):
     permission_classes = [IsAuthenticated]
     def get(self,request,id):
-        reservations = Reservation.objects.filter(park=id)
+        reservations = Reservation.objects.filter(parking=id)
         reservation_data=[]
         for reservation in reservations:
             reservation_data.append({
