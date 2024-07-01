@@ -88,8 +88,9 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         #     return
 
         last_reservation = await self.get_last_reservation_time()
-        if (timezone.now() - last_reservation < timedelta(minutes=1)):
-            return
+        if last_reservation:
+            if (timezone.now() - last_reservation < timedelta(minutes=1)):
+                return
 
 
         await self.update_parking(1)
@@ -167,8 +168,12 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_last_reservation_time(self):
-        reservation = Reservation.objects.filter(user = self.customer.id).last()
-        return reservation.end_time
+        try:
+            reservation = Reservation.objects.filter(user = self.customer.id).last()
+            return reservation.end_time
+        except:
+            return False
+            
 
     @database_sync_to_async
     def update_parking(self, increment):
