@@ -1,9 +1,9 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
-from PIL import Image
-from io import BytesIO
-import base64
-import numpy as np
+# from PIL import Image
+# from io import BytesIO
+# import base64
+# import numpy as np
 
 
 class StreamConsumers(AsyncWebsocketConsumer):
