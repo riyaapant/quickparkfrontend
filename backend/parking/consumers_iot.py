@@ -35,13 +35,13 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         data = json.loads(text_data)
         self.vehicle_id = data['vehicle_id']
         print(data['vehicle_id'])
-        self.vehicle_group_name = f'vehicle_{self.vehicle_id}'
         self.customer = await self.get_customer()
-        if self.customer:
-            await self.channel_layer.group_add(self.vehicle_group_name,self.channel_name)
-            await self.park()
-        else:
+        if not self.customer:
             return
+        self.vehicle_group_name = f'vehicle_{self.vehicle_id}'
+        await self.channel_layer.group_add(self.vehicle_group_name,self.channel_name)
+        print('park function called')
+        await self.park()
 
 
     async def send_parking_status(self):
