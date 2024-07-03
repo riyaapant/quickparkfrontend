@@ -94,9 +94,9 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({'message': 'Parking is already Full'}))
             return
 
-        # if await self.get_balance() < self.parking.fee:
-        #     await self.send(json.dumps({'message': 'Please Recharge your account'}))
-        #     return
+        if await self.get_balance() < self.parking.fee:
+            await self.send(json.dumps({'message': 'Please Recharge your account'}))
+            return
 
         await self.update_parking(1)
         await self.channel_layer.group_send(self.parking_group_name, {
@@ -121,9 +121,9 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({'message': 'You have already parked your car'}))
             return
 
-        # if await self.get_balance() < self.parking.fee:
-        #     await self.send(json.dumps({'message': 'Please recharge your account'}))
-        #     return
+        if await self.get_balance() < self.parking.fee:
+            await self.send(json.dumps({'message': 'Please recharge your account'}))
+            return
 
         await self.update_parking(1)
         await self.channel_layer.group_send(self.parking_group_name, {
@@ -140,9 +140,9 @@ class ParkingConsumer(AsyncWebsocketConsumer):
             await self.send(json.dumps({'message': 'You have not reserved any space'}))
             return
 
-        # if self.parking.used_spot == 0:
-        #     await self.send(json.dumps({'message': 'Parking is already empty'}))
-        #     return
+        if self.parking.used_spot == 0:
+            await self.send(json.dumps({'message': 'Parking is already empty'}))
+            return
 
         await self.update_parking(-1)
         await self.channel_layer.group_send(self.parking_group_name, {
