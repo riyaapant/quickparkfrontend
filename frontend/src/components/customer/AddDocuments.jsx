@@ -37,7 +37,7 @@ const AddDocument = () => {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
-            console.log(documentUploadResponse);
+            console.log("upload customer file: ",documentUploadResponse);
 
             const vehicleIdResponse = await api.put(`vehicleid`, { vehicle_id: vehicleId }, {
                 headers: {
@@ -45,7 +45,7 @@ const AddDocument = () => {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             })
-            console.log(vehicleIdResponse)
+            console.log("put vehicle id: ",vehicleIdResponse)
             setDocumentsSubmitted(true)
 
         } catch (error) {
@@ -77,7 +77,7 @@ const AddDocument = () => {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
-            console.log(response.data.is_paperverified)
+            console.log("paper verified: ",response.data.is_paperverified)
             if (response.data.document) {
                 setDocumentsSubmitted(true)
             }

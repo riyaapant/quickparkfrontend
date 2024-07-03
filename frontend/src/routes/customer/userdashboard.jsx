@@ -10,14 +10,16 @@ import { Outlet } from "react-router-dom";
 export default function UserDashboard() {
     
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
+    const token = useSelector((state) => state.token)
+    const is_owner = useSelector((state) => state.is_owner)
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        console.log("user mode: customer")
-        if (!isLoggedIn) {
+        console.log("is_owner: ", is_owner)
+        if (!token) {
             navigate('/login')
-        } 
+        }
     });
 
 

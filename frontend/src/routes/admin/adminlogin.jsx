@@ -49,6 +49,7 @@ export default function AdminLogin() {
         e.preventDefault();
         try {
             const response = await api.post(`/admin/login`, formData)
+            console.log("admin login: ", response.data)
             if (response.status == 202) {
                 dispatch(setCred({
                     isLoggedIn: true,

@@ -69,7 +69,7 @@ const ViewOwnParking = () => {
               <th className="p-2 text-base">Total Spots</th>
               <th className="p-2 text-base">Status</th>
               <th className="p-2 text-base">View Document</th>
-              <th className="p-2 text-base">Action</th>
+              {/* <th className="p-2 text-base">Action</th> */}
             </tr>
           </thead>
           <tbody>
@@ -101,16 +101,16 @@ const ViewOwnParking = () => {
                     {/* {item.document} */}
                   </div>
                 </td>
-                <td className="p-3">
+                {/* <td className="p-3">
                   <div className=' flex flex-row gap-x-2 font-medium text-gray-800'>
-              <Link to={`${item.id}`}>
+                    <Link to={`${item.id}`}>
                       <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">History</button>
                     </Link>
-                    <Link to="#">
+                    <Link to="/owner/dashboard/surveillance">
                       <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">Surveillance</button>
                     </Link>
                   </div>
-                </td>
+                </td> */}
               </tr>
             ))}
           </tbody>

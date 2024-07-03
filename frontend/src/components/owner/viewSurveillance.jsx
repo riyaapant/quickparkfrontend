@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import ReactPaginate from 'react-paginate';
-// import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import config from '../../features/config';
 import { useSelector } from 'react-redux';
 
-const History = () => {
+const ViewSurveillance = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const itemsPerPage = 6;
 
@@ -23,23 +23,13 @@ const History = () => {
     },
   });
 
-  const [history, setHistory] = useState([{}])
+  const [parkingLocations, setParkingLocations] = useState([{}])
   const fetchOwnParkingLocations = async () => {
     try {
-      const response = await api.get(`view/customer/reservation`)
-      // console.log("parking history: ", response.data)
-      const responseItem = response.data.map(item => {
-        const startDate = new Date(item.start_time);
-        const endDate = new Date(item.end_time);
-        const durationInSeconds = (endDate - startDate) / 1000;
-        const minutes = Math.floor(durationInSeconds / 60);
-        const seconds = Math.floor(durationInSeconds % 60);
-        item.Time = `${minutes} minutes ${seconds} seconds`;
-        return item;
-      }).reverse();
-
-      setHistory(responseItem);
-      console.log("history: ", responseItem);
+      const response = await api.get(`viewownparking`)
+      console.log("own parking: ", response.data)
+      setParkingLocations(response.data)
+      console.log(parkingLocations)
     }
     catch (e) {
       console.log(e.response)
@@ -52,42 +42,33 @@ const History = () => {
   }, [])
 
   const offset = currentPage * itemsPerPage;
-  const currentItems = history.slice(offset, offset + itemsPerPage);
-  const pageCount = Math.ceil(history.length / itemsPerPage);
+  const currentItems = parkingLocations.slice(offset, offset + itemsPerPage);
+  const pageCount = Math.ceil(parkingLocations.length / itemsPerPage);
 
   return (
     <main className="m-4 p-10 h-auto border-collapse border rounded-xl border-gray-300">
       <header className="pb-5 flex flex-row justify-between">
-        <p className="text-xl font-bold text-qp">Your Reservation History</p>
-        <div className='font-medium text-gray-800 flex gap-x-3'>
-          {/* <Link to='/owner/dashboard/maps'>
-            <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">Add Parking</button>
-          </Link>
-          {history.length > 0 &&
-            <Link to='map'>
-              <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">View on Map </button>
-            </Link>
-          } */}
-        </div>
+        <p className="text-xl font-bold text-qp">Your Parking Locations</p>
+        
       </header>
-      {history.length > 0 ? (
+      {parkingLocations.length > 0 ? (
         <table className="table-auto w-full text-left">
           <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
             <tr>
               <th className="p-2 text-base">Id</th>
               <th className="p-2 text-base">Address</th>
-              <th className="p-2 text-base">Time</th>
-              <th className="p-2 text-base">Amount</th>
-              <th className="p-2 text-base">View on Map</th>
-
+              {/* <th className="p-2 text-base">Total Spots</th>
+              <th className="p-2 text-base">Status</th>
+              <th className="p-2 text-base">View Document</th> */}
+              <th className="p-2 text-base">Action</th>
             </tr>
           </thead>
           <tbody>
-            {currentItems.map((item, index) => (
-              <tr key={index} className="hover:bg-gray-100">
+            {currentItems.map((item) => (
+              <tr key={item.id} className="hover:bg-gray-100">
                 <td className="p-3">
                   <div className='font-medium text-gray-800'>
-                    {index + 1}
+                    {item.id}
                   </div>
                 </td>
                 <td className="p-3">
@@ -95,28 +76,34 @@ const History = () => {
                     {item.address}
                   </div>
                 </td>
+                {/* <td className="p-3">
+                  <div className='font-medium text-gray-800'>
+                    {item.total_spots}
+                  </div>
+                </td> */}
+                {/* <td className="p-3">
+                  <div className='font-medium text-gray-800'>
+                    {item.is_paperverified ? 'Verified' : 'Unverified'}
+                  </div>
+                </td> */}
+                {/* <td className="p-3 truncate">
+                  <div className='font-medium text-gray-800'>
+                    <a href={item.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>
+                  </div>
+                </td> */}
                 <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.Time}
+                  <div className=' flex flex-row gap-x-2 font-medium text-gray-800'>
+                    <Link to={`${item.id}`}>
+                      <button className="w-auto justify-center rounded-md bg-qp py-2 px-3 text-md font-semibold text-white shadow-sm hover:bg-indigo-600">Surveillance</button>
+                    </Link>
                   </div>
                 </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    Rs. {item.total_amount}
-                  </div>
-                </td>
-                <td className="p-3 truncate">
-                  <div className='font-medium text-gray-800'>
-                    <a className='text-qp font-semibold hover:text-blue-700 w-auto hover:cursor-pointer' download>View</a>
-                  </div>
-                </td>
-
               </tr>
             ))}
           </tbody>
         </table>
       ) : (
-        <div className='w-full text-center'>No parking history to show.</div>
+        <div className='w-full text-center'>No parking locations to show.</div>
       )}
 
       <ReactPaginate
@@ -139,4 +126,4 @@ const History = () => {
   );
 };
 
-export default History;
+export default ViewSurveillance;

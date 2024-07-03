@@ -1,5 +1,5 @@
 import LogoWhite from "../shared/LogoWhite"
-import { UserCircle, Users, MapPin, Home } from "lucide-react"
+import { UserCircle, Users, MapPin, Home, History } from "lucide-react"
 import { useState } from "react";
 import { useDispatch } from 'react-redux';
 import { Link } from "react-router-dom";
@@ -30,16 +30,20 @@ export default function AdminPanel() {
 
             <div className="flex-grow flex flex-col text-white text-xl font-semibold pt-10">
                 <Link to="" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
-                    <Home className="w-6 h-6"/>
+                    <Home className="w-6 h-6" />
                     <p>Home</p>
                 </Link>
                 <Link to="viewusers" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
-                    <Users className="w-6 h-6"/>
+                    <Users className="w-6 h-6" />
                     <p>Users</p>
                 </Link>
                 <Link to="maps" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
-                    <MapPin className="w-6 h-6"/>
+                    <MapPin className="w-6 h-6" />
                     <p>Map</p>
+                </Link>
+                <Link to="surveillance" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
+                    <History className="w-6 h-6" />
+                    <p>Surveillance</p>
                 </Link>
             </div>
 

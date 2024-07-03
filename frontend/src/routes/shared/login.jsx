@@ -20,19 +20,21 @@ export default function Login() {
     const navigate = useNavigate()
 
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
-    const location = useSelector((state) => state.userLocation)
+    // const location = useSelector((state) => state.userLocation)
+    const token = useSelector((state) => state.token)
+
     
     const api = axios.create({
         baseURL: config.BASE_URL,
       });
 
     useEffect(() => {
-        console.log(location)
-        console.log(isLoggedIn)
-        if (isLoggedIn) {
+        console.log("location: ",location)
+        console.log("isLoggedin: ",isLoggedIn)
+        if (token && isLoggedIn) {
             navigate('/dashboard')
         }
-    }, [isLoggedIn])
+    }, [])
 
     const [formData, setFormData] = useState({
         email: '',
@@ -59,18 +61,25 @@ export default function Login() {
         e.preventDefault();
         try {
             const response = await api.post(`${config.BASE_URL}/login`, formData)
+            console.log("login response: ", response.data)
             if (response.status == 200) {
                 dispatch(setCred({
                     isLoggedIn: true,
                     token: response.data.access,
-                    refreshToken: response.data.refresh
+                    refreshToken: response.data.refresh,
+                    is_owner: response.data.is_owner
                 }))
                 if(!response.data.document){
                     dispatch(setCred({
                         documentsSubmitted: false
                     }))
                 }
-                navigate(`/dashboard`)
+                if(response.data.is_owner){
+                    navigate(`/owner/dashboard`)
+                }
+                else{
+                    navigate(`/dashboard`)
+                }
             }
             else{
                 console.log(response)
@@ -130,7 +139,7 @@ export default function Login() {
                         <Link to="/register" className="font-semibold text-indigo-600 hover:text-indigo-400"> Sign Up</Link>
                     </p>
                     <p className="text-center text-sm text-gray-500 mt-5">
-                    <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-400"> Login as Admin</Link>
+                    <Link to="/admin/login" className="font-semibold text-indigo-600 hover:text-indigo-400"> Login as Admin</Link>
                 </p>
                 </div>
             </div>

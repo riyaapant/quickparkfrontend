@@ -15,8 +15,8 @@ import Profile from './components/shared/Profile';
 import AutoComplete from './components/customer/maps/viewparking.jsx';
 import PaymentHandler from './components/customer/PaymentHandler.jsx';
 
-import OwnerDashboard  from './routes/owner/ownerdashboard.jsx';
-import AddOwnerDocument from './components/owner/AddOwnerDocuments.jsx';
+import OwnerDashboard from './routes/owner/ownerdashboard.jsx';
+// import AddOwnerDocument from './components/owner/AddOwnerDocuments.jsx';
 import AddParking from './components/owner/AddParking.jsx';
 import OwnerMaps from './components/owner/maps/OwnerMap.jsx';
 import ViewParkingLocationsOnMap from './components/owner/maps/locationsmap.jsx';
@@ -34,6 +34,15 @@ import AdminLogin from './routes/admin/adminlogin.jsx';
 import ViewUsers from './components/admin/Users.jsx'
 import Topup from './components/customer/Topup.jsx';
 import Dashboard from './components/owner/Dashboard.jsx';
+import ParkingStats from './components/owner/ParkingStats.jsx';
+import ViewSurveillance from './components/owner/viewSurveillance.jsx';
+import AdminViewSurveillance from './components/admin/viewSurveillance.jsx';
+
+import PrivateRoute from './features/PrivateRoute.jsx';
+import { ProfileProvider } from './features/AuthContext.jsx';
+// import { AuthProvider } from './features/AuthContext.jsx';
+
+import Surveillance from './components/shared/Surveillance.jsx';
 
 const router = createBrowserRouter([
   {
@@ -49,8 +58,14 @@ const router = createBrowserRouter([
     element: <PaymentHandler />
   },
   {
+    path: "/auth",
+    element: <PrivateRoute />
+    // element: <AuthProvider />
+  },
+  {
     path: "/dashboard",
     element: <UserDashboard />,
+    // element: <PrivateRoute element={<UserDashboard />} role={'customer'} />,
     children: [
       {
         path: "",
@@ -90,6 +105,7 @@ const router = createBrowserRouter([
   {
     path: "/owner/dashboard",
     element: <OwnerDashboard />,
+    // element: <PrivateRoute element={<OwnerDashboard />} role={'owner'} />,
     children: [
       {
         path: "",
@@ -100,8 +116,20 @@ const router = createBrowserRouter([
         element: <ViewOwnParking />
       },
       {
-        path: "parkinglocations/:id",
+        path: "history",
+        element: <ParkingStats />
+      },
+      {
+        path: "history/:id",
         element: <ReservationHistory />
+      },
+      {
+        path: "surveillance",
+        element: <ViewSurveillance />
+      },
+      {
+        path: "surveillance/:id",
+        element: <Surveillance />
       },
       {
         path: "parkinglocations/map",
@@ -128,14 +156,15 @@ const router = createBrowserRouter([
         element: <ChangePassword />
       },
       // {
-      //   path: "history",
-      //   element: <ReservationHistory />
-      // }
+      //   path: "surveillance",
+      //   element: <Surveillance />
+      // },
     ],
   },
   {
     path: "/admin/dashboard",
     element: <AdminDashboard />,
+    // element: <PrivateRoute element={<AdminDashboard />} role={'admin'} />,
     children: [
       {
         path: "",
@@ -149,9 +178,17 @@ const router = createBrowserRouter([
         path: "maps",
         element: <AutoComplete />
       },
+      {
+        path: "surveillance",
+        element: <AdminViewSurveillance />
+      },
+      {
+        path: "surveillance/:id",
+        element: <Surveillance />
+      },
     ],
   },
-  
+
   {
     path: "/sidebar",
     element: <SideBar />
@@ -181,7 +218,10 @@ const router = createBrowserRouter([
 function App() {
 
   return (
-    <RouterProvider router={router} />
+      <RouterProvider router={router} />
+    // <ProfileProvider>
+    //   <RouterProvider router={router} />
+    // </ProfileProvider>
   )
 }
 

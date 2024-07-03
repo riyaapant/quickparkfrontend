@@ -137,14 +137,14 @@ const AutoComplete = () => {
                     defaultZoom={15}
                     id='autocomplete'
                 >
-                    <Marker
+                    {/* <Marker
                         position={userLocation}
                         id='user-location'
                         icon={{
                             url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
                         }}
                         onClick={() => handleMarkerClick({ lat: userLocation.lat, lon: userLocation.lng, address: "You are here" })}
-                    />
+                    /> */}
 
                     {searchResult.length > 0 && searchResult.map((result) => (
                         <>

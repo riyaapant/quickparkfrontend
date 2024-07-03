@@ -14,7 +14,7 @@ import { Outlet } from "react-router-dom";
 export default function OwnerDashboard() {
 
     const isLoggedIn = useSelector((state) => state.isLoggedIn);
-    // const token = useSelector((state) => state.token)
+    const token = useSelector((state) => state.token)
     // const isOwnerVerified = useSelector((state) => state.ownerDocumentsSubmitted)
 
     // const api = axios.create({
@@ -39,10 +39,11 @@ export default function OwnerDashboard() {
 
     useEffect(() => {
         console.log("user mode: owner")
+        console.log("token: ", token)
         // if (isOwnerVerified) {
         //     updateUser()
         // }
-        if (!isLoggedIn) {
+        if (!token) {
             navigate('/login')
         }
     });

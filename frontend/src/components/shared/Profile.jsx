@@ -84,7 +84,7 @@ export default function Profile() {
                         'Authorization': 'Bearer ' + `${token}`
                     }
                 });
-                console.log(response.data)
+                console.log("get profile: ",response.data)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
                     email: response.data.email,

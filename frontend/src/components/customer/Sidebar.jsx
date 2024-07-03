@@ -6,11 +6,15 @@ import { Link } from "react-router-dom";
 import config from "../../features/config";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 import { setCred } from "../../features/credSlice";
 
 export default function SideBar() {
     const token = useSelector((state) => state.token)
+    const refreshToken = useSelector((state) => state.refreshToken)
+
+    const dispatch = useDispatch();
 
     const navigate = useNavigate()
 
@@ -27,11 +31,49 @@ export default function SideBar() {
         balance: Number
     })
 
+        const isTokenExpired = (token) => {
+            if (!token) return true
+            try {
+                const decodedToken = jwtDecode(token);
+                const currentTime = Date.now() / 1000;
+                return decodedToken.exp < currentTime;
+            } catch (error) {
+                console.error('Error decoding token:', error);
+                return true;
+            }
+        };
+
+        useEffect(() => {
+            // const refreshAuthToken = async () => {
+              if (isTokenExpired(token)) {
+                handleLogout()
+                // try {
+                //   const response = await axios.post(`${config.BASE_URL}/api/token/refresh`, {
+                //     refresh: refreshToken,
+                //   });
+                //   if (response.status === 200) {
+                //     dispatch(setCred({
+                //       isLoggedIn: true,
+                //       token: response.data.access,
+                //       refreshToken: response.data.refresh,
+                //       is_owner: response.data.is_owner,
+                //     }));
+                //   }
+                // } catch (error) {
+                //   console.log('Error refreshing token:', error);
+                // //   handleLogout();
+                // }
+              }
+            // };
+        
+            // refreshAuthToken();
+          });
+
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`/profile`);
-                console.log(response)
+                console.log("get profile: ",response.data)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
                     balance: response.data.balance
@@ -42,8 +84,8 @@ export default function SideBar() {
         };
 
         fetchProfile();
+        console.log("refresh token: ", refreshToken)
     }, []);
-    const dispatch = useDispatch()
 
     const [dropdownVisible, setDropdownVisible] = useState(false)
 
