@@ -34,10 +34,10 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
     async def receive(self,text_data):
         data = json.loads(text_data)
         self.vehicle_id = data['vehicle_id']
-        print(data['vehicle_id'])
         self.customer = await self.get_customer()
         if not self.customer:
             return
+        print(data['vehicle_id'])
         self.vehicle_group_name = f'vehicle_{self.vehicle_id}'
         await self.channel_layer.group_add(self.vehicle_group_name,self.channel_name)
         print('park function called')
@@ -152,7 +152,9 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
     def get_customer(self):
         # return Customer.objects.get(vehicle_id=self.vehicle_id)
         try:
-            return Customer.objects.filter(vehicle_id=self.vehicle_id).last()
+            self.customer = Customer.objects.get(vehicle_id=self.vehicle_id)
+            print(self.customer)
+            return self.customer
         except:
             return False
             

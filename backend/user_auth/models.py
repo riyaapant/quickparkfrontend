@@ -47,7 +47,7 @@ class UserModel(AbstractBaseUser):
 
 class Customer(models.Model):
     user = models.OneToOneField(UserModel, on_delete=models.CASCADE)
-    vehicle_id = models.CharField(max_length=7,null=True)
+    vehicle_id = models.CharField(max_length=7,null=True,unique=True)
     license_paper = CloudinaryField('identity', blank=True,null=True)
     reservation_id = models.IntegerField(null=True)
     reservation = models.BooleanField(default=False)
