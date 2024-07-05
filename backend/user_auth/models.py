@@ -30,7 +30,7 @@ class UserModel(AbstractBaseUser):
     last_name = models.CharField(max_length=20)
     contact = models.CharField(max_length=10,null=True)
     address = models.CharField(max_length=100,null=True)
-    balance = models.DecimalField(max_digits=10,decimal_places=2,default=0.00)
+    balance = models.DecimalField(max_digits=10,decimal_places=2,default=200.00)
     profile_image = CloudinaryField('profile_image', blank=True, null=True)
     is_active = models.BooleanField(default=True)
     is_owner = models.BooleanField(default=False)
