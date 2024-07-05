@@ -1,3 +1,4 @@
+// nav.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'login.dart';
@@ -5,6 +6,7 @@ import 'profile.dart';
 import 'wallet_page.dart';
 import 'owner/owner_dashboard.dart';
 import 'services/api_service.dart'; // Import the ApiService
+import 'reservation_history.dart'; // Import the ReservationHistoryPage
 
 class NavigationDrawer extends StatefulWidget {
   const NavigationDrawer({super.key});
@@ -54,6 +56,18 @@ class _NavigationDrawerState extends State<NavigationDrawer> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const WalletPage()),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('Reservation History'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const ReservationHistoryPage()),
               );
             },
           ),

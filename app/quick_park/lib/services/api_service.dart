@@ -1,3 +1,4 @@
+//api_service.dart
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
@@ -338,5 +339,55 @@ class ApiService {
     } else {
       return false;
     }
+  }
+
+  // Method to get reservation history
+  static Future<List<Map<String, dynamic>>> getReservationHistory() async {
+    final url = Uri.parse('$_baseUrl/view/customer/reservation');
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
+    }
+
+    final response = await _getWithTokenRefresh(url);
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => item as Map<String, dynamic>).toList();
+    } else {
+      throw Exception('Failed to load reservation history');
+    }
+  }
+
+  // Method to change password
+  static Future<http.Response> changePassword(
+      String oldPassword, String newPassword) async {
+    final url = Uri.parse('$_baseUrl/changepassword');
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
+    }
+
+    final response = await http.put(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: jsonEncode({
+        'old_password': oldPassword,
+        'new_password': newPassword,
+      }),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to change password');
+    }
+
+    return response;
   }
 }

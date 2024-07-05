@@ -9,7 +9,7 @@ class PaymentService {
 
   PaymentService(this.context, this.onPaymentSuccess);
 
-  void initiateKhaltiPayment(int amount) async {
+  Future<String?> initiateKhaltiPayment(int amount) async {
     try {
       final pidx = await ApiService.generatePidx(amount);
 
@@ -60,8 +60,11 @@ class PaymentService {
           khaltiInstance.open(context);
         }
       });
+
+      return pidx; // Return the pidx
     } catch (e) {
       log('Error initiating Khalti payment: $e');
+      return null; // Return null if there is an error
     }
   }
 }

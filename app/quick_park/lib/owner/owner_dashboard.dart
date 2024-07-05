@@ -1,6 +1,7 @@
-// owner_dashboard.dart
 import 'package:flutter/material.dart';
 import 'owner_nav.dart'; // Import the owner navigation drawer
+import 'revenue.dart'; // Import the revenue card
+import 'parking.dart'; // Import the parking card
 
 class OwnerDashboardPage extends StatelessWidget {
   const OwnerDashboardPage({super.key});
@@ -24,8 +25,13 @@ class OwnerDashboardPage extends StatelessWidget {
         ),
         drawer:
             const OwnerNavigationDrawer(), // Use the owner navigation drawer
-        body: const Center(
-          child: Text('Welcome to Owner Dashboard!'),
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              const RevenueCard(),
+              const ParkingCard(), // Add the parking card
+            ],
+          ),
         ),
       ),
     );

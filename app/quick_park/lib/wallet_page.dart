@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'dart:convert';
 import 'payment_service.dart';
-import './services/api_service.dart'; // Import the ApiService
+import './services/api_service.dart';
 
 class WalletPage extends StatefulWidget {
   const WalletPage({super.key});
@@ -14,11 +15,21 @@ class _WalletPageState extends State<WalletPage> {
   final TextEditingController _amountController = TextEditingController();
   double _availableBalance = 0.0;
   String? _errorMessage;
+  String? _pidx; // Add a variable to store the pidx
+  final FlutterSecureStorage _secureStorage =
+      FlutterSecureStorage(); // Add secure storage instance
 
   @override
   void initState() {
     super.initState();
     _fetchAvailableBalance(); // Fetch balance when the widget is initialized
+    _loadPidx();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _verifyTopUpIfNeeded();
   }
 
   Future<void> _fetchAvailableBalance() async {
@@ -35,6 +46,21 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
+  Future<void> _loadPidx() async {
+    String? storedPidx = await _secureStorage.read(key: 'pidx');
+    setState(() {
+      _pidx = storedPidx;
+    });
+  }
+
+  Future<void> _savePidx(String pidx) async {
+    await _secureStorage.write(key: 'pidx', value: pidx);
+  }
+
+  Future<void> _clearPidx() async {
+    await _secureStorage.delete(key: 'pidx');
+  }
+
   void _handleTopUp() {
     final amount = int.tryParse(_amountController.text);
     if (amount == null || amount <= 0) {
@@ -49,13 +75,47 @@ class _WalletPageState extends State<WalletPage> {
     });
 
     final paymentService = PaymentService(context, _onPaymentSuccess);
-    paymentService.initiateKhaltiPayment(amount);
+    paymentService.initiateKhaltiPayment(amount).then((pidx) {
+      setState(() {
+        _pidx = pidx;
+      });
+      _savePidx(pidx!); // Save the pidx locally, using null assertion operator
+    });
   }
 
-  void _onPaymentSuccess(int amount) {
-    setState(() {
-      _availableBalance += amount;
-    });
+  void _onPaymentSuccess(int amount) async {
+    if (_pidx != null) {
+      final result = await ApiService.verifyTopUp(_pidx!);
+      if (result) {
+        setState(() {
+          _availableBalance += amount;
+        });
+        _fetchAvailableBalance(); // Fetch the balance again to update the UI
+        _clearPidx(); // Clear the pidx after successful verification
+      } else {
+        setState(() {
+          _errorMessage = 'Payment verification failed';
+        });
+      }
+    }
+  }
+
+  void _refreshBalance() async {
+    _verifyTopUpIfNeeded();
+  }
+
+  void _verifyTopUpIfNeeded() async {
+    if (_pidx != null) {
+      final result = await ApiService.verifyTopUp(_pidx!);
+      if (result) {
+        _fetchAvailableBalance(); // Fetch the balance again to update the UI
+        _clearPidx(); // Clear the pidx after successful verification
+      } else {
+        setState(() {
+          _errorMessage = 'Failed to verify top-up';
+        });
+      }
+    }
   }
 
   @override
@@ -69,11 +129,52 @@ class _WalletPageState extends State<WalletPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Available Balance in Rupees (Rs): $_availableBalance',
-              style: const TextStyle(fontSize: 16),
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Available Balance',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF265073),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Rupees (Rs): $_availableBalance',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF265073),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _refreshBalance,
+                      child: const Text('Refresh Balance'),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            const SizedBox(height: 16), // Increased height for more space
+            const SizedBox(height: 24), // Increased height for more space
+            const Text(
+              'Top Up Wallet',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF265073),
+              ),
+            ),
+            const SizedBox(height: 16),
             TextField(
               controller: _amountController,
               keyboardType: TextInputType.number,
@@ -88,11 +189,22 @@ class _WalletPageState extends State<WalletPage> {
                 ),
               ),
             ),
-            const SizedBox(height: 16), // Adjusted spacing before the button
+            const SizedBox(height: 24), // Adjusted spacing before the button
             Center(
               child: ElevatedButton(
                 onPressed: _handleTopUp,
-                child: const Text('Top Up'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF5D2E8C), // Khalti purple color
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                  ),
+                ),
+                child: const Text('Pay via Khalti',
+                    style: TextStyle(color: Colors.white)),
               ),
             ),
           ],

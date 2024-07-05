@@ -136,4 +136,42 @@ class ApiServiceOwner {
 
     return response;
   }
+
+  // Method to view revenue
+  static Future<http.Response> viewRevenue() async {
+    final url = Uri.parse('$_baseUrl/view/credit');
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
+    }
+
+    final response = await _getWithTokenRefresh(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load revenue data');
+    }
+
+    return response;
+  }
+
+  // Method to view parking details by ID
+  static Future<http.Response> viewParkingDetails(int parkingId) async {
+    final url = Uri.parse('$_baseUrl/viewparking/$parkingId');
+    const storage = FlutterSecureStorage();
+    final accessToken = await storage.read(key: 'access_token');
+
+    if (accessToken == null) {
+      throw Exception('Access token is missing');
+    }
+
+    final response = await _getWithTokenRefresh(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Failed to load parking details');
+    }
+
+    return response;
+  }
 }

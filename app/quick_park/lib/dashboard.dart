@@ -1,9 +1,11 @@
+// dashboard.dart
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'profile.dart';
 import 'services/api_service.dart';
 import 'location_search.dart';
 import 'nav.dart' as custom_nav;
+import 'bottom_menu.dart'; // Import the bottom menu
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -85,14 +87,15 @@ class _DashboardPageState extends State<DashboardPage> {
           ],
         ),
         drawer: const custom_nav.NavigationDrawer(),
-        body: const Column(
+        body: Column(
           children: [
-            Expanded(
+            const Expanded(
               child:
                   SlideUpPanel(), // Assuming this is your map or similar widget
             ),
           ],
         ),
+        bottomNavigationBar: const BottomMenu(), // Added bottom menu
       ),
     );
   }

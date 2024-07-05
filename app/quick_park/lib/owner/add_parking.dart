@@ -25,6 +25,8 @@ class _AddParkingPageState extends State<AddParkingPage> {
   bool isLoading = false;
   File? selectedPdfFile;
 
+  final _formKey = GlobalKey<FormState>();
+
   @override
   void initState() {
     super.initState();
@@ -58,25 +60,29 @@ class _AddParkingPageState extends State<AddParkingPage> {
 
   void _getUserLocation() async {
     _currentLocation = await _locationService.getLocation();
-    setState(() {
-      if (_currentLocation != null) {
-        _mapController.animateCamera(
-          CameraUpdate.newCameraPosition(
-            CameraPosition(
-              target: LatLng(
-                  _currentLocation!.latitude!, _currentLocation!.longitude!),
-              zoom: 15,
+    if (mounted) {
+      setState(() {
+        if (_currentLocation != null) {
+          _mapController.animateCamera(
+            CameraUpdate.newCameraPosition(
+              CameraPosition(
+                target: LatLng(
+                    _currentLocation!.latitude!, _currentLocation!.longitude!),
+                zoom: 15,
+              ),
             ),
-          ),
-        );
-      }
-    });
+          );
+        }
+      });
+    }
   }
 
   void _onMapTap(LatLng location) {
-    setState(() {
-      _selectedLocation = location;
-    });
+    if (mounted) {
+      setState(() {
+        _selectedLocation = location;
+      });
+    }
   }
 
   String _formatCoordinate(double value) {
@@ -89,9 +95,17 @@ class _AddParkingPageState extends State<AddParkingPage> {
       allowedExtensions: ['pdf'],
     );
 
-    if (result != null) {
+    if (result != null && mounted) {
       setState(() {
         selectedPdfFile = File(result.files.single.path!);
+      });
+    }
+  }
+
+  void _removePdfDocument() {
+    if (mounted) {
+      setState(() {
+        selectedPdfFile = null;
       });
     }
   }
@@ -99,25 +113,31 @@ class _AddParkingPageState extends State<AddParkingPage> {
   Future<void> _addParking() async {
     if (_selectedLocation == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a location on the map.')),
+        const SnackBar(content: Text('Please select a location on the map.')),
       );
       return;
     }
 
     if (selectedPdfFile == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please upload a PDF document.')),
+        const SnackBar(content: Text('Please upload a PDF document.')),
       );
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (mounted) {
+      setState(() {
+        isLoading = true;
+      });
+    }
 
     final parkingData = {
       'address': addressController.text,
-      'fee': feeController.text.isNotEmpty ? feeController.text : '50.00',
+      'fee': feeController.text,
       'total_spot': totalSpotController.text,
       'lat': _formatCoordinate(_selectedLocation!.latitude),
       'lon': _formatCoordinate(_selectedLocation!.longitude),
@@ -128,18 +148,20 @@ class _AddParkingPageState extends State<AddParkingPage> {
 
     if (response.statusCode == 200) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Parking added successfully')),
+        const SnackBar(content: Text('Parking added successfully')),
       );
       Navigator.pop(context);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to add parking')),
+        const SnackBar(content: Text('Failed to add parking')),
       );
     }
 
-    setState(() {
-      isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   @override
@@ -149,88 +171,141 @@ class _AddParkingPageState extends State<AddParkingPage> {
         title: const Text('Add Parking'),
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      height: 300,
-                      child: GoogleMap(
-                        initialCameraPosition: const CameraPosition(
-                          target: LatLng(27.707087, 85.322759),
-                          zoom: 11,
-                        ),
-                        myLocationEnabled: true,
-                        myLocationButtonEnabled: true,
-                        onMapCreated: (GoogleMapController controller) {
-                          _mapController = controller;
-                          if (_currentLocation != null) {
-                            _mapController.animateCamera(
-                              CameraUpdate.newCameraPosition(
-                                CameraPosition(
-                                  target: LatLng(_currentLocation!.latitude!,
-                                      _currentLocation!.longitude!),
-                                  zoom: 15,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        height: 300,
+                        child: GoogleMap(
+                          initialCameraPosition: const CameraPosition(
+                            target: LatLng(27.707087, 85.322759),
+                            zoom: 11,
+                          ),
+                          myLocationEnabled: true,
+                          myLocationButtonEnabled: true,
+                          onMapCreated: (GoogleMapController controller) {
+                            _mapController = controller;
+                            if (_currentLocation != null) {
+                              _mapController.animateCamera(
+                                CameraUpdate.newCameraPosition(
+                                  CameraPosition(
+                                    target: LatLng(_currentLocation!.latitude!,
+                                        _currentLocation!.longitude!),
+                                    zoom: 15,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            }
+                          },
+                          onTap: _onMapTap,
+                          markers: _selectedLocation != null
+                              ? {
+                                  Marker(
+                                    markerId:
+                                        const MarkerId('selected-location'),
+                                    position: _selectedLocation!,
+                                  )
+                                }
+                              : {},
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        controller: addressController,
+                        decoration: const InputDecoration(
+                          labelText: 'Address',
+                          prefixIcon: Icon(Icons.location_city),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter an address';
                           }
+                          return null;
                         },
-                        onTap: _onMapTap,
-                        markers: _selectedLocation != null
-                            ? {
-                                Marker(
-                                  markerId: MarkerId('selected-location'),
-                                  position: _selectedLocation!,
-                                )
-                              }
-                            : {},
                       ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextField(
-                      controller: addressController,
-                      decoration: InputDecoration(
-                        labelText: 'Address',
-                        prefixIcon: const Icon(Icons.location_city),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        controller: feeController,
+                        decoration: const InputDecoration(
+                          labelText: 'Fee',
+                          prefixIcon: Icon(Icons.money),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter a fee';
+                          }
+                          return null;
+                        },
                       ),
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextField(
-                      controller: feeController,
-                      decoration: InputDecoration(
-                        labelText: 'Fee',
-                        prefixIcon: const Icon(Icons.attach_money),
+                      const SizedBox(height: 16.0),
+                      TextFormField(
+                        controller: totalSpotController,
+                        decoration: const InputDecoration(
+                          labelText: 'Total Spot',
+                          prefixIcon: Icon(Icons.local_parking),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter the total spots';
+                          }
+                          if (int.tryParse(value) != null &&
+                              int.parse(value) > 50) {
+                            return 'Total spots cannot be more than 50';
+                          }
+                          return null;
+                        },
                       ),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 16.0),
-                    TextField(
-                      controller: totalSpotController,
-                      decoration: InputDecoration(
-                        labelText: 'Total Spot',
-                        prefixIcon: const Icon(Icons.local_parking),
+                      const SizedBox(height: 16.0),
+                      ElevatedButton(
+                        onPressed: _selectPdfDocument,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          textStyle: const TextStyle(color: Color(0xFF265073)),
+                        ),
+                        child: const Text(
+                          'Upload PDF Document',
+                          style: TextStyle(color: Color(0xFF265073)),
+                        ),
                       ),
-                      keyboardType: TextInputType.number,
-                    ),
-                    const SizedBox(height: 16.0),
-                    ElevatedButton(
-                      onPressed: _selectPdfDocument,
-                      child: Text('Upload PDF Document'),
-                    ),
-                    const SizedBox(height: 8.0),
-                    selectedPdfFile != null
-                        ? Text(
-                            'Selected File: ${selectedPdfFile!.path.split('/').last}')
-                        : Text('No file selected'),
-                    const SizedBox(height: 16.0),
-                    ElevatedButton(
-                      onPressed: _addParking,
-                      child: const Text('Add Parking'),
-                    ),
-                  ],
+                      const SizedBox(height: 8.0),
+                      selectedPdfFile != null
+                          ? Column(
+                              children: [
+                                Text(
+                                  'Selected File: ${selectedPdfFile!.path.split('/').last}',
+                                ),
+                                GestureDetector(
+                                  onTap: _removePdfDocument,
+                                  child: const Text(
+                                    'Remove PDF Document',
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      decoration: TextDecoration.underline,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          : const Text('No file selected'),
+                      const SizedBox(height: 16.0),
+                      ElevatedButton(
+                        onPressed: _addParking,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF265073),
+                          textStyle: const TextStyle(color: Colors.white),
+                        ),
+                        child: const Text('Add Parking',
+                            style: TextStyle(color: Colors.white)),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -157,15 +157,18 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
           content(),
           SlidingUpPanel(
             controller: _panelController,
+            minHeight: 60.0, // Reduced minimum height
+            maxHeight:
+                MediaQuery.of(context).size.height * 0.6, // Adjust as necessary
             panel: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(8.0), // Reduced padding
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Search locations...',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(Icons.search, size: 20),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(8.0),
                       ),
@@ -183,7 +186,7 @@ class _SlideUpPanelState extends State<SlideUpPanel> {
                       ),
                     ),
                     child: ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(8.0), // Reduced padding
                       itemCount: filteredLocations.length,
                       itemBuilder: (context, index) {
                         return ListTile(
