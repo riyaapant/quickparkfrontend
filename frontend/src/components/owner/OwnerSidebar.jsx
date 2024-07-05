@@ -98,13 +98,19 @@ export default function OwnerSideBar() {
             isLoggedIn: false,
             token: '',
             refreshToken: '',
+            isOwner: false
         }))
     }
 
     const updateUser = async () => {
         try {
             const response = await api.get(`/update`,)
-            console.log("update user to customer response: ", response)
+            console.log("update user to customer response: ", response.data)
+            // dispatch(setCred({
+            //     isOwner: false
+            // }))
+            // const response2 = await api.get(`/profile`);
+            // console.log("profile fetch after update: ", response2.data)
             navigate('/dashboard')
         }
         catch (e) {

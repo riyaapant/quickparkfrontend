@@ -1,15 +1,69 @@
 // PrivateRoute.jsx
-import React, { useEffect } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useProfile } from './AuthContext';
+import React, { useEffect, useState } from 'react';
+// import { useProfile } from './AuthContext';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import config from './config';
+import { useDispatch } from 'react-redux';
+import { setCred } from './credSlice';
+import { useNavigate } from 'react-router-dom';
 
 const PrivateRoute = ({ element, role }) => {
-    const { profile, loading } = useProfile();
+
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    const token = useSelector((state) => state.token)
+
+    const isAdmin = useSelector((state) => state.isAdmin)
+    const isOwner = useSelector((state) => state.isOwner)
+
+    const [loading, setLoading] = useState(true);
+
+    const api = axios.create({
+        baseURL: config.BASE_URL,
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + `${token}`
+        },
+    });
+    const [profile, setProfile] = useState();
     useEffect(() => {
-        console.log("user role: ", profile)
-        console.log("private route: ", role)
-        console.log("loading: ", loading)
-    },[useProfile])
+        console.log('isAdmin: ', isAdmin)
+
+        if (isAdmin) setProfile('admin')
+        // const fetchUser = async () => {
+        setLoading(false)
+        //     try {
+        //         const response = await api.get(`profile`)
+        //         console.log("auth context response: ", response.data)
+        //         if (response.data.   is_owner) {
+        //             setProfile('owner')
+        //         }
+        //         else if (!response.data.is_owner) {
+        //             setProfile('customer')
+        //         }
+        //         if (response.data.is_owner === null) {
+        //             setProfile('admin')
+        //         }
+        //         // console.log("auth context: ", response.data.is_owner)
+        //         // setProfile(response.data.is_owner)
+        //     } catch (e) {
+        //         console.log("error: ", e.response)
+        //         if(e.response.status === 403){
+        //             dispatch(setCred({
+        //                 isLoggedIn: false,
+        //                 token: '',
+        //                 refreshToken: '',
+        //             }))
+        //             navigate('/login')
+        //         }
+        //     } finally {
+        //         setLoading(false)
+        //     }
+        // };
+
+        // fetchUser();
+    }, [profile]);
 
     if (loading) {
         return (<div className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50">
@@ -20,12 +74,6 @@ const PrivateRoute = ({ element, role }) => {
         </div>)
     }
     else {
-
-        // Redirect to login if user is not authenticated
-        if (profile == null) {
-            return <Navigate to="/login" />;
-        }
-
         if (profile === role) {
             return element
         }
@@ -34,16 +82,6 @@ const PrivateRoute = ({ element, role }) => {
             return <>Unauthorized</>
         }
     }
-
-    //   // Check for the user's role
-    //   const userRole = user ? (user ? 'owner' : 'customer') : '';
-
-    //   // Redirect to unauthorized if user role doesn't match required roles
-    //   if (roles && !roles.includes(userRole)) {
-    //     return <Navigate to="/unauthorized" />;
-    //   }
-
-    //   return element;
 };
 
 export default PrivateRoute;

@@ -46,7 +46,7 @@ export default function Topup() {
     }
 
     useEffect(() => {
-        const fetchProfile = async () => {
+        const fetchProfile = async ()   => {
             try {
                 const response = await api.get(`/profile`);
                 setBalance(response.data.balance);

@@ -72,6 +72,7 @@ const Dashboard = () => {
     const fetchCreditBalance = async () => {
         try {
             const response = await api.get(`/view/credit`);
+            // console.log("view credit:", response.data)
             const filteredResponse = response.data.filter(item => item.From !== 'Khalti');
             const earnedAmount = filteredResponse.reduce((sum, item) => sum + item.Amount, 0);
             const customersTotal = filteredResponse.length;

@@ -75,9 +75,15 @@ export default function Login() {
                     }))
                 }
                 if(response.data.is_owner){
+                    dispatch(setCred({
+                        isAdmin: false
+                    }))
                     navigate(`/owner/dashboard`)
                 }
                 else{
+                    dispatch(setCred({
+                        isAdmin: false
+                    }))
                     navigate(`/dashboard`)
                 }
             }

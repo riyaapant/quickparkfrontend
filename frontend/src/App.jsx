@@ -2,6 +2,7 @@ import {
   createBrowserRouter,
   RouterProvider
 } from 'react-router-dom';
+
 import Login from './routes/shared/login';
 import ForgotPassword from './routes/shared/forgotpassword';
 import ResetPassword from './routes/shared/resetpassword'
@@ -11,7 +12,7 @@ import SideBar from './components/customer/Sidebar.jsx';
 import UserDashboard from './routes/customer/userdashboard.jsx';
 import AddDocument from './components/customer/AddDocuments.jsx';
 import Profile from './components/shared/Profile';
-// import Maps from './components/customer/maps/maps.jsx';
+import Maps from './components/customer/maps/maps.jsx';
 import AutoComplete from './components/customer/maps/viewparking.jsx';
 import PaymentHandler from './components/customer/PaymentHandler.jsx';
 
@@ -39,12 +40,14 @@ import ViewSurveillance from './components/owner/viewSurveillance.jsx';
 import AdminViewSurveillance from './components/admin/viewSurveillance.jsx';
 
 import PrivateRoute from './features/PrivateRoute.jsx';
-import { ProfileProvider } from './features/AuthContext.jsx';
-// import { AuthProvider } from './features/AuthContext.jsx';
 
 import Surveillance from './components/shared/Surveillance.jsx';
 
 const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Login />
+  },
   {
     path: "/login",
     element: <Login />
@@ -65,7 +68,6 @@ const router = createBrowserRouter([
   {
     path: "/dashboard",
     element: <UserDashboard />,
-    // element: <PrivateRoute element={<UserDashboard />} role={'customer'} />,
     children: [
       {
         path: "",
@@ -73,8 +75,7 @@ const router = createBrowserRouter([
       },
       {
         path: "maps",
-        element: <AutoComplete />
-        // element: <Maps />
+        element: <Maps />
       },
       {
         path: "maps/viewparking",
@@ -105,7 +106,6 @@ const router = createBrowserRouter([
   {
     path: "/owner/dashboard",
     element: <OwnerDashboard />,
-    // element: <PrivateRoute element={<OwnerDashboard />} role={'owner'} />,
     children: [
       {
         path: "",
@@ -154,17 +154,12 @@ const router = createBrowserRouter([
       {
         path: "profile/changepassword",
         element: <ChangePassword />
-      },
-      // {
-      //   path: "surveillance",
-      //   element: <Surveillance />
-      // },
+      }
     ],
   },
   {
     path: "/admin/dashboard",
-    element: <AdminDashboard />,
-    // element: <PrivateRoute element={<AdminDashboard />} role={'admin'} />,
+    element: <PrivateRoute element={<AdminDashboard />} role={'admin'} />,
     children: [
       {
         path: "",
@@ -218,10 +213,7 @@ const router = createBrowserRouter([
 function App() {
 
   return (
-      <RouterProvider router={router} />
-    // <ProfileProvider>
-    //   <RouterProvider router={router} />
-    // </ProfileProvider>
+    <RouterProvider router={router} />
   )
 }
 

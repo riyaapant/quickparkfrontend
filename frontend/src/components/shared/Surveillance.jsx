@@ -1,7 +1,7 @@
 
 
 export default function Surveillance() {
-    var ws = new WebSocket("ws://110.44.121.73:2564/camera/1");
+    var ws = new WebSocket("ws://192.168.222.103:2564/camera/1");
     ws.binaryType = "arraybuffer";
     ws.onmessage = function (event) {
         var arrayBufferView = new Uint8Array(event.data);
@@ -13,7 +13,7 @@ export default function Surveillance() {
     return (
 
         <section className="max-h-screen flex flex-col">
-            {/* <h1>WebSocket Video Stream</h1> */}
+            <h1>WebSocket Video Stream</h1>
             <img id="video" className="h-screen w-auto bg-slate-50" />
         </section>
     );

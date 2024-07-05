@@ -20,7 +20,7 @@ export default function AdminPanel() {
             isLoggedIn: false,
             accessToken: '',
             refreshToken: '',
-            role: null
+            isAdmin: false
         }))
     }
 

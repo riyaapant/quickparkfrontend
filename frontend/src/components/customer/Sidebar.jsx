@@ -14,6 +14,8 @@ export default function SideBar() {
     const token = useSelector((state) => state.token)
     const refreshToken = useSelector((state) => state.refreshToken)
 
+    const [loading, setLoading] = useState(false);
+
     const dispatch = useDispatch();
 
     const navigate = useNavigate()
@@ -44,29 +46,9 @@ export default function SideBar() {
         };
 
         useEffect(() => {
-            // const refreshAuthToken = async () => {
               if (isTokenExpired(token)) {
                 handleLogout()
-                // try {
-                //   const response = await axios.post(`${config.BASE_URL}/api/token/refresh`, {
-                //     refresh: refreshToken,
-                //   });
-                //   if (response.status === 200) {
-                //     dispatch(setCred({
-                //       isLoggedIn: true,
-                //       token: response.data.access,
-                //       refreshToken: response.data.refresh,
-                //       is_owner: response.data.is_owner,
-                //     }));
-                //   }
-                // } catch (error) {
-                //   console.log('Error refreshing token:', error);
-                // //   handleLogout();
-                // }
               }
-            // };
-        
-            // refreshAuthToken();
           });
 
     useEffect(() => {
@@ -102,14 +84,21 @@ export default function SideBar() {
     }
 
     const updateUser = async () => {
+        setLoading(true)
         try {
             const response = await api.get(`/update`,)
-            console.log("update user to owner: ", response)
+            console.log("update user to owner: ", response.data)
             navigate('/owner/dashboard')
         }
         catch (e) {
             console.log(e)
+        } finally{
+            setLoading(false)
         }
+    }
+
+    if(loading){
+        return <>Loading...</>
     }
 
     return (

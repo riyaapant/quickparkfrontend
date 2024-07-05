@@ -27,7 +27,8 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
 
     const [releaseMessage, setReleaseMessage] = useState('')
 
-    const socketUrl = `ws://192.168.222.103:2564/parking/${marker.id}/${userVehicleId}`;
+    const socketUrl = `ws://localhost:2564/parking/${marker.id}/${userVehicleId}`;
+    // const socketUrl = `ws://192.168.222.103:2564/parking/${marker.id}/${userVehicleId}`;
     // const socketUrl = `ws://110.44.121.73:2564/parking/${marker.id}/${userVehicleId}`;
 
     const {

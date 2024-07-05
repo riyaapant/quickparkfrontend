@@ -1,5 +1,5 @@
 // components/ReturnHandler.js
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
@@ -8,46 +8,48 @@ import config from '../../features/config';
 export default function PaymentHandler() {
     const navigate = useNavigate();
     const location = useLocation();
-
-    const [loading, setLoading] = useState(false)
-
+    const [loading, setLoading] = useState(false);
     const token = useSelector((state) => state.token);
 
     const api = axios.create({
         baseURL: config.BASE_URL,
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + `${token}`
+            'Authorization': 'Bearer ' + token
         },
     });
 
+    const initialRender = useRef(true);
+
     const verifyTopup = async (pidx) => {
-        setLoading(true)
+        console.log("pidx: ", pidx)
+        setLoading(true);
         try {
             const response = await api.put('topup/verify', {
                 pidx: pidx
-            })
-            console.log(response)
+            });
+            // console.log(response);
             if (response.status === 200) {
-                navigate('/dashboard/topup', { state: { message: response.data, status : response.status } });
+                navigate('/dashboard/topup', { state: { message: response.data, status: response.status } });
             }
         } catch (e) {
-            console.log(e)
+            console.log(e);
+        } finally {
+            setLoading(false);
         }
-    }
-
+    };
 
     useEffect(() => {
-        const urlParams = new URLSearchParams(location.search);
-        const pidx = urlParams.get('pidx');
-        const status = urlParams.get('status');
-        console.log("pidx: ", pidx)
-        console.log("status: ", status)
-        verifyTopup(pidx)
-        // Redirect to /dashboard/topup with necessary parameters
-        // navigate(`/dashboard/topup?pidx=${pidx}&status=${status}`);
-        setLoading(false)
-    }, [location, navigate]);
+        if (initialRender.current) {
+            initialRender.current = false;
+            const urlParams = new URLSearchParams(location.search);
+            const pidx = urlParams.get('pidx');
+            const status = urlParams.get('status');
+            // console.log("pidx: ", pidx);
+            // console.log("status: ", status);
+            verifyTopup(pidx);
+        }
+    }, [location.search]);
 
     return (
         <>

@@ -4,7 +4,8 @@ export const credSlice = createSlice({
     name: 'cred',
     initialState: {
         isLoggedIn: false,
-        is_owner: false,
+        isAdmin: false,
+        isOwner: false,
         token: '',
         refreshToken: '',
         // customerDocumentsSubmitted: false,

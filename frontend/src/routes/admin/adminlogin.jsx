@@ -54,7 +54,8 @@ export default function AdminLogin() {
                 dispatch(setCred({
                     isLoggedIn: true,
                     token: response.data.access,
-                    refreshToken: response.data.refresh
+                    refreshToken: response.data.refresh,
+                    isAdmin: true,
                 }))
             }
             navigate(`/admin/dashboard`)
