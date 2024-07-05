@@ -165,11 +165,16 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         }))
 
 
-    async def status_update(self,data):
+    async def status_update_park(self,data):
         await self.send(json.dumps({
             'value':data['value']
         }))
 
+    async def status_update_release(self,data):
+        await self.send(json.dumps({
+            'value':data['value'],
+            'message':data['message']
+        }))
 
     @database_sync_to_async
     def get_parking(self):

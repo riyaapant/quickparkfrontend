@@ -36,6 +36,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         self.vehicle_id = data['vehicle_id']
         self.customer = await self.get_customer()
         if not self.customer:
+            print(self.vehicle_id)
             return
         print(data['vehicle_id'])
         self.vehicle_group_name = f'vehicle_{self.vehicle_id}'
@@ -64,16 +65,17 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
     
     async def park(self):
         self.customer = await self.get_customer()
-        self.parking = await self.get_parking()
-
+        self.parking = await self.get_parking()        
+        
         if not self.customer.reservation_id:
             last_reservation = await self.get_last_reservation_time()
+            print(last_reservation)
             if last_reservation:
                 print("Stay for at least 1 minutes")
                 if (timezone.now() - last_reservation < timedelta(minutes=1)):
                     await self.send(json.dumps({'value': 'Please wait for 1 minutes'}))
-                    return            
-        
+                    return
+
         if self.customer.reservation and self.customer.reservation_id:
             await self.update_parking(-1)
             await self.end_reservation()
@@ -102,7 +104,13 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         # if last_reservation:
         #     if (timezone.now() - last_reservation < timedelta(minutes=1)):
         #         return
-
+        # last_reservation = await self.get_last_reservation_time()
+        # print(last_reservation)
+        # if last_reservation:
+        #     print("Stay for at least 1 minutes")
+        #     if (timezone.now() - last_reservation < timedelta(minutes=1)):
+        #         await self.send(json.dumps({'value': 'Please wait for 1 minutes'}))
+        #         return    
 
         await self.update_parking(1)
         await self.channel_layer.group_send(self.parking_group_name, {
@@ -112,7 +120,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         })
 
         await self.channel_layer.group_send(self.vehicle_group_name, {
-            'type': 'status_update',
+            'type': 'status_update_park',
             'value': 'Parked'
         })
 
@@ -137,7 +145,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         deducted_amount = await self.end_reservation()
 
         await self.channel_layer.group_send(self.vehicle_group_name, {
-            'type': 'status_update',
+            'type': 'status_update_release',
             'value': 'Reserve',
             'message':f'Rs:{deducted_amount} has been deducted from you account'
         })
@@ -148,7 +156,12 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
             'total_spot': data['total_spot']
         }))
 
-    async def status_update(self,data):
+    async def status_update_park(self,data):
+        await self.send(json.dumps({
+            'value':data['value']
+        }))
+
+    async def status_update_release(self,data):
         await self.send(json.dumps({
             'value':data['value'],
             'message':data['message']
@@ -180,7 +193,8 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_last_reservation_time(self):
         try:
-            reservation = Reservation.objects.filter(user = self.customer.id).last()
+            reservation = Reservation.objects.filter(user = self.customer.user).last()
+            print(reservation.end_time)
             return reservation.end_time
         except:
             return False
