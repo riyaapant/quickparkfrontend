@@ -177,10 +177,13 @@ class VehicleID(APIView):
         # customer = user.customer
         # customer.vehicle_id = vehicle
         # customer.save()
-        Customer.objects.filter(user=request.user.id).update(
-            vehicle_id = request.data['vehicle_id']
-        )
-        return Response('Vehicle Number updated', status=status.HTTP_200_OK)
+        try:
+            Customer.objects.filter(user=request.user.id).update(
+                vehicle_id = request.data['vehicle_id']
+            )
+            return Response('Vehicle Number updated', status=status.HTTP_200_OK)
+        except:
+            return Response('This vehicle id is already registered', status = status.HTTP_200_OK)
 
 class UploadProfile(APIView):
     permission_classes = [IsAuthenticated]
