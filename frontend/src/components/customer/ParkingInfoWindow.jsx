@@ -27,7 +27,8 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
 
     const [releaseMessage, setReleaseMessage] = useState('')
 
-    const socketUrl = `ws://localhost:2564/parking/${marker.id}/${userVehicleId}`;
+    const socketUrl = `ws://192.168.222.103:2564/parking/${marker.id}/${userVehicleId}`;
+    // const socketUrl = `ws://110.44.121.73:2564/parking/${marker.id}/${userVehicleId}`;
 
     const {
         sendMessage,
@@ -127,6 +128,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
 
                 <X className='hover:cursor-pointer' onClick={onClose} />
             </div>
+            <p className="text-sm"><strong>Id:</strong> {marker.id}</p>
             <p className="text-sm"><strong>Address:</strong> {marker.address}</p>
             <p className="text-sm"><strong>Fee:</strong> {marker.fee}</p>
             <p className="text-sm"><strong>Total Spaces:</strong> {parkingResponse.total_spot}</p>
@@ -162,18 +164,10 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
                                 Reserve
                             </button>
                         }
-                        {value === 'Parked' &&
-                            <button className="w-1/2 p-1 z-10 rounded-md bg-red-900 text-md font-semibold text-white hover:bg-red-600" onClick={() => setReleasePrompt(true)} disabled={readyState !== ReadyState.OPEN}>
-                                Release
-                            </button>
-                        }
                         {value === 'Reserved' &&
                             <>
                                 <button className="w-1/2 p-1 z-10 rounded-md bg-red-900 text-md font-semibold text-white hover:bg-red-600" onClick={() => setReleasePrompt(true)} disabled={readyState !== ReadyState.OPEN}>
                                     Release
-                                </button>
-                                <button className="w-1/2 p-1 z-10 rounded-md bg-qp text-md font-semibold text-white hover:bg-indigo-800" onClick={handlePark} disabled={readyState !== ReadyState.OPEN}>
-                                    Park
                                 </button>
                             </>
                         }

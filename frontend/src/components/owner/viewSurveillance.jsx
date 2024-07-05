@@ -57,9 +57,6 @@ const ViewSurveillance = () => {
             <tr>
               <th className="p-2 text-base">Id</th>
               <th className="p-2 text-base">Address</th>
-              {/* <th className="p-2 text-base">Total Spots</th>
-              <th className="p-2 text-base">Status</th>
-              <th className="p-2 text-base">View Document</th> */}
               <th className="p-2 text-base">Action</th>
             </tr>
           </thead>
@@ -76,21 +73,6 @@ const ViewSurveillance = () => {
                     {item.address}
                   </div>
                 </td>
-                {/* <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.total_spots}
-                  </div>
-                </td> */}
-                {/* <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.is_paperverified ? 'Verified' : 'Unverified'}
-                  </div>
-                </td> */}
-                {/* <td className="p-3 truncate">
-                  <div className='font-medium text-gray-800'>
-                    <a href={item.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>
-                  </div>
-                </td> */}
                 <td className="p-3">
                   <div className=' flex flex-row gap-x-2 font-medium text-gray-800'>
                     <Link to={`${item.id}`}>

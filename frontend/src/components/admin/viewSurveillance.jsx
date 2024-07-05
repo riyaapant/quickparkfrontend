@@ -24,24 +24,12 @@ const AdminViewSurveillance = () => {
   };
 
   const [requests, setRequests] = useState([]);
-  // const [viewType, setViewType] = useState('customers');
-  // const [dropdownOpen, setDropdownOpen] = useState(false);
-
-  // const fetchCustomers = async () => {
-  //   try {
-  //     const response = await api.get('/admin/view/customer');
-  //     setRequests(response.data.map((item) => ({ ...item, role: 'Customer' })));
-  //   } catch (e) {
-  //     console.log(e.response);
-  //   }
-  // };
 
   const fetchOwners = async () => {
     try {
       const response = await api.get('/admin/view/parking');
       console.log(response.data)
       setRequests(response.data);
-      // setRequests(response.data.map((item) => ({ ...item, role: 'Owner' })));
     } catch (e) {
       console.log(e.response);
     }
@@ -63,56 +51,49 @@ const AdminViewSurveillance = () => {
         </div>
       </header>
       <>
-        <table className="table-auto w-full text-left">
-          <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
-            <tr>
-              <th className="p-2 text-base">Id</th>
-              <th className="p-2 text-base">Name</th>
-              <th className="p-2 text-base">Email</th>
-              {/* <th className="p-2 text-base">Contact</th>
-              <th className="p-2 text-base">Role</th> */}
-              <th className="p-2 text-base">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-100">
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.id}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.name}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.email}
-                  </div>
-                </td>
-                {/* <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.contact}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.role}
-                  </div>
-                </td> */}
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    <Link to={`${item.id}`}>
-                      <button className="w-auto justify-center rounded-md bg-black p-2 text-md font-semibold text-white shadow-sm hover:bg-qp">Surveillance</button>
-                    </Link>
-                  </div>
-                </td>
+        {requests.length > 0 ? (
+          <table className="table-auto w-full text-left">
+            <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
+              <tr>
+                <th className="p-2 text-base">Id</th>
+                <th className="p-2 text-base">Name</th>
+                <th className="p-2 text-base">Email</th>
+                <th className="p-2 text-base">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentItems.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-100">
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.id}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.name}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.email}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      <Link to={`${item.id}`}>
+                        <button className="w-auto justify-center rounded-md bg-black p-2 text-md font-semibold text-white shadow-sm hover:bg-qp">Surveillance</button>
+                      </Link>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className='w-full text-center'>No parking locations to show.</div>
+        )}
+
         <ReactPaginate
           previousLabel={"Previous"}
           nextLabel={"Next"}

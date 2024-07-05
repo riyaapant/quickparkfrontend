@@ -1,5 +1,5 @@
 import LogoWhite from "../shared/LogoWhite"
-import { UserCircle, Users, MapPin, Home, History } from "lucide-react"
+import { UserCircle, Users, MapPin, Home, History, Video } from "lucide-react"
 import { useState } from "react";
 import { useDispatch } from 'react-redux';
 import { Link } from "react-router-dom";
@@ -42,7 +42,7 @@ export default function AdminPanel() {
                     <p>Map</p>
                 </Link>
                 <Link to="surveillance" className="flex flex-row gap-x-2 hover:bg-white hover:text-qp cursor-pointer w-full h-16 items-center px-12">
-                    <History className="w-6 h-6" />
+                    <Video className="w-6 h-6" />
                     <p>Surveillance</p>
                 </Link>
             </div>

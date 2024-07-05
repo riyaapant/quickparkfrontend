@@ -193,16 +193,10 @@ export default function Profile() {
                             {user.vehicleId}
                         </dd>
                     </div>
-                    <div className="px-2 py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
+                    <div className=" py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
                         <dt className="text-lg font-medium text-gray-500">Attachments</dt>
-                        <dd className='mt-1 text-lg text-gray-800 sm:col-span-2 border-collapse border rounded-xl border-gray-300 px-2 py-5'>
-                            <div className='flex items-center gap-x-2'>
-                                <Paperclip className='w-6 h-6' />
-                                <p className='flex-grow'>{user.document}</p>
-                                <button className='text-qp hover:text-blue-700'>
-                                    {user.document ? (<a href={user.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>) : ('Add')}
-                                </button>
-                            </div>
+                        <dd className='mt-1 text-lg text-gray-800 sm:col-span-2'>
+                        {user.document ? (<a href={user.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>) : ('No document added')}
                         </dd>
                     </div>
                 </div>

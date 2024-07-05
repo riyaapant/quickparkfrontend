@@ -40,6 +40,7 @@ const Dashboard = () => {
     const [earning, setEarning] = useState([]);
     const [parkingRevenue, setParkingRevenue] = useState(0);
     const [customerReached, setCustomersReached] = useState(0);
+    const [parkingLocations, setParkingLocations] = useState([{}])
     // const [chartData, setChartData] = useState({
     //     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
     //     datasets: [
@@ -101,8 +102,21 @@ const Dashboard = () => {
         }
     };
 
+    const fetchOwnParkingLocations = async () => {
+        try {
+          const response = await api.get(`viewownparking`)
+          console.log("own parking: ", response.data)
+          setParkingLocations(response.data)
+          console.log(parkingLocations)
+        }
+        catch (e) {
+          console.log(e.response)
+        }
+      }
+
     useEffect(() => {
         fetchCreditBalance();
+        fetchOwnParkingLocations()
     }, []);
 
     return (
@@ -127,7 +141,7 @@ const Dashboard = () => {
                     </div>
                     <div className="bg-white shadow-lg rounded-lg p-6 text-center">
                         <div className="text-2xl font-bold text-gray-900">
-                            <CountUp end={3} duration={3} />
+                            <CountUp end={parkingLocations.length} duration={3} />
                         </div>
                         <div className="mt-2 text-sm font-medium text-gray-600">Parking lands</div>
                     </div>

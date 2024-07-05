@@ -121,62 +121,67 @@ const PendingRequests = () => {
         </div>
       </header>
       <>
-        <table className="table-auto w-full text-left">
-          <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
-            <tr>
-              <th className="p-2 text-base">Id</th>
-              <th className="p-2 text-base">Name</th>
-              <th className="p-2 text-base">Email</th>
-              <th className="p-2 text-base">Contact</th>
-              <th className="p-2 text-base">Role</th>
-              <th className="p-2 text-base">Document</th>
-              <th className="p-2 text-base">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentItems.map((item) => (
-              <tr key={item.id} className="hover:bg-gray-100">
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.id}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.name}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.email}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.contact}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    {item.role}
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    <a href={item.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View document</a>
-                  </div>
-                </td>
-                <td className="p-3">
-                  <div className='font-medium text-gray-800'>
-                    <button className="w-full justify-center rounded-md bg-black py-1 text-md font-semibold text-white shadow-sm hover:bg-qp"
-                      onClick={() => verifyUser(item.id, item.role)}
-                    >Verify</button>
-                  </div>
-                </td>
+        {requests.length > 0 ? (
+          <table className="table-auto w-full text-left">
+            <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
+              <tr>
+                <th className="p-2 text-base">Id</th>
+                <th className="p-2 text-base">Name</th>
+                <th className="p-2 text-base">Email</th>
+                <th className="p-2 text-base">Contact</th>
+                <th className="p-2 text-base">Role</th>
+                <th className="p-2 text-base">Document</th>
+                <th className="p-2 text-base">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentItems.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-100">
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.id}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.name}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.email}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.contact}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      {item.role}
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      <a href={item.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View document</a>
+                    </div>
+                  </td>
+                  <td className="p-3">
+                    <div className='font-medium text-gray-800'>
+                      <button className="w-full justify-center rounded-md bg-black py-1 text-md font-semibold text-white shadow-sm hover:bg-qp"
+                        onClick={() => verifyUser(item.id, item.role)}
+                      >Verify</button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className='w-full text-center'>No pending users to show.</div>
+        )}
+
         <ReactPaginate
           previousLabel={"Previous"}
           nextLabel={"Next"}
@@ -193,7 +198,7 @@ const PendingRequests = () => {
           nextLinkClassName={"px-3 py-1 border border-gray-300 rounded"}
           activeClassName={"bg-blue-500 text-white"}
         />
-        
+
         {verificationMessage && <p className='text-green-900 font-bold text-center pt-10'>{verificationMessage}</p>}
       </>
     </main>

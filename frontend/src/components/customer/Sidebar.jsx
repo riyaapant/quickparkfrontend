@@ -140,7 +140,7 @@ export default function SideBar() {
             </div>
 
             <div className=" text-center text-black justify-center items-center">
-                    <span className="bg-slate-200 border rounded-md shadow-md text-sm w-fit p-2">Blc: {user.balance}</span>
+                    <span className="bg-slate-200 border rounded-md shadow-md text-sm w-fit p-2">Balance: {user.balance}</span>
                 </div>
 
             <div className="relative flex flex-row h-16 items-center gap-2 px-10 text-white hover:bg-white active:bg-white hover:text-qp active:text-qp cursor-pointer justify-between" onClick={toggleDropdown}>

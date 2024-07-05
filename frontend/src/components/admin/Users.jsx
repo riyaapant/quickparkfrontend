@@ -99,6 +99,7 @@ const ViewUsers = () => {
         </div>
       </header>
       <>
+      {requests.length > 0 ? (
         <table className="table-auto w-full text-left">
           <thead className="text-xs font-semibold uppercase text-gray-500 bg-gray-50">
             <tr>
@@ -149,6 +150,10 @@ const ViewUsers = () => {
             ))}
           </tbody>
         </table>
+      ):(
+        <div className='w-full text-center'>No users to show.</div>
+      )}
+        
         <ReactPaginate
           previousLabel={"Previous"}
           nextLabel={"Next"}
