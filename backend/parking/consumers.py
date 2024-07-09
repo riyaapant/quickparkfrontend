@@ -26,6 +26,8 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
         self.customer = await self.get_customer()
+        if not self.customer:
+            await self.close(code=4001)
         self.parking = await self.get_parking()
 
         if self.customer.reservation_id:
@@ -182,7 +184,11 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def get_customer(self):
-        return Customer.objects.filter(vehicle_id=self.vehicle_id).last()
+        try:
+            return Customer.objects.get(vehicle_id=self.vehicle_id)
+        except:
+            return False
+            
 
     @database_sync_to_async
     def get_balance(self):

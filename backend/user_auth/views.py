@@ -183,7 +183,7 @@ class VehicleID(APIView):
             )
             return Response('Vehicle Number updated', status=status.HTTP_200_OK)
         except:
-            return Response('This vehicle id is already registered', status = status.HTTP_200_OK)
+            return Response('This vehicle id is already registered', status = status.HTTP_400_BAD_REQUEST)
 
 class UploadProfile(APIView):
     permission_classes = [IsAuthenticated]
