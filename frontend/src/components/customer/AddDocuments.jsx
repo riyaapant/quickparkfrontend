@@ -17,6 +17,8 @@ const AddDocument = () => {
     const [vehicleId, setVehicleId] = useState('');
     const [document, setDocument] = useState(null);
 
+    const [errorMessage, setErrorMessage] = useState('')
+
     const token = useSelector((state) => state.token)
 
     const api = axios.create({
@@ -37,7 +39,7 @@ const AddDocument = () => {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
-            console.log("upload customer file: ",documentUploadResponse);
+            console.log("upload customer file: ", documentUploadResponse);
 
             const vehicleIdResponse = await api.put(`vehicleid`, { vehicle_id: vehicleId }, {
                 headers: {
@@ -45,11 +47,14 @@ const AddDocument = () => {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             })
-            console.log("put vehicle id: ",vehicleIdResponse)
+            console.log("put vehicle id: ", vehicleIdResponse)
             setDocumentsSubmitted(true)
-
+            setErrorMessage('')
         } catch (error) {
-            console.error('Error uploading file: ', error);
+            // console.error('Error uploading file: ', error);
+            if (error.response.status == 400) {
+                setErrorMessage('Customer with this vehicle ID already exists. Try again!')
+            }
         }
         setLoading(false)
     };
@@ -77,7 +82,7 @@ const AddDocument = () => {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
-            console.log("paper verified: ",response.data.is_paperverified)
+            console.log("paper verified: ", response.data.is_paperverified)
             if (response.data.document) {
                 setDocumentsSubmitted(true)
             }
@@ -93,6 +98,7 @@ const AddDocument = () => {
 
     useEffect(() => {
         fetchProfile()
+        // console.log('documentsSubmitted: ', documentsSubmitted)
     }, [])
 
     return (
@@ -105,6 +111,7 @@ const AddDocument = () => {
                     </svg>
                 </div>
             )}
+
             {!documentsSubmitted ? (
                 <div className="h-screen p-10 flex flex-col w-2/3">
                     <section className='h-auto'>
@@ -140,13 +147,14 @@ const AddDocument = () => {
                                     onChange={handleDocumentChange}
                                     required
                                 />
-                                {document && <p className="mt-2">{document.name}</p>}
+                                {/* {document && <p className="mt-2">{document.name}</p>} */}
                             </div>
                             <div className='h-auto'>
                                 <button type="submit" className="flex w-full justify-center rounded-md bg-indigo-600 py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">
                                     Next
                                 </button>
                             </div>
+                            {errorMessage && <p className='text-red-900 font-semibold'>{errorMessage}</p>}
                         </form>
                     </section>
                 </div>

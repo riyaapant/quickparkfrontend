@@ -21,6 +21,8 @@ export default function Profile() {
     const profilePicInputRef = useRef(null);
     const [loading, setLoading] = useState(false)
 
+    const [upload, setUpload] = useState(false)
+
     const toggleDropdown = () => {
         setDropdownVisible(!dropdownVisible)
     }
@@ -34,7 +36,7 @@ export default function Profile() {
         profile: '',
         vehicleId: '',
         isOwner: false,
-        status: 'pending'
+        status: false
     })
 
     const handleProfilePicChange = (e) => {
@@ -43,9 +45,11 @@ export default function Profile() {
             setProfilePic(file);
             setProfilePicPreview(URL.createObjectURL(file));
             // console.log(file)
+            setUpload(true)
         }
-        else{
+        else {
             console.log("File not found")
+            setUpload(false)
         }
     };
 
@@ -55,8 +59,15 @@ export default function Profile() {
 
     const handleProfilePictureUpload = async (e) => {
         e.preventDefault()
-        console.log(profilePic)
+        // console.log(profilePic)
         setLoading(true)
+
+        if (!profilePic) {
+            console.error('No profile picture selected');
+            setLoading(false);
+            return;
+        }
+
         const profilePicture = new FormData();
         profilePicture.append('profile', profilePic);
 
@@ -67,7 +78,7 @@ export default function Profile() {
                     'Authorization': 'Bearer ' + `${token}`
                 }
             });
-            console.log("profile upload response: ",profileUploadResponse);
+            console.log("profile upload response: ", profileUploadResponse);
         }
         catch (e) {
             console.log(e.response)
@@ -84,7 +95,7 @@ export default function Profile() {
                         'Authorization': 'Bearer ' + `${token}`
                     }
                 });
-                console.log("get profile: ",response.data)
+                console.log("get profile: ", response.data)
                 setUser({
                     name: response.data.firstName + ' ' + response.data.lastName,
                     email: response.data.email,
@@ -94,7 +105,7 @@ export default function Profile() {
                     document: response.data.document,
                     profile: response.data.profile,
                     vehicleId: response.data.vehicleId,
-                    status: 'pending'
+                    status: response.data.is_paperverified
                 });
                 // setLoading(false)
             } catch (error) {
@@ -104,7 +115,7 @@ export default function Profile() {
         };
 
         fetchProfile();
-    }, [profilePic]);
+    }, [user]);
 
     return (
         <section className="max-h-screen m-4 p-4 border-collapse border rounded-xl border-gray-200 flex flex-col">
@@ -161,12 +172,14 @@ export default function Profile() {
                                 className="w-full hidden"
                                 onChange={handleProfilePicChange}
                             />
-                            <button className='flex w-2/3 justify-center rounded-md bg-qp py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 ' onClick={handleProfilePictureUpload}>Upload</button>
+                            {upload &&
+                                <button className='flex w-2/3 justify-center rounded-md bg-qp py-1.5 text-md font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 ' onClick={handleProfilePictureUpload}>Upload</button>
+                            }
                         </div>
                     )
 
                     }
-                    <div className='text-center'>Status: {user.status}</div>
+                    <div className={`text-center font-semibold ${user.status ? 'text-green-900' : 'text-yellow-600'}`}>{user.status ? 'Verified' : 'Verification pending'}</div>
                 </div>
 
 
@@ -187,16 +200,18 @@ export default function Profile() {
                         <dt className="text-lg font-medium text-gray-500">Contact</dt>
                         <dd className="mt-1 text-lg text-gray-800 sm:col-span-2 sm:mt-0">{user.contact}</dd>
                     </div>
-                    <div className="px-2 py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
-                        <dt className="text-lg font-medium text-gray-500">Vehicle-Id</dt>
-                        <dd className="mt-1 text-lg text-gray-800 sm:col-span-2 sm:mt-0">
-                            {user.vehicleId}
-                        </dd>
-                    </div>
+                    {user.vehicleId &&
+                        <div className="px-2 py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
+                            <dt className="text-lg font-medium text-gray-500">Vehicle-Id</dt>
+                            <dd className="mt-1 text-lg text-gray-800 sm:col-span-2 sm:mt-0">
+                                {user.vehicleId}
+                            </dd>
+                        </div>
+                    }
                     <div className=" py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
                         <dt className="text-lg font-medium text-gray-500">Attachments</dt>
                         <dd className='mt-1 text-lg text-gray-800 sm:col-span-2'>
-                        {user.document ? (<a href={user.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>) : ('No document added')}
+                            {user.document ? (<a href={user.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>) : ('No document added')}
                         </dd>
                     </div>
                 </div>

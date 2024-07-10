@@ -20,6 +20,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
     const [spots, setSpots] = useState([]);
     const [parkingResponse, setParkingResponse] = useState({});
     const [userVehicleId, setUserVehicleId] = useState('');
+    const [isUserVerified, setIsUserVerified] = useState()
     const [value, setValue] = useState('');
 
     const [releasePrompt, setReleasePrompt] = useState(false)
@@ -66,7 +67,9 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
     const fetchProfile = async () => {
         try {
             const response = await api.get(`/profile`);
+            // console.log(response.data)
             setUserVehicleId(response.data.vehicleId);
+            setIsUserVerified(response.data.is_paperverified)
         } catch (error) {
             console.log(error);
         }
@@ -145,35 +148,43 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
                 ))}
             </div>
 
-            {value === 'Reserved' && <p className='text-center pb-2 text-qp'>You have reserved!</p>}
-            {value === 'Parked' && <p className='text-center pb-2 text-qp'>You are parked!</p>}
-            {releaseMessage && <p className='text-center pb-2 text-qp'>{releaseMessage}</p>}
-
-            {releasePrompt &&
-                <form className='flex flex-col items-center' onSubmit={handleRelease}>
-                    <input type='text' id='release-reason' name='release-reason' className='w-full p-2 border-collapse border-2 rounded-lg mb-2' placeholder='Please state why' value={releaseReason} onChange={(e) => setReleaseReason(e.target.value)}></input>
-                    <button type='submit' className="w-1/2 p-1 z-10 rounded-md bg-red-900 text-md font-semibold text-white hover:bg-red-600" disabled={readyState !== ReadyState.OPEN}>
-                        Release
-                    </button>
-                </form>}
-
-            {!releasePrompt &&
+            {!isUserVerified ? (
+                <p className='text-red-900 font-semibold'>You need to be verified to reserve parking space</p>
+            ) : (
                 <>
-                    <div className='flex gap-x-2 justify-center'>
-                        {value === 'Reserve' &&
-                            <button className="w-1/2 p-1 z-10 rounded-md bg-qp text-md font-semibold text-white hover:bg-indigo-800" onClick={handleReserve} disabled={readyState !== ReadyState.OPEN}>
-                                Reserve
+                    {value === 'Reserved' && <p className='text-center pb-2 text-qp'>You have reserved!</p>}
+                    {value === 'Parked' && <p className='text-center pb-2 text-qp'>You are parked!</p>}
+                    {releaseMessage && <p className='text-center pb-2 text-qp'>{releaseMessage}</p>}
+
+                    {releasePrompt &&
+                        <form className='flex flex-col items-center' onSubmit={handleRelease}>
+                            <input type='text' id='release-reason' name='release-reason' className='w-full p-2 border-collapse border-2 rounded-lg mb-2' placeholder='Please state why' value={releaseReason} onChange={(e) => setReleaseReason(e.target.value)}></input>
+                            <button type='submit' className="w-1/2 p-1 z-10 rounded-md bg-red-900 text-md font-semibold text-white hover:bg-red-600" disabled={readyState !== ReadyState.OPEN}>
+                                Release
                             </button>
-                        }
-                        {value === 'Reserved' &&
-                            <>
-                                <button className="w-1/2 p-1 z-10 rounded-md bg-red-900 text-md font-semibold text-white hover:bg-red-600" onClick={() => setReleasePrompt(true)} disabled={readyState !== ReadyState.OPEN}>
-                                    Release
-                                </button>
-                            </>
-                        }
-                    </div>
-                </>}
+                        </form>}
+
+                    {!releasePrompt &&
+                        <>
+                            <div className='flex gap-x-2 justify-center'>
+                                {value === 'Reserve' &&
+                                    <button className="w-1/2 p-1 z-10 rounded-md bg-qp text-md font-semibold text-white hover:bg-indigo-800" onClick={handleReserve} disabled={readyState !== ReadyState.OPEN}>
+                                        Reserve
+                                    </button>
+                                }
+                                {value === 'Reserved' &&
+                                    <>
+                                        <button className="w-1/2 p-1 z-10 rounded-md bg-red-900 text-md font-semibold text-white hover:bg-red-600" onClick={() => setReleasePrompt(true)} disabled={readyState !== ReadyState.OPEN}>
+                                            Release
+                                        </button>
+                                    </>
+                                }
+                            </div>
+                        </>}
+                </>
+            )
+            }
+
         </div>
     );
 };
