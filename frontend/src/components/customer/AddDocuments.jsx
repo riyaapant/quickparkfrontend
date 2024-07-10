@@ -4,7 +4,6 @@ import config from '../../features/config';
 import { useSelector } from 'react-redux';
 import { useEffect } from 'react';
 import { ThumbsUp } from 'lucide-react';
-import Topup from './Topup';
 
 const AddDocument = () => {
 
@@ -14,7 +13,7 @@ const AddDocument = () => {
     const [documentsSubmitted, setDocumentsSubmitted] = useState(false)
     const [documentsVerified, setDocumentsVerified] = useState(false)
 
-    const [vehicleId, setVehicleId] = useState('');
+    // const [vehicleId, setVehicleId] = useState('');
     const [document, setDocument] = useState(null);
 
     const [errorMessage, setErrorMessage] = useState('')
@@ -41,27 +40,25 @@ const AddDocument = () => {
             });
             console.log("upload customer file: ", documentUploadResponse);
 
-            const vehicleIdResponse = await api.put(`vehicleid`, { vehicle_id: vehicleId }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + `${token}`
-                }
-            })
-            console.log("put vehicle id: ", vehicleIdResponse)
+            // const vehicleIdResponse = await api.put(`vehicleid`, { vehicle_id: vehicleId }, {
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //         'Authorization': 'Bearer ' + `${token}`
+            //     }
+            // })
+            // console.log("put vehicle id: ", vehicleIdResponse)
             setDocumentsSubmitted(true)
             setErrorMessage('')
         } catch (error) {
-            // console.error('Error uploading file: ', error);
-            if (error.response.status == 400) {
-                setErrorMessage('Customer with this vehicle ID already exists. Try again!')
-            }
+            console.error('Error uploading file: ', error);
+                setErrorMessage('An error occured. Please try again!')
         }
         setLoading(false)
     };
 
-    const handleVehicleIdChange = (e) => {
-        setVehicleId(e.target.value);
-    };
+    // const handleVehicleIdChange = (e) => {
+    //     setVehicleId(e.target.value);
+    // };
 
     const handleDocumentChange = (e) => {
         const file = e.target.files[0];
@@ -121,7 +118,7 @@ const AddDocument = () => {
 
                     <section className='flex-grow justify-center pt-10'>
                         <form className='flex flex-col gap-y-8 divide-y-2' onSubmit={handleSubmit}>
-                            <div className='flex flex-row justify-between my-2'>
+                            {/* <div className='flex flex-row justify-between my-2'>
                                 <label htmlFor="vehicle-id" className='py-2'>Enter your vehicle ID
                                     <span className='text-red-700 font-semibold'> *</span>
                                 </label>
@@ -134,7 +131,7 @@ const AddDocument = () => {
                                     onChange={handleVehicleIdChange}
                                     required
                                 />
-                            </div>
+                            </div> */}
                             <div>
                                 <label htmlFor="document" className='block my-2'>Upload your vehicle registration document
                                     <span className='text-red-700 font-semibold'> *</span>

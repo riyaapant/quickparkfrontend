@@ -36,7 +36,7 @@ export default function Profile() {
         profile: '',
         vehicleId: '',
         isOwner: false,
-        status: false
+        isVerified: false
     })
 
     const handleProfilePicChange = (e) => {
@@ -101,11 +101,11 @@ export default function Profile() {
                     email: response.data.email,
                     contact: response.data.contact,
                     address: response.data.address,
-                    isOwner: response.data.isOwner,
+                    isOwner: response.data.is_owner,
                     document: response.data.document,
                     profile: response.data.profile,
                     vehicleId: response.data.vehicleId,
-                    status: response.data.is_paperverified
+                    isVerified: response.data.is_paperverified
                 });
                 // setLoading(false)
             } catch (error) {
@@ -179,7 +179,7 @@ export default function Profile() {
                     )
 
                     }
-                    <div className={`text-center font-semibold ${user.status ? 'text-green-900' : 'text-yellow-600'}`}>{user.status ? 'Verified' : 'Verification pending'}</div>
+                    <div className={`text-center font-semibold ${user.isVerified ? 'text-green-900' : 'text-yellow-600'}`}>{user.isVerified ? 'Verified' : 'Verification pending'}</div>
                 </div>
 
 
@@ -200,20 +200,23 @@ export default function Profile() {
                         <dt className="text-lg font-medium text-gray-500">Contact</dt>
                         <dd className="mt-1 text-lg text-gray-800 sm:col-span-2 sm:mt-0">{user.contact}</dd>
                     </div>
-                    {user.vehicleId &&
-                        <div className="px-2 py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
-                            <dt className="text-lg font-medium text-gray-500">Vehicle-Id</dt>
-                            <dd className="mt-1 text-lg text-gray-800 sm:col-span-2 sm:mt-0">
-                                {user.vehicleId}
-                            </dd>
-                        </div>
+                    {!user.isOwner &&
+                        <>
+                            <div className="px-2 py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
+                                <dt className="text-lg font-medium text-gray-500">Vehicle-Id</dt>
+                                <dd className="mt-1 text-lg text-gray-800 sm:col-span-2 sm:mt-0">
+                                    {user.vehicleId ? user.vehicleId : <Link to="edit" className='text-qp font-semibold hover:text-blue-700 w-auto cursor-pointer'>Add</Link>}
+                                </dd>
+                            </div>
+                            <div className=" py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
+                                <dt className="text-lg font-medium text-gray-500">Attachments</dt>
+                                <dd className='mt-1 text-lg text-gray-800 sm:col-span-2'>
+                                    {user.document ? (<a href={user.document} className='text-qp font-semibold hover:text-blue-700 w-auto cursor-pointer' download>View</a>) : ('No document added')}
+                                </dd>
+                            </div>
+                        </>
                     }
-                    <div className=" py-6 sm:grid sm:grid-cols-3 sm:gap-2 sm:px-0">
-                        <dt className="text-lg font-medium text-gray-500">Attachments</dt>
-                        <dd className='mt-1 text-lg text-gray-800 sm:col-span-2'>
-                            {user.document ? (<a href={user.document} className='text-qp font-semibold hover:text-blue-700 w-auto' download>View</a>) : ('No document added')}
-                        </dd>
-                    </div>
+
                 </div>
             </div>
         </section>
