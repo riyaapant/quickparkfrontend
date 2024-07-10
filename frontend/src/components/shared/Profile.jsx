@@ -115,7 +115,7 @@ export default function Profile() {
         };
 
         fetchProfile();
-    }, [user]);
+    }, []);
 
     return (
         <section className="max-h-screen m-4 p-4 border-collapse border rounded-xl border-gray-200 flex flex-col">
