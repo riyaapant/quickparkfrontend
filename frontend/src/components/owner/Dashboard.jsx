@@ -35,9 +35,8 @@ const Dashboard = () => {
         },
     });
 
-    const [earning, setEarning] = useState([]);
     const [parkingRevenue, setParkingRevenue] = useState(0);
-    const [customerReached, setCustomersReached] = useState(0);
+    const [vehiclesParked, setVehiclesParked] = useState(0);
     const [parkingLocations, setParkingLocations] = useState([]);
     const [chartData, setChartData] = useState({
         labels: [],
@@ -72,15 +71,13 @@ const Dashboard = () => {
         try {
             const response = await api.get('/view/credit');
             const filteredResponse = response.data.filter(item => item.From !== 'Khalti');
-            console.log(filteredResponse)
             const totalEarned = filteredResponse.reduce((sum, item) => sum + item.Amount, 0);
-            const customersTotal = filteredResponse.length;
+            const parkingTotal = filteredResponse.length;
             const dailyEarnings = sumDailyEarnings(filteredResponse);
             const dates = Array.from(new Set(filteredResponse.map(item => extractDate(item.Time))));
 
-            setEarning(filteredResponse);
             setParkingRevenue(totalEarned);
-            setCustomersReached(customersTotal);
+            setVehiclesParked(parkingTotal);
             setChartData({
                 labels: dates,
                 datasets: [
@@ -121,7 +118,7 @@ const Dashboard = () => {
                 </div>
                 <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                     <StatCard value={parkingRevenue} label="Earned in revenue" type='amount' />
-                    <StatCard value={customerReached} label="Vehicles Parked" type='integer' />
+                    <StatCard value={vehiclesParked} label="Vehicles Parked" type='integer' />
                     <StatCard value={parkingLocations.length} label="Verified Parking Lands" type='integer' />
                 </div>
                 <div className="mt-10 bg-white shadow-lg rounded-lg px-5 h-fit p-10">
