@@ -113,6 +113,9 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         #         return    
 
         await self.update_parking(1)
+        reservation_time = await self.make_reservation()
+
+
         await self.channel_layer.group_send(self.parking_group_name, {
             'type': 'parking_update',
             'used_spot': self.parking.used_spot,
@@ -121,10 +124,10 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
 
         await self.channel_layer.group_send(self.vehicle_group_name, {
             'type': 'status_update_park',
-            'value': 'Parked'
+            'value': 'Parked',
+            'time': reservation_time.strftime('%Y-%m-%dT%H:%M:%S')
         })
 
-        await self.make_reservation()
 
     async def release(self):
         if self.customer.reservation_id is None:
@@ -147,6 +150,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
         await self.channel_layer.group_send(self.vehicle_group_name, {
             'type': 'status_update_release',
             'value': 'Reserve',
+            'time' : None,
             'message':f'Rs:{deducted_amount} has been deducted from you account'
         })
     
@@ -158,12 +162,14 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
 
     async def status_update_park(self,data):
         await self.send(json.dumps({
-            'value':data['value']
+            'value':data['value'],
+            'start_time':data['time']
         }))
 
     async def status_update_release(self,data):
         await self.send(json.dumps({
             'value':data['value'],
+            'start_time':data['time'],
             'message':data['message']
         }))
 
@@ -224,6 +230,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
                 reservation=reserv
             )
             self.customer = Customer.objects.get(vehicle_id=self.vehicle_id)
+            return reservation.start_time
 
     @database_sync_to_async
     def end_reservation(self):

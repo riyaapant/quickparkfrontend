@@ -43,11 +43,13 @@ class ParkingConsumer(AsyncWebsocketConsumer):
                 await self.close(code=4001)
 
         if self.customer.reservation_id and self.customer.reservation:
-            await self.send_parking_status(value='Reserved')
+            reservation_time = await self.get_reservation_time()
+            await self.send_parking_status(value='Reserved',time=reservation_time.strftime('%Y-%m-%dT%H:%M:%S'))
         elif self.customer.reservation_id:
-            await self.send_parking_status(value='Parked')
+            reservation_time = await self.get_reservation_time()
+            await self.send_parking_status(value='Parked',time=reservation_time.strftime('%Y-%m-%dT%H:%M:%S'))
         else:
-            await self.send_parking_status(value='Reserve')
+            await self.send_parking_status(value='Reserve',time=None)
             
 
     async def disconnect(self, close_code):
@@ -70,18 +72,20 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         await self.end_reservation()
         # await self.update_parking(-1)
 
-    async def send_parking_status(self,value):
+    async def send_parking_status(self,value,time):
         if self.parking.used_spot < self.parking.total_spot:
             await self.send(json.dumps({
-                'used_spot': self.parking.used_spot,
+                'used_spot' : self.parking.used_spot,
                 'total_spot': self.parking.total_spot,
-                'value': value
+                'value'     : value,
+                'start_time': time
             }))
         else:
             await self.send(json.dumps({
                 'used_spot': self.parking.used_spot,
                 'total_spot': self.parking.total_spot,
-                'value': 'Full'
+                'value': 'Full',
+                'start_time':time
             }))
 
             
@@ -99,16 +103,16 @@ class ParkingConsumer(AsyncWebsocketConsumer):
         if await self.get_balance() < self.parking.fee:
             await self.send(json.dumps({'message': 'Please Recharge your account'}))
             return
-
+        reservation_time = await self.make_reservation(reserv=True)
+        # reservation_time = await self.get_reservation_time()
         await self.update_parking(1)
         await self.channel_layer.group_send(self.parking_group_name, {
             'type': 'parking_update',
             'used_spot': self.parking.used_spot,
             'total_spot': self.parking.total_spot
         })
-        await self.send(json.dumps({'value':'Reserved'}))
+        await self.send(json.dumps({'value':'Reserved','start_time':reservation_time.strftime('%Y-%m-%dT%H:%M:%S')}))
 
-        await self.make_reservation(reserv=True)
 
     async def park(self):
         if self.customer.reservation and self.customer.reservation_id:
@@ -156,6 +160,7 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
         await self.send(json.dumps({
             'value':'Reserve',
+            'start_time':None,
             'message':f'Rs:{deducted_amount} has been deducted from your amount.'
         }))
 
@@ -169,14 +174,22 @@ class ParkingConsumer(AsyncWebsocketConsumer):
 
     async def status_update_park(self,data):
         await self.send(json.dumps({
-            'value':data['value']
+            'value':data['value'],
+            'start_time':data['time']
         }))
 
     async def status_update_release(self,data):
         await self.send(json.dumps({
             'value':data['value'],
+            'start_time':data['time'],
             'message':data['message']
         }))
+
+    @database_sync_to_async
+    def get_reservation_time(self):
+        reservation = Reservation.objects.get(id = self.customer.reservation_id)
+        return reservation.start_time
+    
 
     @database_sync_to_async
     def get_parking(self):
@@ -223,6 +236,7 @@ class ParkingConsumer(AsyncWebsocketConsumer):
                 reservation=reserv
             )
             self.customer = Customer.objects.get(vehicle_id=self.vehicle_id)
+            return reservation.start_time
 
     @database_sync_to_async
     def end_reservation(self):
