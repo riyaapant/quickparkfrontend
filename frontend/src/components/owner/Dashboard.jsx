@@ -1,6 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import CountUp from 'react-countup';
-import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
 import config from '../../features/config';
@@ -28,36 +27,23 @@ ChartJS.register(
 
 const Dashboard = () => {
     const token = useSelector((state) => state.token);
-
     const api = axios.create({
         baseURL: config.BASE_URL,
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + `${token}`,
+            'Authorization': `Bearer ${token}`,
         },
     });
 
     const [earning, setEarning] = useState([]);
     const [parkingRevenue, setParkingRevenue] = useState(0);
     const [customerReached, setCustomersReached] = useState(0);
-    const [parkingLocations, setParkingLocations] = useState([{}])
-    // const [chartData, setChartData] = useState({
-    //     labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    //     datasets: [
-    //         {
-    //             label: 'Revenue',
-    //             data: [300, 500, 100, 400, 700, 200, 900],
-    //             borderColor: 'rgba(75, 192, 192, 1)',
-    //             backgroundColor: 'rgba(75, 192, 192, 0.2)',
-    //         },
-    //     ],
-    // });
-
+    const [parkingLocations, setParkingLocations] = useState([]);
     const [chartData, setChartData] = useState({
         labels: [],
         datasets: [
             {
-                label: 'Revenue',
+                label: 'Daily Revenue',
                 data: [],
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -69,55 +55,62 @@ const Dashboard = () => {
         return timestamp.split('T')[0];
     };
 
+    const sumDailyEarnings = (data) => {
+        const dailyEarningsMap = new Map();
+        data.forEach(item => {
+            const date = extractDate(item.Time);
+            if (dailyEarningsMap.has(date)) {
+                dailyEarningsMap.set(date, dailyEarningsMap.get(date) + item.Amount);
+            } else {
+                dailyEarningsMap.set(date, item.Amount);
+            }
+        });
+        return Array.from(dailyEarningsMap.values());
+    };
+
     const fetchCreditBalance = async () => {
         try {
-            const response = await api.get(`/view/credit`);
-            // console.log("view credit:", response.data)
+            const response = await api.get('/view/credit');
             const filteredResponse = response.data.filter(item => item.From !== 'Khalti');
-            const earnedAmount = filteredResponse.reduce((sum, item) => sum + item.Amount, 0);
+            console.log(filteredResponse)
+            const totalEarned = filteredResponse.reduce((sum, item) => sum + item.Amount, 0);
             const customersTotal = filteredResponse.length;
-            console.log("filteredResponse: ", filteredResponse)
+            const dailyEarnings = sumDailyEarnings(filteredResponse);
+            const dates = Array.from(new Set(filteredResponse.map(item => extractDate(item.Time))));
+
             setEarning(filteredResponse);
-            setParkingRevenue(earnedAmount);
+            setParkingRevenue(totalEarned);
             setCustomersReached(customersTotal);
-            const times = filteredResponse.map(item => extractDate(item.Time));
-            const amounts = filteredResponse.map(item => item.Amount);
-            // const dailyAmount = []
-            // amounts.forEach(amounts => {
-            //     if(!)
-            // })
             setChartData({
-                labels: times,
+                labels: dates,
                 datasets: [
                     {
-                        label: 'Revenue',
-                        data: amounts,
+                        label: 'Daily Revenue',
+                        data: dailyEarnings,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',
                     },
                 ],
-            })
-
-        } catch (e) {
-            console.log(e);
+            });
+        } catch (error) {
+            console.log('Error fetching credit balance:', error);
         }
     };
 
     const fetchOwnParkingLocations = async () => {
         try {
-          const response = await api.get(`viewownparking`)
-          console.log("own parking: ", response.data)
-          setParkingLocations(response.data)
-          console.log(parkingLocations)
+            const response = await api.get('viewownparking');
+            const filteredResponse = response.data.filter(item => item.is_paperverified == true);
+            console.log(filteredResponse)
+            setParkingLocations(filteredResponse);
+        } catch (error) {
+            console.log('Error fetching own parking locations:', error);
         }
-        catch (e) {
-          console.log(e.response)
-        }
-      }
+    };
 
     useEffect(() => {
         fetchCreditBalance();
-        fetchOwnParkingLocations()
+        fetchOwnParkingLocations();
     }, []);
 
     return (
@@ -125,34 +118,33 @@ const Dashboard = () => {
             <div className="px-8 flex flex-col">
                 <div className="text-center">
                     <h2 className="text-3xl font-bold text-qp">Welcome to QuickPark!</h2>
-                    {/* <p className="mt-2 text-lg text-gray-600">Lorem ipsum dolor sit amet consectetur adipisicing possimus.</p> */}
                 </div>
                 <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                    <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-                        <div className="text-2xl font-bold text-gray-900">
-                            <CountUp end={parkingRevenue} decimals={2} duration={3} separator="," prefix="Rs " />
-                        </div>
-                        <div className="mt-2 text-sm font-medium text-gray-600">Earned in revenue</div>
-                    </div>
-                    <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-                        <div className="text-2xl font-bold text-gray-900">
-                            <CountUp end={customerReached} duration={3} separator="," />
-                        </div>
-                        <div className="mt-2 text-sm font-medium text-gray-600">Customers Reached</div>
-                    </div>
-                    <div className="bg-white shadow-lg rounded-lg p-6 text-center">
-                        <div className="text-2xl font-bold text-gray-900">
-                            <CountUp end={parkingLocations.length} duration={3} />
-                        </div>
-                        <div className="mt-2 text-sm font-medium text-gray-600">Parking lands</div>
-                    </div>
+                    <StatCard value={parkingRevenue} label="Earned in revenue" type='amount' />
+                    <StatCard value={customerReached} label="Vehicles Parked" type='integer' />
+                    <StatCard value={parkingLocations.length} label="Verified Parking Lands" type='integer' />
                 </div>
-                <div className="mt-10 bg-white shadow-lg rounded-lg px-5 h-80 w-auto">
-                    <Line className='h-80' data={chartData} />
+                <div className="mt-10 bg-white shadow-lg rounded-lg px-5 h-fit p-10">
+                    <Line data={chartData} />
                 </div>
             </div>
         </section>
     );
 };
+
+const StatCard = ({ value, label, type }) => (
+    <div className="bg-white shadow-lg rounded-lg p-6 text-center">
+        <div className="text-2xl font-bold text-gray-900">
+            {type === 'amount' ? (
+                <CountUp end={value} decimals={2} duration={3} separator="," prefix="Rs " />
+            ) :
+                (
+                    <CountUp end={value} duration={3} separator="," />
+                )
+            }
+        </div>
+        <div className="mt-2 text-sm font-medium text-gray-600">{label}</div>
+    </div>
+);
 
 export default Dashboard;

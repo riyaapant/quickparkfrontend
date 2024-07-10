@@ -28,10 +28,10 @@ export default function AdminDashboard() {
 
     return (
         <main className="h-screen grid grid-cols-4 bg-white">
-            <div className='col-span-1'>
+            <div className='col-span-1 overflow-y-auto'>
                 <AdminPanel />
             </div>
-            <div className="col-span-3">
+            <div className="col-span-3 overflow-y-auto">
                 <Outlet />
             </div>
         </main>
