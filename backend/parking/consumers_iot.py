@@ -72,7 +72,7 @@ class IOTParkingConsumers(AsyncWebsocketConsumer):
             print(last_reservation)
             if last_reservation:
                 print("Stay for at least 1 minutes")
-                if (timezone.now() - last_reservation < timedelta(minutes=1)):
+                if (timezone.now() - last_reservation < timedelta(seconds=30)):
                     await self.send(json.dumps({'value': 'Please wait for 1 minutes'}))
                     return
 

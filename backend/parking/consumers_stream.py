@@ -9,12 +9,12 @@ import json
 class StreamConsumers(AsyncWebsocketConsumer):
     async def connect(self):
         self.parking_id = self.scope['url_route']['kwargs']['parking_id']
-        self.parking_group_name = f'parking_{self.parking_id}'
-        await self.channel_layer.group_add(self.parking_group_name, self.channel_name)
+        self.camera_group_name = f'camera_{self.parking_id}'
+        await self.channel_layer.group_add(self.camera_group_name, self.channel_name)
         await self.accept()
 
     async def disconnect(self, close_code):
-        await self.channel_layer.group_discard(self.parking_group_name, self.channel_name)
+        await self.channel_layer.group_discard(self.camera_group_name, self.channel_name)
 
     async def receive(self,text_data=None,bytes_data=None):
         
@@ -39,7 +39,7 @@ class StreamConsumers(AsyncWebsocketConsumer):
             # })
             # print(bytes_data)
             # await self.send(bytes_data=bytes_data)
-            await self.channel_layer.group_send(self.parking_group_name, {
+            await self.channel_layer.group_send(self.camera_group_name, {
                 'type': 'send_stream',
                 'value': bytes_data
             })
