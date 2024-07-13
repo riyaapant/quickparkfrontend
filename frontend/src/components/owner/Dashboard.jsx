@@ -42,7 +42,7 @@ const Dashboard = () => {
         labels: [],
         datasets: [
             {
-                label: 'Daily Revenue',
+                label: 'Daily Revenue (Rs.)',
                 data: [],
                 borderColor: 'rgba(75, 192, 192, 1)',
                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
@@ -82,7 +82,7 @@ const Dashboard = () => {
                 labels: dates,
                 datasets: [
                     {
-                        label: 'Daily Revenue',
+                        label: 'Daily Revenue (Rs)',
                         data: dailyEarnings,
                         borderColor: 'rgba(75, 192, 192, 1)',
                         backgroundColor: 'rgba(75, 192, 192, 0.2)',

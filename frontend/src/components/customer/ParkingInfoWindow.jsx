@@ -21,6 +21,8 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
     const [userVehicleId, setUserVehicleId] = useState('');
     const [isUserVerified, setIsUserVerified] = useState(false);
     const [value, setValue] = useState('');
+    const [timeElapsed, setTimeElapsed] = useState('')
+    const [startTime, setStartTime] = useState(null);
 
     const [releasePrompt, setReleasePrompt] = useState(false);
     const [releaseReason, setReleaseReason] = useState('');
@@ -54,13 +56,13 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
         setReleaseReason('');
     }, [readyState, sendMessage]);
 
-    const handlePark = useCallback(() => {
-        if (readyState === ReadyState.OPEN) {
-            const message = JSON.stringify({ action: 'park' });
-            sendMessage(message);
-        }
-        setReleaseMessage('');
-    }, [readyState, sendMessage]);
+    // const handlePark = useCallback(() => {
+    //     if (readyState === ReadyState.OPEN) {
+    //         const message = JSON.stringify({ action: 'park' });
+    //         sendMessage(message);
+    //     }
+    //     setReleaseMessage('');
+    // }, [readyState, sendMessage]);
 
     const fetchProfile = async () => {
         try {
@@ -81,30 +83,53 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
             const data = JSON.parse(lastMessage.data);
             console.log(data)
             setParkingResponse(data);
-    
+
+            // if(data.value === 'Reserve'){
+            //     handleIoTRelease()
+            // }
+
             if (data.value !== undefined) {
                 setValue(data.value);
             }
-    
+
             if (data.message !== undefined) {
                 setReleaseMessage(data.message);
             }
-    
+
+            if (data.start_time !== undefined) {
+                setStartTime(data.start_time);
+            }
+
             if (data.total_spot !== undefined && data.used_spot !== undefined) {
                 const totalSpots = data.total_spot;
                 const usedSpots = data.used_spot;
-    
+
                 const newSpots = Array(totalSpots).fill('empty');
-    
+
                 for (let i = 0; i < usedSpots; i++) {
                     newSpots[i] = 'reserved';
                 }
-    
+
                 setSpots(newSpots);
             }
         }
     }, [lastMessage]);
-    
+
+    useEffect(() => {
+        let interval;
+        if (startTime) {
+            interval = setInterval(() => {
+                const start = new Date(startTime);
+                const now = new Date();
+                const diff = Math.floor((now - start) / 1000);
+                const hours = Math.floor(diff / 3600);
+                const minutes = Math.floor((diff % 3600) / 60);
+                const seconds = diff % 60;
+                setTimeElapsed(`${hours}h ${minutes}m ${seconds}s`);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [startTime]);
 
     return (
         <div className="bg-white p-4 rounded-md text-qp absolute top-28 left-1/4 h-auto w-auto m-auto shadow-2xl border-qp-8">
@@ -118,7 +143,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
             <p className="text-sm"><strong>Id:</strong> {marker.id}</p>
             <p className="text-sm"><strong>Address:</strong> {marker.address}</p>
             <p className="text-sm"><strong>Fee:</strong> {marker.fee}</p>
-            <p className="text-sm"><strong>Empty Spaces:</strong> {parkingResponse.total_spot-parkingResponse.used_spot}/{parkingResponse.total_spot}</p>
+            <p className="text-sm"><strong>Empty Spaces:</strong> {parkingResponse.total_spot - parkingResponse.used_spot}/{parkingResponse.total_spot}</p>
             <p className="text-sm"><strong>Owner:</strong> {marker.user}</p>
             <div className="grid grid-cols-5 gap-2 my-4">
                 {spots.map((spot, index) => (
@@ -137,8 +162,17 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
                     <p className='text-red-900 font-semibold'>You are not verified to reserve parking space</p>
                 ) : (
                     <>
-                        {value === 'Reserved' && <p className='text-center pb-2 text-qp'>You have reserved!</p>}
-                        {value === 'Parked' && <p className='text-center pb-2 text-qp'>You are parked!</p>}
+                        {value === 'Reserved' &&
+                            <>
+                                <p className='text-center pb-2 text-qp'>You have reserved!</p>
+                                <p className='text-center pb-2 text-qp'>Elapsed time: {timeElapsed}</p>
+                            </>}
+                        {value === 'Parked' &&
+                            <>
+                                <p className='text-center pb-2 text-qp'>You are parked!</p>
+                                <p className='text-center pb-2 text-qp'>Elapsed time: {timeElapsed}</p>
+                            </>
+                        }
                         {releaseMessage && <p className='text-center pb-2 text-qp'>{releaseMessage}</p>}
 
                         {releasePrompt &&

@@ -179,7 +179,9 @@ export default function Profile() {
                     )
 
                     }
-                    <div className={`text-center font-semibold ${user.isVerified ? 'text-green-900' : 'text-yellow-600'}`}>{user.isVerified ? 'Verified' : 'Verification pending'}</div>
+                    {!user.isOwner &&
+                        <div className={`text-center font-semibold ${user.isVerified ? 'text-green-900' : 'text-yellow-600'}`}>{user.isVerified ? 'Verified' : 'Verification pending'}</div>
+                    }
                 </div>
 
 
