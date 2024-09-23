@@ -1,8 +1,8 @@
 
 
 export default function Surveillance() {
-    var ws = new WebSocket("ws://localhost:2564/camera/1");
-    // var ws = new WebSocket("ws://192.168.222.103:2564/camera/1");
+    var ws = new WebSocket("ws://52.66.4.249:8080/camera/1");
+    // var ws = new WebSocket("ws://192.168.35.103:2564/camera/1");
     ws.binaryType = "arraybuffer";
     ws.onmessage = function (event) {
         var arrayBufferView = new Uint8Array(event.data);

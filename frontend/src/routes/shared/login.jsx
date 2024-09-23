@@ -59,6 +59,7 @@ export default function Login() {
 
     const handleFormSubmission = async (e) => {
         e.preventDefault();
+        // console.log(formData)
         try {
             const response = await api.post(`${config.BASE_URL}/login`, formData)
             console.log("login response: ", response.data)
@@ -92,7 +93,8 @@ export default function Login() {
             }
             
         } catch (e) {
-            setErrorMessage(e.response.data)
+            console.log("Error: ", e.response.data);
+            setErrorMessage("Error: " + e.response.data);
         }
     }
 

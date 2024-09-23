@@ -28,7 +28,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
     const [releaseReason, setReleaseReason] = useState('');
     const [releaseMessage, setReleaseMessage] = useState('');
 
-    const socketUrl = `ws://localhost:2564/parking/${marker.id}/${userVehicleId}`;
+    const socketUrl = `ws://192.168.35.103:2564/parking/${marker.id}/${userVehicleId}`;
     // const socketUrl = `ws://192.168.222.103:2564/parking/${marker.id}/${userVehicleId}`;
     // const socketUrl = `ws://110.44.121.73:2564/parking/${marker.id}/${userVehicleId}`;
 
@@ -36,7 +36,7 @@ const ParkingInfoWindow = ({ marker, onClose }) => {
         sendMessage,
         lastMessage,
         readyState,
-    } = useWebSocket(userVehicleId ? socketUrl : null); // Connect to WebSocket only if userVehicleId is defined
+    } = useWebSocket(userVehicleId ? socketUrl : null);
 
     const handleReserve = useCallback(() => {
         if (readyState === ReadyState.OPEN) {
